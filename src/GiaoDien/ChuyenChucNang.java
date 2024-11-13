@@ -34,7 +34,7 @@ public class ChuyenChucNang {
         jpnRoot.removeAll();
         jpnRoot.setLayout(new BorderLayout());
         jpnRoot.validate();
-        jpnRoot.add(new TrangChu());
+        jpnRoot.add(new NewJPanel());
         jpnRoot.repaint();
     }
 
@@ -68,9 +68,6 @@ public class ChuyenChucNang {
         @Override
         public void mouseClicked(MouseEvent e) {
             switch (kinh) {
-                case "TrangChu":
-                    node = new TrangChu();
-                    break;
                 case "ChucNangBanHang":
                     node = new ChucNangBanHang();
                     break;
@@ -97,7 +94,7 @@ public class ChuyenChucNang {
                     default:
                     break;
             }
-            jpnRoot.removeAll();;
+            jpnRoot.removeAll();
             jpnRoot.setLayout(new BorderLayout());
             jpnRoot.add(node);
             jpnRoot.validate();

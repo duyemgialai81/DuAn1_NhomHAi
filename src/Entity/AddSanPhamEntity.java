@@ -20,7 +20,7 @@ public class AddSanPhamEntity {
     private int maMauSac;       
     private int maThuongHieu;
     private int maChatLieu;      
-    private int maXuatXu;  
+    private int maXuatXu;
 
     public AddSanPhamEntity() {
     }

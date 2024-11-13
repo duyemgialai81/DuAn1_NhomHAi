@@ -61,17 +61,22 @@ public class BanHangTesst {
       public ArrayList<HoaDonEntity> getAll(){
         ArrayList<HoaDonEntity> ls = new ArrayList<>();
         String sql = """
-                    SELECT hd.ma_don_hang , hd.id_ma_don_hang
-                                      FROM donHang hd
-                                    where hd.trang_thai = N'Đang Chờ Thanh Toán'
+                    SELECT hd.id_ma_don_hang, hd.ma_don_hang, hd.ngay_dat, nv.ten_nhan_vien, kh.ten_khach_hang
+                                        FROM DonHang hd
+                                        JOIN NhanVien nv ON nv.id_ma_nhan_vien = hd.ma_nhan_vien
+                                        JOIN KhachHang kh ON kh.id_ma_khach_hang = hd.ma_khach_hang
+                                        WHERE hd.trang_thai = N'Đang Chờ Thanh Toán';
                      """;
         try (Connection con = ketnoi.getConnection()){
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
                 HoaDonEntity dh = new HoaDonEntity();
+                 dh.setIdHoaDon(rs.getInt("id_ma_don_hang"));
                 dh.setMaHoaDon(rs.getString("ma_don_hang"));
-                dh.setIdHoaDon(rs.getInt("id_ma_don_hang"));
+                dh.setNgayLap(rs.getDate("ngay_dat"));
+                dh.setTenNhanVien(rs.getString("ten_nhan_vien"));
+                dh.setTenKhachHang(rs.getString("ten_khach_hang"));
                 ls.add(dh);
             }
             
@@ -80,6 +85,56 @@ public class BanHangTesst {
         }
         return ls;
     }
+      public ArrayList<SanPhamEntity> timKiemVaLocSanPham(String trangThai, String tenSanPham) {
+    ArrayList<SanPhamEntity> lsss = new ArrayList<>();
+    String sql = """
+        SELECT sp.id_ma_san_pham, sp.ma_san_pham, sp.ten_san_pham, sp.gia_ban, sp.gia_nhap, sp.so_luong_ton, sp.hinh_anh, 
+               lsp.ten_loai_san_pham, ms.mau_sac_san_pham, kc.kich_co, th.ten_thuong_hieu, cl.chat_lieu_san_pham, 
+               xx.quoc_gia, sp.trang_thai
+          FROM SanPham sp
+          JOIN LoaiSanPham lsp ON lsp.id_ma_loai = sp.ma_loai_san_pham
+          JOIN MauSac ms ON ms.id_mau_sac = sp.ma_mau_sac
+          JOIN KichCo kc ON kc.id_ma_kich_co = sp.ma_kich_co
+          JOIN ThuongHieu th ON th.id_ma_thuong_hieu = sp.ma_thuong_hieu
+          JOIN ChatLieu cl ON cl.id_chat_lieu = sp.ma_chat_lieu
+          JOIN XuatXu xx ON xx.id_ma_xuat_xu = sp.ma_xuat_xu
+         WHERE (sp.ten_san_pham LIKE ? OR ? = '')
+           AND (sp.trang_thai LIKE ? OR ? = '')
+    """;
+
+    try (Connection con = ketnoi.getConnection()) {
+        PreparedStatement ps = con.prepareStatement(sql);
+        // Set the parameters in the correct order
+        ps.setObject(1, "%" + tenSanPham + "%");  // First ? (for ten_san_pham LIKE)
+        ps.setObject(2, tenSanPham);               // Second ? (for OR ? = '')
+        ps.setObject(3, "%" + trangThai + "%");    // Third ? (for trang_thai LIKE)
+        ps.setObject(4, trangThai);                // Fourth ? (for OR ? = '')
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            SanPhamEntity sp = new SanPhamEntity();
+            sp.setIdSanPham(rs.getInt("id_ma_san_pham"));
+            sp.setMaSanPham(rs.getString("ma_san_pham"));
+            sp.setTenSanPham(rs.getString("ten_san_pham"));
+            sp.setGiaBan(rs.getFloat("gia_ban"));
+            sp.setGiaNhap(rs.getFloat("gia_nhap"));
+            sp.setSoLuong(rs.getInt("so_luong_ton"));
+            sp.setHinhAnh(rs.getString("hinh_anh"));
+            sp.setTenMaLoai(rs.getString("ten_loai_san_pham"));
+            sp.setKichCo(rs.getString("kich_co"));
+            sp.setMauSac(rs.getString("mau_sac_san_pham"));
+            sp.setTenThuongHieu(rs.getString("ten_thuong_hieu"));
+            sp.setChatLieu(rs.getString("chat_lieu_san_pham"));
+            sp.setQuocGia(rs.getString("quoc_gia"));
+            sp.setTrangThai(rs.getString("trang_thai"));
+            lsss.add(sp);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return lsss;
+}
+
       public ArrayList<LayMaHoaDon> hoaDon(){
         ArrayList<LayMaHoaDon> ls = new ArrayList<>();
         String sql = """
