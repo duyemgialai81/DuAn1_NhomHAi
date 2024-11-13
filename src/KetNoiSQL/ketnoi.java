@@ -60,6 +60,7 @@ public class ketnoi {
         System.out.println(dbmt.getDriverName());
         System.out.println(dbmt.getDatabaseProductName());
         System.out.println(dbmt.getDatabaseProductVersion());
+           duyem
     }
 
 }
