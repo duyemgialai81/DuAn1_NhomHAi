@@ -1307,7 +1307,7 @@ String trangThaiDonHang = "Hủy Đơn Hàng"; // Trạng thái đơn hàng
 String trangThaiHoaDon = "Hủy Đơn Hàng"; // Trạng thái hóa đơn
 float tienKhachDua = 0;
 float tienTraKhach = 0;
-String phuongThuc = "Đang Đợi"; // Phương thức thanh toán
+String phuongThuc = "Hủy Đơn Hàng"; // Phương thức thanh toán
 
 String sqlDonHang = """
         update DonHang 
