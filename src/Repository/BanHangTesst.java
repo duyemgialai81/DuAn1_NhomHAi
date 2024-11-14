@@ -61,10 +61,11 @@ public class BanHangTesst {
       public ArrayList<HoaDonEntity> getAll(){
         ArrayList<HoaDonEntity> ls = new ArrayList<>();
         String sql = """
-                    SELECT hd.id_ma_don_hang, hd.ma_don_hang, hd.ngay_dat, nv.ten_nhan_vien, kh.ten_khach_hang
+                    SELECT hd.id_ma_don_hang, hd.ma_don_hang, hd.ngay_dat, nv.ten_nhan_vien, kh.ten_khach_hang, hdd.ma_hoa_don
                                         FROM DonHang hd
                                         JOIN NhanVien nv ON nv.id_ma_nhan_vien = hd.ma_nhan_vien
                                         JOIN KhachHang kh ON kh.id_ma_khach_hang = hd.ma_khach_hang
+                     JOIN hoadon hdd on hd.id_ma_don_hang = hdd.ma_don_hang
                                         WHERE hd.trang_thai = N'Đang Chờ Thanh Toán';
                      """;
         try (Connection con = ketnoi.getConnection()){
@@ -74,6 +75,7 @@ public class BanHangTesst {
                 HoaDonEntity dh = new HoaDonEntity();
                  dh.setIdHoaDon(rs.getInt("id_ma_don_hang"));
                 dh.setMaHoaDon(rs.getString("ma_don_hang"));
+                dh.setMaHoaDonnn(rs.getString("ma_hoa_don"));
                 dh.setNgayLap(rs.getDate("ngay_dat"));
                 dh.setTenNhanVien(rs.getString("ten_nhan_vien"));
                 dh.setTenKhachHang(rs.getString("ten_khach_hang"));
