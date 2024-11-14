@@ -1472,32 +1472,53 @@ public class ChucNangSanPham extends javax.swing.JPanel {
         // TODO add your handling code here:
 //        timkiemThongTinSanPham();
     }//GEN-LAST:event_btn_timComponentResized
-private String createQRCode() {
+//private String createQRCode() {
+//    try {
+//        AddSanPhamEntity maSanPham = getFomat(); // Fetch mã sản phẩm
+//        String filePath = "D:\\anh\\" + maSanPham + ".png";
+//        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+//        BitMatrix bitMatrix = qrCodeWriter.encode(maSanPham.getMaSanPham(), BarcodeFormat.QR_CODE, 200, 200);
+//        MatrixToImageWriter.writeToPath(bitMatrix, "PNG", new File(filePath).toPath());
+//        return filePath;
+//    } catch (WriterException | IOException e) {
+//        e.printStackTrace();
+//        JOptionPane.showMessageDialog(this, "Lỗi tạo mã QR: " + e.getMessage());
+//        return null;
+//    }
+//}
+private String createQRCode(SanPhamEntity sanPham) {
     try {
-        AddSanPhamEntity maSanPham = getFomat(); // Fetch mã sản phẩm
+        String maSanPham = sanPham.getMaSanPham(); // Lấy mã sản phẩm
         String filePath = "D:\\anh\\" + maSanPham + ".png";
+        
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
-        BitMatrix bitMatrix = qrCodeWriter.encode(maSanPham.getMaSanPham(), BarcodeFormat.QR_CODE, 200, 200);
+        BitMatrix bitMatrix = qrCodeWriter.encode(maSanPham, BarcodeFormat.QR_CODE, 200, 200);
         MatrixToImageWriter.writeToPath(bitMatrix, "PNG", new File(filePath).toPath());
+        
         return filePath;
     } catch (WriterException | IOException e) {
         e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Lỗi tạo mã QR: " + e.getMessage());
+        JOptionPane.showMessageDialog(null, "Lỗi tạo mã QR: " + e.getMessage());
         return null;
     }
 }
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-       int selectedIndex = tbl_sanphamchitiet.getSelectedRow(); // Assuming you have a product table
-        if (selectedIndex != -1) {
-            SanPhamEntity sc = ls.getSanPhamChhiTiet().get(selectedIndex);
-            String qrCodePath = createQRCode();
-            if (qrCodePath != null) {
-                JOptionPane.showMessageDialog(null, "QR Code generated at: " + qrCodePath);
-            }
+     int selectedIndex = tbl_sanphamchitiet.getSelectedRow(); // Bảng chứa danh sách sản phẩm
+    
+    if (selectedIndex != -1) {
+        // Lấy chi tiết sản phẩm từ dòng đã chọn
+        SanPhamEntity sanPham = ls.getSanPhamChhiTiet().get(selectedIndex);
+        String qrCodePath = createQRCode(sanPham);
+        if (qrCodePath != null) {
+            JOptionPane.showMessageDialog(null, "QR Code đã được tạo tại: " + qrCodePath);
         } else {
-            JOptionPane.showMessageDialog(null, "Please select a product to generate QR code.");
+            JOptionPane.showMessageDialog(null, "Không thể tạo mã QR. Vui lòng thử lại.");
         }
+    } else {
+        // Thông báo nếu không có sản phẩm nào được chọn
+        JOptionPane.showMessageDialog(null, "Vui lòng chọn sản phẩm để tạo mã QR.");
+    }
     }//GEN-LAST:event_jButton3ActionPerformed
   
 

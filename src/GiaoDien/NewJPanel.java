@@ -70,9 +70,10 @@ SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         initComponents();
           hienThiDuLieu(ls.getSanPhamChhiTiet());
           initWebcam();
+
     }
   private void hienThiDuLieu(ArrayList<SanPhamEntity> lss) {
-        md = (DefaultTableModel) tbl_sanPham.getModel();
+        md = (DefaultTableModel) tbl_sanPham1.getModel();
         md.setRowCount(0);
         for (SanPhamEntity l : lss) {
             md.addRow(new Object[]{
@@ -260,6 +261,8 @@ private void timkiem(){
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jScrollPane4 = new javax.swing.JScrollPane();
+        tbl_sanPham = new javax.swing.JTable();
         jPanel_DonHang1 = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
@@ -302,14 +305,29 @@ private void timkiem(){
         jButton12 = new javax.swing.JButton();
         jButton14 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
-        jScrollPane4 = new javax.swing.JScrollPane();
-        tbl_sanPham = new javax.swing.JTable();
         jPanel1 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         locSanPham = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
         locTrangThai = new javax.swing.JComboBox<>();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        tbl_sanPham1 = new javax.swing.JTable();
+
+        tbl_sanPham.setBackground(new java.awt.Color(242, 242, 242));
+        tbl_sanPham.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null}
+            },
+            new String [] {
+                "ID Sản Phẩm", "Mã Sản Phẩm", "Tến Sản Phẩm", "Số Lượng", "Giá Sản Phẩm", "Hình Ảnh", "Kích Thước", "Máu Sắc", "Thương Hiệu", "Chất Liệu", "Xuất Xứ", "Loại Sản Phẩm", "Trạng Thái"
+            }
+        ));
+        jScrollPane4.setViewportView(tbl_sanPham);
+        tbl_sanPham.getAccessibleContext().setAccessibleName("Danh Sách Sản Phẩm");
 
         jPanel_DonHang1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Đơn Hàng", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 1, 14))); // NOI18N
         jPanel_DonHang1.setForeground(new java.awt.Color(242, 242, 242));
@@ -604,21 +622,6 @@ private void timkiem(){
 
         jPanel2.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
-        tbl_sanPham.setBackground(new java.awt.Color(242, 242, 242));
-        tbl_sanPham.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null}
-            },
-            new String [] {
-                "ID Sản Phẩm", "Mã Sản Phẩm", "Tến Sản Phẩm", "Số Lượng", "Giá Sản Phẩm", "Hình Ảnh", "Kích Thước", "Máu Sắc", "Thương Hiệu", "Chất Liệu", "Xuất Xứ", "Loại Sản Phẩm", "Trạng Thái"
-            }
-        ));
-        jScrollPane4.setViewportView(tbl_sanPham);
-        tbl_sanPham.getAccessibleContext().setAccessibleName("Danh Sách Sản Phẩm");
-
         jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         jButton1.setText("Thêm Sản Phẩm");
@@ -680,6 +683,19 @@ private void timkiem(){
                 .addContainerGap(30, Short.MAX_VALUE))
         );
 
+        tbl_sanPham1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null}
+            },
+            new String [] {
+                "ID Sản Phẩm", "Mã Sản Phẩm", "Tến Sản Phẩm", "Số Lượng", "Giá Sản Phẩm", "Hình Ảnh", "Kích Thước", "Máu Sắc", "Thương Hiệu", "Chất Liệu", "Xuất Xứ", "Loại Sản Phẩm", "Trạng Thái"
+            }
+        ));
+        jScrollPane5.setViewportView(tbl_sanPham1);
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -687,9 +703,7 @@ private void timkiem(){
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jScrollPane4)))
+                    .addComponent(jScrollPane5))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -697,9 +711,9 @@ private void timkiem(){
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(31, 31, 31)
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 580, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(26, Short.MAX_VALUE))
+                .addGap(10, 10, 10)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 287, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -717,10 +731,10 @@ private void timkiem(){
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel_DonHang1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel_DonHang1, javax.swing.GroupLayout.DEFAULT_SIZE, 821, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))))
+                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addContainerGap())))
         );
 
         jPanel2.getAccessibleContext().setAccessibleName("Sản Phẩm");
@@ -735,88 +749,85 @@ private void timkiem(){
     }//GEN-LAST:event_txttongSoTienAncestorAdded
 
     private void btn_taomaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btn_taomaMouseClicked
-        // TODO add your handling code here:
-int idNhanVien = LuuThongTinDangNhap.getInNhanVien(); // Lấy ID nhân viên
-int maKhachHang = 3; // Giả sử mã khách hàng được gán cố định
+ 
+       // TODO add your handling code here:
+int idNhanVien = LuuThongTinDangNhap.getInNhanVien();
+int maKhachHang = 3;
 String trangThai = "đang chờ thanh toán"; 
-String trangThaiDonHnag ="đang chờ thanh toán";// Trạng thái hóa đơn
-String hinhThuc = "Đang Đợi"; // Hình thức chuyển tiền
-String hinhThucBanHang = "Hình Thức Bán Hàng"; // Hình thức bán hàng
+String trangThaiDonHnag ="đang chờ thanh toán";
+String hinhThuc = "Đang Đợi"; 
+String hinhThucBanHang = "Hình Thức Bán Hàng"; 
 
 String sqlDonHang = """
         INSERT INTO DonHang (ngay_dat, ma_nhan_vien, ma_khach_hang,trang_thai)
         VALUES (GETDATE(), ?, ?,?)
         """;
-
 String sqlHoaDon = """
         INSERT INTO HoaDon (ngay_lap, tien_khach_dua, tien_tra_khach, phuong_thuc, trang_thai, ma_don_hang)
         VALUES (GETDATE(), ?, ?, ?, ?, ?)
         """;
-
 try (Connection con = ketnoi.getConnection()) {
-    // Tắt tự động commit để bắt đầu giao dịch
     con.setAutoCommit(false);
-
-    // Tạo PreparedStatement để thực thi câu lệnh SQL cho đơn hàng
     try (PreparedStatement psDonHang = con.prepareStatement(sqlDonHang, Statement.RETURN_GENERATED_KEYS)) {
-        psDonHang.setInt(1, idNhanVien);  // ID nhân viên tạo hóa đơn
+        psDonHang.setInt(1, idNhanVien); 
         psDonHang.setInt(2, maKhachHang);
-        psDonHang.setString(3, trangThaiDonHnag);// Mã khách hàng
+        psDonHang.setString(3, trangThaiDonHnag);
         int rowsAffectedDonHang = psDonHang.executeUpdate();
 
         if (rowsAffectedDonHang > 0) {
-            // Lấy mã đơn hàng vừa được thêm vào (auto-incremented ID)
             try (ResultSet rs = psDonHang.getGeneratedKeys()) {
                 if (rs.next()) {
                     int maDonHang = rs.getInt(1);  // Mã đơn hàng mới tạo
                     float tienKhacDua =0;
                     float tienTraKhach =0;
                     String trangTThai ="Đang Chờ Thanh Toán";
-                    // Tạo PreparedStatement để thêm hóa đơn
                     try (PreparedStatement psHoaDon = con.prepareStatement(sqlHoaDon)) {
-                        // Cập nhật thông tin vào bảng HoaDon
-                        psHoaDon.setDouble(1, tienKhacDua); // Giả sử tiền khách đưa (tạm)
-                        psHoaDon.setDouble(2, tienTraKhach); // Tiền trả khách (tạm)
-                        psHoaDon.setObject(3, cbo_hinhThucThanhToan.getSelectedItem()); // Phương thức thanh toán
-                        psHoaDon.setString(4, trangTThai); // Trạng thái hóa đơn
-                        psHoaDon.setInt(5, maDonHang); // Mã đơn hàng
+                        psHoaDon.setDouble(1, tienKhacDua); 
+                        psHoaDon.setDouble(2, tienTraKhach); 
+                        psHoaDon.setObject(3, cbo_hinhThucThanhToan.getSelectedItem());
+                        psHoaDon.setString(4, trangTThai); 
+                        psHoaDon.setInt(5, maDonHang);
 
-                        int rowsAffectedHoaDon = psHoaDon.executeUpdate(); // Thực thi câu lệnh
+                        int rowsAffectedHoaDon = psHoaDon.executeUpdate();
 
                         if (rowsAffectedHoaDon > 0) {
-                            // Commit giao dịch nếu tất cả đều thành công
-                            con.commit();
+                            JOptionPane.showMessageDialog(panel, "Tạo Thành Công");
                             System.out.println("Đơn hàng và hóa đơn đã được tạo thành công.");
+                            con.commit();
                         } else {
-                            // Rollback nếu không thêm được hóa đơn
                             con.rollback();
                             System.out.println("Không thể thêm hóa đơn vào cơ sở dữ liệu.");
+                                
                         }
                     } catch (SQLException e) {
-                        // Rollback nếu có lỗi khi thêm hóa đơn
+                        JOptionPane.showMessageDialog(panel, "Đăng Nhập Để Tạo Mật Khẩu");
                         con.rollback();
                         System.out.println("Lỗi khi thực thi câu lệnh SQL cho hóa đơn: " + e.getMessage());
+                            
                     }
                 }
             } catch (SQLException e) {
-                // Rollback nếu không lấy được mã đơn hàng
                 con.rollback();
+                JOptionPane.showMessageDialog(panel, "Đăng Nhập Để Tạo Mật Khẩu");
                 System.out.println("Lỗi khi lấy mã đơn hàng mới: " + e.getMessage());
+                     
             }
         } else {
-            // Rollback nếu không thể thêm đơn hàng
             con.rollback();
+            JOptionPane.showMessageDialog(panel, "Đăng Nhập Để Tạo Mật Khẩu");
             System.out.println("Không thể thêm đơn hàng vào cơ sở dữ liệu.");
+                 con.commit();
         }
     } catch (SQLException e) {
-        // Rollback nếu có lỗi khi thêm đơn hàng
         con.rollback();
+        JOptionPane.showMessageDialog(panel, "Đăng Nhập Để Tạo Mật Khẩu");
         System.out.println("Lỗi khi thực thi câu lệnh SQL cho đơn hàng: " + e.getMessage());
+             con.commit();
     }
 } catch (SQLException e) {
+    JOptionPane.showMessageDialog(panel, "Đăng Nhập Để Tạo Mật Khẩu");
     e.printStackTrace(); // In ra lỗi nếu có vấn đề với kết nối
 }
-
 
 
 
@@ -824,7 +835,7 @@ try (Connection con = ketnoi.getConnection()) {
 
     private void jButton14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton14ActionPerformed
 String idmaDonHnag = txtid.getText();
-     String maDonHang = txtmahoadon.getText();
+String maDonHang = txtmahoadon.getText();
 String trangThaiHoaDon = "Đã thanh toán";
 String sql = """
     UPDATE hoadon
@@ -841,20 +852,14 @@ String sqlDonHang = """
     """;
 
 try {
-    // Kết nối cơ sở dữ liệu
     Connection con = ketnoi.getConnection();
-
-    // Cập nhật bảng `donhang`
     PreparedStatement psDonHang = con.prepareStatement(sqlDonHang);
     psDonHang.setObject(1, trangThaiDonHang);
     psDonHang.setObject(2, DonHang);
     int checkDonHang = psDonHang.executeUpdate();
-
-    // Cập nhật bảng `hoadon`
     double tienKhachDua = Double.parseDouble(txt_tienKhachDua.getText().trim().replace(",", ""));
     double tienTraKhach = Double.parseDouble(txtTienTraKhac.getText().trim().replace(",", ""));
     String phuongThuc = cbo_hinhThucThanhToan.getSelectedItem().toString();
-
     PreparedStatement psHoaDon = con.prepareStatement(sql);
     psHoaDon.setObject(1, tienKhachDua);
     psHoaDon.setObject(2, tienTraKhach);
@@ -862,18 +867,13 @@ try {
     psHoaDon.setObject(4, trangThaiHoaDon);
     psHoaDon.setObject(5, maDonHang);
     int checkHoaDon = psHoaDon.executeUpdate();
-
-    // Thông báo kết quả
     if (checkDonHang > 0 && checkHoaDon > 0) {
         JOptionPane.showMessageDialog(this, "Thanh Toán Thành Công");
   try {
-    // Đường dẫn file PDF
     File file = new File("D:\\HoaDon_" + maDonHang + ".pdf");
     if (file.exists()) {
         file.delete();
     }
-
-    // Khởi tạo đối tượng PDF
     PdfWriter writer = new PdfWriter(file);
     PdfDocument pdf = new PdfDocument(writer);
     com.itextpdf.layout.Document document = new com.itextpdf.layout.Document(pdf);
@@ -882,13 +882,14 @@ try {
     Connection conn = ketnoi.getConnection();
 
     String sqlHoaDon = """
-        SELECT nv.ten_nhan_vien, kh.ten_khach_hang, hd.ngay_lap, ctdh.tong_tien
+        SELECT nv.ten_nhan_vien, kh.ten_khach_hang, hd.ngay_lap, count(ctdh.tong_tien) as tongTien
         FROM DonHang dh 
         JOIN HoaDon hd ON hd.ma_don_hang = dh.id_ma_don_hang
         JOIN NhanVien nv ON dh.ma_nhan_vien = nv.id_ma_nhan_vien
         JOIN KhachHang kh ON dh.ma_khach_hang = kh.id_ma_khach_hang
         JOIN ChiTietDonHang ctdh ON dh.id_ma_don_hang = ctdh.ma_don_hang
         WHERE hd.ma_hoa_don = ?
+        group by nv.ten_nhan_vien, kh.ten_khach_hang, hd.ngay_lap
     """;
     PreparedStatement psHoaDonnn = conn.prepareStatement(sqlHoaDon);
     psHoaDonnn.setString(1, maDonHang);
@@ -901,7 +902,7 @@ try {
         tenNhanVien = rsHoaDon.getString("ten_nhan_vien");
         tenKhachHang = rsHoaDon.getString("ten_khach_hang");
         ngayLap = rsHoaDon.getString("ngay_lap");
-        tongTien = rsHoaDon.getDouble("tong_tien");
+        tongTien = rsHoaDon.getDouble("tongTien");
     }
 
     // Tiêu đề và thông tin hóa đơn
@@ -1158,7 +1159,7 @@ String trangThaiii = "Đang xử lý";
                         double inputAmount = Double.parseDouble(inputAmountStr);  // Chuyển đổi số tiền nhập vào
 
                         // Tính số tiền thừa
-                        double moneyLeft = inputAmount - tongTien;
+                        double moneyLeft = inputAmount - finalAmount;
 
                         // Đảm bảo số tiền thừa không âm
                         if (moneyLeft < 0) {
@@ -1197,12 +1198,12 @@ String trangThaiii = "Đang xử lý";
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        int selectedRow = tbl_sanPham.getSelectedRow();
+        int selectedRow = tbl_sanPham1.getSelectedRow();
     if (selectedRow != -1) {  // Kiểm tra nếu có dòng nào được chọn
         // Lấy thông tin sản phẩm từ dòng đã chọn
-        int maSanPham = (int) tbl_sanPham.getValueAt(selectedRow, 0); // ID sản phẩm
-        String tenSanPham = (String) tbl_sanPham.getValueAt(selectedRow, 2); // Tên sản phẩm
-        float giaBan = (float) tbl_sanPham.getValueAt(selectedRow, 4); // Giá bán
+        int maSanPham = (int) tbl_sanPham1.getValueAt(selectedRow, 0); // ID sản phẩm
+        String tenSanPham = (String) tbl_sanPham1.getValueAt(selectedRow, 2); // Tên sản phẩm
+        float giaBan = (float) tbl_sanPham1.getValueAt(selectedRow, 4); // Giá bán
             String input = javax.swing.JOptionPane.showInputDialog(null, "Nhập số lượng sản phẩm để thêm vào hóa đơn:", "Số lượng sản phẩm", javax.swing.JOptionPane.QUESTION_MESSAGE);
         try {
             int soLuong = Integer.parseInt(input);
@@ -1220,11 +1221,12 @@ String trangThaiii = "Đang xử lý";
 
     private void txtdonhangAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_txtdonhangAncestorAdded
         // TODO add your handling code here:
-       ArrayList<HoaDonEntity> hdList = ls.getAll();
+        
+ ArrayList<HoaDonEntity> hdList = ls.getAll();
 if (!hdList.isEmpty()) {
-    HoaDonEntity firstOrder = hdList.get(0); // Lấy hóa đơn đầu tiên từ danh sách
+    HoaDonEntity firstOrder = hdList.get(0); 
     txtdonhang.setText(firstOrder.getMaHoaDon());
-     txtid.setText(String.valueOf(firstOrder.getIdHoaDon())); // Hiển thị mã hóa đơn đầu tiên lên JTextField
+    // Hiển thị mã hóa đơn đầu tiên lên JTextField
 } else {
     txtdonhang.setText("Không có đơn hàng nào đang xử lý.");
 }
@@ -1232,17 +1234,28 @@ if (!hdList.isEmpty()) {
 
     private void txtidAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_txtidAncestorAdded
         // TODO add your handling code here:
+         ArrayList<HoaDonEntity> hdList = ls.getAll();
+if (!hdList.isEmpty()) {
+    HoaDonEntity firstOrder = hdList.get(0); 
+    txtid.setText(String.valueOf(firstOrder.getIdHoaDon()));
+    // Hiển thị mã hóa đơn đầu tiên lên JTextField
+} else {
+    txtid.setText("Không có đơn hàng nào đang xử lý.");
+}
     }//GEN-LAST:event_txtidAncestorAdded
-
+private void layMaHoaDOn(){
+           
+}
     private void txtmahoadonAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_txtmahoadonAncestorAdded
         // TODO add your handling code here:
-             ArrayList<LayMaHoaDon> hdList = ls.hoaDon();
+ 
+       ArrayList<LayMaHoaDon> hdList = ls.hoaDon();
 if (!hdList.isEmpty()) {
     LayMaHoaDon firstOrder = hdList.get(0); // Lấy hóa đơn đầu tiên từ danh sách
     txtmahoadon.setText(firstOrder.getMaHoaDonnn());
     // Hiển thị mã hóa đơn đầu tiên lên JTextField
 } else {
-    txtdonhang.setText("Không có đơn hàng nào đang xử lý.");
+    txtmahoadon.setText("Không có đơn hàng nào đang xử lý.");
 }
     }//GEN-LAST:event_txtmahoadonAncestorAdded
 
@@ -1278,13 +1291,27 @@ if (!hdList.isEmpty()) {
             ArrayList<HoaDonEntity> hdList = ls.getAll();
 if (!hdList.isEmpty()) {
     HoaDonEntity firstOrder = hdList.get(0); 
-    txtTenNhanVien.setText(firstOrder.getTenNhanVien());
     // Hiển thị mã hóa đơn đầu tiên lên JTextField
+      txtTenNhanVien.setText(firstOrder.getTenNhanVien());
 } else {
     txtTenNhanVien.setText("Không có đơn hàng nào đang xử lý.");
 }
     }//GEN-LAST:event_txtTenNhanVienAncestorAdded
-
+private void loadDuLieu(){
+    
+ArrayList<HoaDonEntity> hdList = ls.getAll();
+if (!hdList.isEmpty()) {
+    HoaDonEntity firstOrder = hdList.get(0); 
+    txtTenNhanVien.setText(firstOrder.getTenNhanVien());
+   txtid.setText(String.valueOf(firstOrder.getIdHoaDon()));
+    txtTenKhachHang.setText(firstOrder.getTenKhachHang());
+    txtdonhang.setText(firstOrder.getMaHoaDon());
+    Date ngayLap = (Date) firstOrder.getNgayLap();
+     txtngaytao.setText(dateFormat.format(ngayLap));
+} else {
+    txtTenNhanVien.setText("Không có đơn hàng nào đang xử lý.");
+} 
+}
     private void txtngaytaoAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_txtngaytaoAncestorAdded
         // TODO add your handling code here:
 ArrayList<HoaDonEntity> hdList = ls.getAll();
@@ -1295,8 +1322,6 @@ if (!hdList.isEmpty()) {
 } else {
     txtngaytao.setText("Không có hóa đơn"); // Giá trị mặc định khi danh sách trống
 }
-
-
     }//GEN-LAST:event_txtngaytaoAncestorAdded
 
     private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
@@ -1342,6 +1367,8 @@ try (Connection con = ketnoi.getConnection()) {
                 if (rowsAffectedHoaDon > 0) {
                     con.commit(); // Xác nhận thay đổi
                     System.out.println("Đã hủy đơn hàng và hóa đơn thành công.");
+                              layMaHoaDOn();
+          loadDuLieu();
                 } else {
                     con.rollback();
                     System.out.println("Không thể hủy hóa đơn.");
@@ -1436,9 +1463,11 @@ try (Connection con = ketnoi.getConnection()) {
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel_DonHang1;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JTextField locSanPham;
     private javax.swing.JComboBox<String> locTrangThai;
     private javax.swing.JTable tbl_sanPham;
+    private javax.swing.JTable tbl_sanPham1;
     private javax.swing.JLabel txtGiamGia;
     private javax.swing.JLabel txtTenKhachHang;
     private javax.swing.JLabel txtTenNhanVien;

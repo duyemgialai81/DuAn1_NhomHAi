@@ -101,7 +101,7 @@ public class ChucNangBanHang extends javax.swing.JPanel {
         initComponents();
         hienThiDuLieu(sp.getSanPhamChhiTiet());
         HienThiDuLiuHoaDon(hd.getAll());
-        int maGioHangHienTai;
+//        int maGioHangHienTai;
 
 //        HienThiDuLieuGioHang(hd.getAllGioHang());
     }
