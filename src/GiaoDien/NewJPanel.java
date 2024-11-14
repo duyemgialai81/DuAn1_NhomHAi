@@ -98,7 +98,6 @@ private void nextPage(ArrayList<SanPhamEntity> lss) {
         currentPage++;
         hienThiTrang(lss);
     }
-    System.out.println("duyem");
 }
 
 private void previousPage(ArrayList<SanPhamEntity> lss) {
