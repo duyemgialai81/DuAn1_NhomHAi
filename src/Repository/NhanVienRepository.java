@@ -18,7 +18,7 @@ public class NhanVienRepository {
     String sql = """
                  select ma_nhan_vien, ten_nhan_vien, so_dien_thoai, email, dia_chi , id_role
                  from NhanVien nv
-                 join Role r on nv.id_role = r.id_ma_role
+                 join Role r on nv.id_role = r.id_ma_role where
                  """;
     try (Connection con = ketnoi.getConnection();
          PreparedStatement ps = con.prepareStatement(sql)) {
