@@ -48,8 +48,21 @@ import org.apache.xmlbeans.impl.xb.xsdschema.Public;
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamPanel;
 import com.github.sarxos.webcam.WebcamResolution;
+import com.itextpdf.barcodes.Barcode128;
+import com.itextpdf.io.image.ImageData;
+import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.kernel.pdf.xobject.PdfFormXObject;
+import com.itextpdf.layout.element.IBlockElement;
+import com.itextpdf.layout.property.HorizontalAlignment;
+import java.awt.Image;
+import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
+
+import com.itextpdf.io.image.ImageData;
+import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
 /**
  *
  * @author SingPC
@@ -899,6 +912,357 @@ try (Connection con = ketnoi.getConnection()) {
     }//GEN-LAST:event_btn_taomaMouseClicked
 
     private void jButton14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton14ActionPerformed
+//String idmaDonHnag = txtid.getText();
+//String maDonHang = txtmahoadon.getText();
+//String trangThaiHoaDon = "Đã thanh toán";
+//String sql = """
+//    UPDATE hoadon
+//    SET ngay_lap = GETDATE(), tien_khach_dua = ?, tien_tra_khach = ?, phuong_thuc = ?, trang_thai = ?
+//    WHERE ma_hoa_don = ?
+//    """;
+//
+//String trangThaiDonHang = "Đã Thanh Toán";
+//String DonHang = txtdonhang.getText();
+//String sqlDonHang = """
+//    UPDATE donhang
+//    SET trang_thai = ?
+//    WHERE ma_don_hang = ?
+//    """;
+//
+//try {
+//    Connection con = ketnoi.getConnection();
+//    PreparedStatement psDonHang = con.prepareStatement(sqlDonHang);
+//    psDonHang.setObject(1, trangThaiDonHang);
+//    psDonHang.setObject(2, DonHang);
+//    int checkDonHang = psDonHang.executeUpdate();
+//    double tienKhachDua = Double.parseDouble(txt_tienKhachDua.getText().trim().replace(",", ""));
+//    double tienTraKhach = Double.parseDouble(txtTienTraKhac.getText().trim().replace(",", ""));
+//    String phuongThuc = cbo_hinhThucThanhToan.getSelectedItem().toString();
+//    PreparedStatement psHoaDon = con.prepareStatement(sql);
+//    psHoaDon.setObject(1, tienKhachDua);
+//    psHoaDon.setObject(2, tienTraKhach);
+//    psHoaDon.setObject(3, phuongThuc);
+//    psHoaDon.setObject(4, trangThaiHoaDon);
+//    psHoaDon.setObject(5, maDonHang);
+//    int checkHoaDon = psHoaDon.executeUpdate();
+//    if (checkDonHang > 0 && checkHoaDon > 0) {
+//        JOptionPane.showMessageDialog(this, "Thanh Toán Thành Công");
+//  try {
+//    File file = new File("D:\\HoaDon_" + maDonHang + ".pdf");
+//    if (file.exists()) {
+//        file.delete();
+//    }
+//    PdfWriter writer = new PdfWriter(file);
+//    PdfDocument pdf = new PdfDocument(writer);
+//    com.itextpdf.layout.Document document = new com.itextpdf.layout.Document(pdf);
+//    PdfFont font = PdfFontFactory.createFont("D:\\spring_boot\\ARIALUNI.TTF", PdfEncodings.IDENTITY_H);
+//
+//    Connection conn = ketnoi.getConnection();
+//
+//    String sqlHoaDon = """
+//        SELECT nv.ten_nhan_vien, kh.ten_khach_hang, hd.ngay_lap, count(ctdh.tong_tien) as tongTien
+//        FROM DonHang dh 
+//        JOIN HoaDon hd ON hd.ma_don_hang = dh.id_ma_don_hang
+//        JOIN NhanVien nv ON dh.ma_nhan_vien = nv.id_ma_nhan_vien
+//        JOIN KhachHang kh ON dh.ma_khach_hang = kh.id_ma_khach_hang
+//        JOIN ChiTietDonHang ctdh ON dh.id_ma_don_hang = ctdh.ma_don_hang
+//        WHERE hd.ma_hoa_don = ?
+//        group by nv.ten_nhan_vien, kh.ten_khach_hang, hd.ngay_lap
+//    """;
+//    PreparedStatement psHoaDonnn = conn.prepareStatement(sqlHoaDon);
+//    psHoaDonnn.setString(1, maDonHang);
+//    ResultSet rsHoaDon = psHoaDonnn.executeQuery();
+//
+//    String tenNhanVien = "", tenKhachHang = "";
+//    String ngayLap = "";
+//    float tongTien = 0;
+//    if (rsHoaDon.next()) {
+//        tenNhanVien = rsHoaDon.getString("ten_nhan_vien");
+//        tenKhachHang = rsHoaDon.getString("ten_khach_hang");
+//        ngayLap = rsHoaDon.getString("ngay_lap");
+//        tongTien = rsHoaDon.getFloat("tongTien");
+//    }
+//
+//    // Tiêu đề và thông tin hóa đơn
+//    document.add(new Paragraph("HÓA ĐƠN THANH TOÁN")
+//            .setFont(font)
+//            .setFontSize(20)
+//            .setTextAlignment(TextAlignment.CENTER)
+//            .setBold());
+//    document.add(new Paragraph("Mã Hóa Đơn: " + maDonHang).setFont(font).setFontSize(12));
+//    document.add(new Paragraph("Nhân Viên: " + tenNhanVien).setFont(font).setFontSize(12));
+//    document.add(new Paragraph("Khách Hàng: " + tenKhachHang).setFont(font).setFontSize(12));
+//    document.add(new Paragraph("Ngày Lập: " + ngayLap).setFont(font).setFontSize(12));
+//    document.add(new Paragraph("----------------------------------------------------------------------------------------------------------------------------------").setFont(font));
+//
+//    // Lấy thông tin chi tiết đơn hàng
+// String sqlChiTietDonHang = """
+//    SELECT sp.ten_san_pham, SUM(ctdh.so_luong) as tong_so_luong, SUM(ctdh.so_luong * ctdh.gia_ban) as tong_gia
+//    FROM ChiTietDonHang ctdh
+//    JOIN SanPham sp ON ctdh.ma_san_pham = sp.id_ma_san_pham
+//    WHERE ctdh.ma_don_hang = ?
+//    GROUP BY sp.ten_san_pham
+//""";
+//PreparedStatement psChiTietDonHang = conn.prepareStatement(sqlChiTietDonHang);
+//psChiTietDonHang.setString(1, idmaDonHnag);
+//ResultSet rsChiTietDonHang = psChiTietDonHang.executeQuery();
+//
+//// Tạo bảng chi tiết sản phẩm
+//Table table = new Table(3);
+//table.setWidth(pdf.getDefaultPageSize().getWidth() * 0.9f);
+//
+//// Thêm tiêu đề cột
+//table.addHeaderCell(new Paragraph("Tên Sản Phẩm").setFont(font).setBold()
+//        .setBackgroundColor(ColorConstants.GRAY)
+//        .setFontColor(ColorConstants.WHITE)
+//        .setTextAlignment(TextAlignment.CENTER));
+//table.addHeaderCell(new Paragraph("Số Lượng").setFont(font).setBold()
+//        .setBackgroundColor(ColorConstants.GRAY)
+//        .setFontColor(ColorConstants.WHITE)
+//        .setTextAlignment(TextAlignment.CENTER));
+//table.addHeaderCell(new Paragraph("Tổng Giá").setFont(font).setBold()
+//        .setBackgroundColor(ColorConstants.GRAY)
+//        .setFontColor(ColorConstants.WHITE)
+//        .setTextAlignment(TextAlignment.CENTER));
+//
+//// Thêm dữ liệu sản phẩm vào bảng
+//while (rsChiTietDonHang.next()) {
+//    String tenSanPham = rsChiTietDonHang.getString("ten_san_pham");
+//    int tongSoLuong = rsChiTietDonHang.getInt("tong_so_luong");
+//    float tongGia = rsChiTietDonHang.getFloat("tong_gia");
+//
+//    table.addCell(new Paragraph(tenSanPham).setFont(font));
+//    table.addCell(new Paragraph(String.valueOf(tongSoLuong)).setFont(font).setTextAlignment(TextAlignment.CENTER));
+//    table.addCell(new Paragraph(String.format("", tongGia)).setFont(font).setTextAlignment(TextAlignment.CENTER));
+//}
+//
+//    document.add(table);
+//    document.add(new Paragraph("----------------------------------------------------------------------------------------------------------------------------------").setFont(font));
+//
+//    // Tổng tiền
+//    document.add(new Paragraph("TỔNG TIỀN: " + String.format("%,.0f", tongTien) + " VND")
+//            .setFont(font)
+//            .setFontSize(12)
+//            .setBold()
+//            .setTextAlignment(TextAlignment.RIGHT));
+//
+//    // Thông tin ngân hàng và liên hệ
+//    document.add(new Paragraph("GỬI THANH TOÁN ĐẾN")
+//            .setFont(font)
+//            .setFontSize(10)
+//            .setMarginTop(20));
+//    document.add(new Paragraph("Số ngân hàng: 0367548754 \nTên ngân hàng: Đoàn Ngọc Duy")
+//            .setFont(font)
+//            .setFontSize(10));
+//    document.add(new Paragraph("LIÊN HỆ")
+//            .setFont(font)
+//            .setFontSize(10)
+//            .setMarginTop(-40)
+//            .setTextAlignment(TextAlignment.RIGHT));
+//    document.add(new Paragraph("doanngocduy62@gmail.com\nSĐT: 0382424762")
+//            .setFont(font)
+//            .setFontSize(10)
+//            .setTextAlignment(TextAlignment.RIGHT));
+//
+//    document.close();
+//    JOptionPane.showMessageDialog(null, "Hóa đơn đã được tạo thành công tại: " + file.getAbsolutePath());
+//} catch (IOException e) {
+//    e.printStackTrace();
+//    JOptionPane.showMessageDialog(null, "Lỗi khi tạo hóa đơn PDF!");
+//} catch (SQLException e) {
+//    e.printStackTrace();
+//    JOptionPane.showMessageDialog(null, "Lỗi khi truy vấn dữ liệu!");
+//}
+//
+//
+//    } else {
+//        JOptionPane.showMessageDialog(this, "Thanh Toán Thất Bại");
+//    }
+//
+//} catch (Exception e) {
+//    e.printStackTrace();
+//}
+//String idmaDonHnag = txtid.getText();
+//String maDonHang = txtmahoadon.getText();
+//String trangThaiHoaDon = "Đã thanh toán";
+//String sql = """
+//    UPDATE hoadon
+//    SET ngay_lap = GETDATE(), tien_khach_dua = ?, tien_tra_khach = ?, phuong_thuc = ?, trang_thai = ?
+//    WHERE ma_hoa_don = ?
+//    """;
+//
+//String trangThaiDonHang = "Đã Thanh Toán";
+//String DonHang = txtdonhang.getText();
+//String sqlDonHang = """
+//    UPDATE donhang
+//    SET trang_thai = ?
+//    WHERE ma_don_hang = ?
+//    """;
+//
+//try {
+//    // Kết nối cơ sở dữ liệu
+//    Connection con = ketnoi.getConnection();
+//
+//    // Cập nhật bảng `donhang`
+//    PreparedStatement psDonHang = con.prepareStatement(sqlDonHang);
+//    psDonHang.setObject(1, trangThaiDonHang);
+//    psDonHang.setObject(2, DonHang);
+//    int checkDonHang = psDonHang.executeUpdate();
+//
+//    // Cập nhật bảng `hoadon`
+//    double tienKhachDua = Double.parseDouble(txt_tienKhachDua.getText().trim().replace(",", ""));
+//    double tienTraKhach = Double.parseDouble(txtTienTraKhac.getText().trim().replace(",", ""));
+//    String phuongThuc = cbo_hinhThucThanhToan.getSelectedItem().toString();
+//
+//    PreparedStatement psHoaDon = con.prepareStatement(sql);
+//    psHoaDon.setObject(1, tienKhachDua);
+//    psHoaDon.setObject(2, tienTraKhach);
+//    psHoaDon.setObject(3, phuongThuc);
+//    psHoaDon.setObject(4, trangThaiHoaDon);
+//    psHoaDon.setObject(5, maDonHang);
+//    int checkHoaDon = psHoaDon.executeUpdate();
+//
+//    // Thông báo kết quả
+//    if (checkDonHang > 0 && checkHoaDon > 0) {
+//        JOptionPane.showMessageDialog(this, "Thanh Toán Thành Công");
+//  try {
+//    // Đường dẫn file PDF
+//    File file = new File("D:\\HoaDon_" + maDonHang + ".pdf");
+//    if (file.exists()) {
+//        file.delete();
+//    }
+//
+//    // Khởi tạo đối tượng PDF
+//    PdfWriter writer = new PdfWriter(file);
+//    PdfDocument pdf = new PdfDocument(writer);
+//    com.itextpdf.layout.Document document = new com.itextpdf.layout.Document(pdf);
+//    PdfFont font = PdfFontFactory.createFont("D:\\spring_boot\\ARIALUNI.TTF", PdfEncodings.IDENTITY_H);
+//
+//    Connection conn = ketnoi.getConnection();
+//
+//    String sqlHoaDon = """
+//        SELECT nv.ten_nhan_vien, kh.ten_khach_hang, hd.ngay_lap, ctdh.tong_tien
+//        FROM DonHang dh 
+//        JOIN HoaDon hd ON hd.ma_don_hang = dh.id_ma_don_hang
+//        JOIN NhanVien nv ON dh.ma_nhan_vien = nv.id_ma_nhan_vien
+//        JOIN KhachHang kh ON dh.ma_khach_hang = kh.id_ma_khach_hang
+//        JOIN ChiTietDonHang ctdh ON dh.id_ma_don_hang = ctdh.ma_don_hang
+//        WHERE hd.ma_hoa_don = ?
+//    """;
+//    PreparedStatement psHoaDonnn = conn.prepareStatement(sqlHoaDon);
+//    psHoaDonnn.setString(1, maDonHang);
+//    ResultSet rsHoaDon = psHoaDonnn.executeQuery();
+//
+//    String tenNhanVien = "", tenKhachHang = "";
+//    String ngayLap = "";
+//    double tongTien = 0;
+//    if (rsHoaDon.next()) {
+//        tenNhanVien = rsHoaDon.getString("ten_nhan_vien");
+//        tenKhachHang = rsHoaDon.getString("ten_khach_hang");
+//        ngayLap = rsHoaDon.getString("ngay_lap");
+//        tongTien = rsHoaDon.getDouble("tong_tien");
+//    }
+//
+//    // Tiêu đề và thông tin hóa đơn
+//    document.add(new Paragraph("HÓA ĐƠN THANH TOÁN")
+//            .setFont(font)
+//            .setFontSize(20)
+//            .setTextAlignment(TextAlignment.CENTER)
+//            .setBold());
+//    document.add(new Paragraph("Mã Hóa Đơn: " + maDonHang).setFont(font).setFontSize(12));
+//    document.add(new Paragraph("Nhân Viên: " + tenNhanVien).setFont(font).setFontSize(12));
+//    document.add(new Paragraph("Khách Hàng: " + tenKhachHang).setFont(font).setFontSize(12));
+//    document.add(new Paragraph("Ngày Lập: " + ngayLap).setFont(font).setFontSize(12));
+//    document.add(new Paragraph("----------------------------------------------------------------------------------------------------------------------------------").setFont(font));
+//
+//    // Lấy thông tin chi tiết đơn hàng
+//    String sqlChiTietDonHang = """
+//    SELECT sp.ten_san_pham, SUM(ctdh.so_luong) AS tong_so_luong, ctdh.gia_ban
+//    FROM ChiTietDonHang ctdh
+//    JOIN SanPham sp ON ctdh.ma_san_pham = sp.id_ma_san_pham
+//    WHERE ctdh.ma_don_hang = ?
+//    GROUP BY sp.ten_san_pham, ctdh.gia_ban
+//""";
+//
+//PreparedStatement psChiTietDonHang = conn.prepareStatement(sqlChiTietDonHang);
+//psChiTietDonHang.setString(1, idmaDonHnag);
+//ResultSet rsChiTietDonHang = psChiTietDonHang.executeQuery();
+//
+//// Tạo bảng chi tiết sản phẩm
+//Table table = new Table(3);
+//table.setWidth(pdf.getDefaultPageSize().getWidth() * 0.9f);
+//
+//// Thêm tiêu đề cột
+//table.addHeaderCell(new Paragraph("Tên Sản Phẩm").setFont(font).setBold()
+//        .setBackgroundColor(ColorConstants.GRAY)
+//        .setFontColor(ColorConstants.WHITE)
+//        .setTextAlignment(TextAlignment.CENTER));
+//table.addHeaderCell(new Paragraph("Số Lượng").setFont(font).setBold()
+//        .setBackgroundColor(ColorConstants.GRAY)
+//        .setFontColor(ColorConstants.WHITE)
+//        .setTextAlignment(TextAlignment.CENTER));
+//table.addHeaderCell(new Paragraph("Giá").setFont(font).setBold()
+//        .setBackgroundColor(ColorConstants.GRAY)
+//        .setFontColor(ColorConstants.WHITE)
+//        .setTextAlignment(TextAlignment.CENTER));
+//
+//// Thêm dữ liệu sản phẩm vào bảng
+//while (rsChiTietDonHang.next()) {
+//    String tenSanPham = rsChiTietDonHang.getString("ten_san_pham");
+//    int tongSoLuong = rsChiTietDonHang.getInt("tong_so_luong");
+//    double giaBan = rsChiTietDonHang.getDouble("gia_ban");
+//
+//    table.addCell(new Paragraph(tenSanPham).setFont(font));
+//    table.addCell(new Paragraph(String.valueOf(tongSoLuong)).setFont(font).setTextAlignment(TextAlignment.CENTER));
+//    table.addCell(new Paragraph(String.format("%,.0f", giaBan)).setFont(font).setTextAlignment(TextAlignment.CENTER));
+//}
+//
+//document.add(table);
+//    document.add(new Paragraph("----------------------------------------------------------------------------------------------------------------------------------").setFont(font));
+//
+//    // Tổng tiền
+//    document.add(new Paragraph("TỔNG TIỀN: " + String.format("%,.0f", tongTien) + " VND")
+//            .setFont(font)
+//            .setFontSize(12)
+//            .setBold()
+//            .setTextAlignment(TextAlignment.RIGHT));
+//
+//    // Thông tin ngân hàng và liên hệ
+//    document.add(new Paragraph("GỬI THANH TOÁN ĐẾN")
+//            .setFont(font)
+//            .setFontSize(10)
+//            .setMarginTop(20));
+//    document.add(new Paragraph("Số ngân hàng: 0367548754 \nTên ngân hàng: Đoàn Ngọc Duy")
+//            .setFont(font)
+//            .setFontSize(10));
+//    document.add(new Paragraph("LIÊN HỆ")
+//            .setFont(font)
+//            .setFontSize(10)
+//            .setMarginTop(-40)
+//            .setTextAlignment(TextAlignment.RIGHT));
+//    document.add(new Paragraph("doanngocduy62@gmail.com\nSĐT: 0382424762")
+//            .setFont(font)
+//            .setFontSize(10)
+//            .setTextAlignment(TextAlignment.RIGHT));
+//
+//    document.close();
+//    JOptionPane.showMessageDialog(null, "Hóa đơn đã được tạo thành công tại: " + file.getAbsolutePath());
+//} catch (IOException e) {
+//    e.printStackTrace();
+//    JOptionPane.showMessageDialog(null, "Lỗi khi tạo hóa đơn PDF!");
+//} catch (SQLException e) {
+//    e.printStackTrace();
+//    JOptionPane.showMessageDialog(null, "Lỗi khi truy vấn dữ liệu!");
+//}
+//
+//
+//    } else {
+//        JOptionPane.showMessageDialog(this, "Thanh Toán Thất Bại");
+//    }
+//
+//} catch (Exception e) {
+//    e.printStackTrace();
+//}
 String idmaDonHnag = txtid.getText();
 String maDonHang = txtmahoadon.getText();
 String trangThaiHoaDon = "Đã thanh toán";
@@ -917,14 +1281,20 @@ String sqlDonHang = """
     """;
 
 try {
+    // Kết nối cơ sở dữ liệu
     Connection con = ketnoi.getConnection();
+
+    // Cập nhật bảng donhang
     PreparedStatement psDonHang = con.prepareStatement(sqlDonHang);
     psDonHang.setObject(1, trangThaiDonHang);
     psDonHang.setObject(2, DonHang);
     int checkDonHang = psDonHang.executeUpdate();
+
+    // Cập nhật bảng hoadon
     double tienKhachDua = Double.parseDouble(txt_tienKhachDua.getText().trim().replace(",", ""));
     double tienTraKhach = Double.parseDouble(txtTienTraKhac.getText().trim().replace(",", ""));
     String phuongThuc = cbo_hinhThucThanhToan.getSelectedItem().toString();
+
     PreparedStatement psHoaDon = con.prepareStatement(sql);
     psHoaDon.setObject(1, tienKhachDua);
     psHoaDon.setObject(2, tienTraKhach);
@@ -932,13 +1302,18 @@ try {
     psHoaDon.setObject(4, trangThaiHoaDon);
     psHoaDon.setObject(5, maDonHang);
     int checkHoaDon = psHoaDon.executeUpdate();
+
+    // Thông báo kết quả
     if (checkDonHang > 0 && checkHoaDon > 0) {
         JOptionPane.showMessageDialog(this, "Thanh Toán Thành Công");
   try {
+    // Đường dẫn file PDF
     File file = new File("D:\\HoaDon_" + maDonHang + ".pdf");
     if (file.exists()) {
         file.delete();
     }
+
+    // Khởi tạo đối tượng PDF
     PdfWriter writer = new PdfWriter(file);
     PdfDocument pdf = new PdfDocument(writer);
     com.itextpdf.layout.Document document = new com.itextpdf.layout.Document(pdf);
@@ -947,14 +1322,13 @@ try {
     Connection conn = ketnoi.getConnection();
 
     String sqlHoaDon = """
-        SELECT nv.ten_nhan_vien, kh.ten_khach_hang, hd.ngay_lap, count(ctdh.tong_tien) as tongTien
+        SELECT nv.ten_nhan_vien, kh.ten_khach_hang, hd.ngay_lap, ctdh.tong_tien
         FROM DonHang dh 
         JOIN HoaDon hd ON hd.ma_don_hang = dh.id_ma_don_hang
         JOIN NhanVien nv ON dh.ma_nhan_vien = nv.id_ma_nhan_vien
         JOIN KhachHang kh ON dh.ma_khach_hang = kh.id_ma_khach_hang
         JOIN ChiTietDonHang ctdh ON dh.id_ma_don_hang = ctdh.ma_don_hang
         WHERE hd.ma_hoa_don = ?
-        group by nv.ten_nhan_vien, kh.ten_khach_hang, hd.ngay_lap
     """;
     PreparedStatement psHoaDonnn = conn.prepareStatement(sqlHoaDon);
     psHoaDonnn.setString(1, maDonHang);
@@ -962,12 +1336,12 @@ try {
 
     String tenNhanVien = "", tenKhachHang = "";
     String ngayLap = "";
-    float tongTien = 0;
+    double tongTien = 0;
     if (rsHoaDon.next()) {
         tenNhanVien = rsHoaDon.getString("ten_nhan_vien");
         tenKhachHang = rsHoaDon.getString("ten_khach_hang");
         ngayLap = rsHoaDon.getString("ngay_lap");
-        tongTien = rsHoaDon.getFloat("tongTien");
+        tongTien = rsHoaDon.getDouble("tong_tien");
     }
 
     // Tiêu đề và thông tin hóa đơn
@@ -983,13 +1357,14 @@ try {
     document.add(new Paragraph("----------------------------------------------------------------------------------------------------------------------------------").setFont(font));
 
     // Lấy thông tin chi tiết đơn hàng
- String sqlChiTietDonHang = """
-    SELECT sp.ten_san_pham, SUM(ctdh.so_luong) as tong_so_luong, SUM(ctdh.so_luong * ctdh.gia_ban) as tong_gia
+    String sqlChiTietDonHang = """
+    SELECT sp.ten_san_pham, SUM(ctdh.so_luong) AS tong_so_luong, ctdh.gia_ban
     FROM ChiTietDonHang ctdh
     JOIN SanPham sp ON ctdh.ma_san_pham = sp.id_ma_san_pham
     WHERE ctdh.ma_don_hang = ?
-    GROUP BY sp.ten_san_pham
+    GROUP BY sp.ten_san_pham, ctdh.gia_ban
 """;
+
 PreparedStatement psChiTietDonHang = conn.prepareStatement(sqlChiTietDonHang);
 psChiTietDonHang.setString(1, idmaDonHnag);
 ResultSet rsChiTietDonHang = psChiTietDonHang.executeQuery();
@@ -1007,7 +1382,7 @@ table.addHeaderCell(new Paragraph("Số Lượng").setFont(font).setBold()
         .setBackgroundColor(ColorConstants.GRAY)
         .setFontColor(ColorConstants.WHITE)
         .setTextAlignment(TextAlignment.CENTER));
-table.addHeaderCell(new Paragraph("Tổng Giá").setFont(font).setBold()
+table.addHeaderCell(new Paragraph("Giá").setFont(font).setBold()
         .setBackgroundColor(ColorConstants.GRAY)
         .setFontColor(ColorConstants.WHITE)
         .setTextAlignment(TextAlignment.CENTER));
@@ -1016,14 +1391,14 @@ table.addHeaderCell(new Paragraph("Tổng Giá").setFont(font).setBold()
 while (rsChiTietDonHang.next()) {
     String tenSanPham = rsChiTietDonHang.getString("ten_san_pham");
     int tongSoLuong = rsChiTietDonHang.getInt("tong_so_luong");
-    float tongGia = rsChiTietDonHang.getFloat("tong_gia");
+    double giaBan = rsChiTietDonHang.getDouble("gia_ban");
 
     table.addCell(new Paragraph(tenSanPham).setFont(font));
     table.addCell(new Paragraph(String.valueOf(tongSoLuong)).setFont(font).setTextAlignment(TextAlignment.CENTER));
-    table.addCell(new Paragraph(String.format("", tongGia)).setFont(font).setTextAlignment(TextAlignment.CENTER));
+    table.addCell(new Paragraph(String.format("%,.0f", giaBan)).setFont(font).setTextAlignment(TextAlignment.CENTER));
 }
 
-    document.add(table);
+document.add(table);
     document.add(new Paragraph("----------------------------------------------------------------------------------------------------------------------------------").setFont(font));
 
     // Tổng tiền
@@ -1069,6 +1444,9 @@ while (rsChiTietDonHang.next()) {
 } catch (Exception e) {
     e.printStackTrace();
 }
+
+
+
 
     }//GEN-LAST:event_jButton14ActionPerformed
 
@@ -1366,6 +1744,16 @@ if (!hdList.isEmpty()) {
     txtTenNhanVien.setText("Không có đơn hàng nào đang xử lý.");
 } 
 }
+private void loadDuLieuHuyDonHang(){
+     
+    txtTenNhanVien.setText("");
+   txtid.setText("");
+    txtTenKhachHang.setText("");
+    txtdonhang.setText("");
+     txtngaytao.setText("");
+     txtmahoadon.setText("");
+
+}
     private void txtngaytaoAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_txtngaytaoAncestorAdded
         // TODO add your handling code here:
 ArrayList<HoaDonEntity> hdList = ls.getAll();
@@ -1391,7 +1779,7 @@ String phuongThuc = "Hủy Đơn Hàng"; // Phương thức thanh toán
 String sqlDonHang = """
         update DonHang 
         set ngay_dat = Getdate(), ma_nhan_vien = ?, ma_khach_hang = ?, trang_thai = ?
-        where ma_don_hang = ?
+        where id_ma_don_hang = ?
         """;
 
 String sqlHoaDon = """
@@ -1401,28 +1789,28 @@ String sqlHoaDon = """
         """;
 
 try (Connection con = ketnoi.getConnection()) {
-    con.setAutoCommit(false); // Bắt đầu giao dịch
+    con.setAutoCommit(false); 
 
     try (PreparedStatement psDonHang = con.prepareStatement(sqlDonHang)) {
         psDonHang.setInt(1, idNhanVien);
         psDonHang.setInt(2, maKhachHang);
         psDonHang.setString(3, trangThaiDonHang);
-        psDonHang.setString(4, txtdonhang.getText());
+        psDonHang.setObject(4, txtid.getText());
         int rowsAffectedDonHang = psDonHang.executeUpdate();
         if (rowsAffectedDonHang > 0) {
             try (PreparedStatement psHoaDon = con.prepareStatement(sqlHoaDon)) {
                 psHoaDon.setFloat(1, tienKhachDua);
                 psHoaDon.setFloat(2, tienTraKhach);
                 psHoaDon.setString(3, phuongThuc);
-                psHoaDon.setString(4, trangThaiHoaDon); // Cập nhật trạng thái hóa đơn là "Hủy Đơn Hàng"
-                psHoaDon.setString(5, txtdonhang.getText());
-                psHoaDon.setString(6, txtmahoadon.getText()); // Giả sử maHoaDon là mã hóa đơn cần hủy
+                psHoaDon.setString(4, trangThaiHoaDon);
+                psHoaDon.setObject(5, txtid.getText());
+                psHoaDon.setString(6, txtmahoadon.getText());
                 int rowsAffectedHoaDon = psHoaDon.executeUpdate();
                 if (rowsAffectedHoaDon > 0) {
-                    con.commit(); // Xác nhận thay đổi
+                    con.commit();
                     System.out.println("Đã hủy đơn hàng và hóa đơn thành công.");
-                              layMaHoaDOn();
-          loadDuLieu();
+          loadDuLieuHuyDonHang();
+          JOptionPane.showMessageDialog(panel, "Hủy đơn hàng Thành Công");
                 } else {
                     con.rollback();
                     System.out.println("Không thể hủy hóa đơn.");
@@ -1473,7 +1861,7 @@ try (Connection con = ketnoi.getConnection()) {
         try {
             int soLuong = Integer.parseInt(input);
             if (soLuong > 0) {
-               if(soLuongTon<soLuong){
+               if(soLuongTon < soLuong){
                    JOptionPane.showMessageDialog(panel, "Số Lượng Tồn Nhỏ Hơn ");
                }else{
                     addProductToOrderDetailAndUpdatePayment(maSanPham, tenSanPham, giaBan, soLuong); 
