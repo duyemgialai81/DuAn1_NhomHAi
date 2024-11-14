@@ -61,6 +61,7 @@ public class ketnoi {
         System.out.println(dbmt.getDatabaseProductName());
         System.out.println(dbmt.getDatabaseProductVersion());
         System.out.println("DuyemGiaLai");
+        System.out.println("Kien");
     }
 
 }
