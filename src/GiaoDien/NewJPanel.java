@@ -438,6 +438,9 @@ private void timkiem(){
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 btn_taomaMouseClicked(evt);
             }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btn_taomaMouseEntered(evt);
+            }
         });
         jPanel_DonHang1.add(btn_taoma, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 380, 94, -1));
 
@@ -722,6 +725,11 @@ private void timkiem(){
                 "ID Sản Phẩm", "Mã Sản Phẩm", "Tến Sản Phẩm", "Số Lượng", "Giá Sản Phẩm", "Hình Ảnh", "Kích Thước", "Máu Sắc", "Thương Hiệu", "Chất Liệu", "Xuất Xứ", "Loại Sản Phẩm", "Trạng Thái"
             }
         ));
+        tbl_sanPham1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tbl_sanPham1MouseClicked(evt);
+            }
+        });
         jScrollPane6.setViewportView(tbl_sanPham1);
 
         jButton2.setText("Lùi");
@@ -1254,25 +1262,7 @@ String trangThaiii = "Đang xử lý";
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        int selectedRow = tbl_sanPham1.getSelectedRow();
-    if (selectedRow != -1) {  // Kiểm tra nếu có dòng nào được chọn
-        // Lấy thông tin sản phẩm từ dòng đã chọn
-        int maSanPham = (int) tbl_sanPham1.getValueAt(selectedRow, 0); // ID sản phẩm
-        String tenSanPham = (String) tbl_sanPham1.getValueAt(selectedRow, 2); // Tên sản phẩm
-        float giaBan = (float) tbl_sanPham1.getValueAt(selectedRow, 4); // Giá bán
-            String input = javax.swing.JOptionPane.showInputDialog(null, "Nhập số lượng sản phẩm để thêm vào hóa đơn:", "Số lượng sản phẩm", javax.swing.JOptionPane.QUESTION_MESSAGE);
-        try {
-            int soLuong = Integer.parseInt(input);
-            if (soLuong > 0) {
-                addProductToOrderDetailAndUpdatePayment(maSanPham, tenSanPham, giaBan, soLuong); 
-                hienThiTrang(ls.getSanPhamChhiTiet());// Sử dụng số lượng nhập từ người dùng
-            } else {
-                JOptionPane.showMessageDialog(null, "Số lượng phải lớn hơn 0.");
-            }
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(null, "Vui lòng nhập một số hợp lệ.");
-        }
-    }
+   
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void txtdonhangAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_txtdonhangAncestorAdded
@@ -1469,6 +1459,38 @@ try (Connection con = ketnoi.getConnection()) {
         // TODO add your handling code here:
         nextPage(ls.getSanPhamChhiTiet());
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void tbl_sanPham1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbl_sanPham1MouseClicked
+        // TODO add your handling code here:
+             int selectedRow = tbl_sanPham1.getSelectedRow();
+    if (selectedRow != -1) {  // Kiểm tra nếu có dòng nào được chọn
+        // Lấy thông tin sản phẩm từ dòng đã chọn
+        int maSanPham = (int) tbl_sanPham1.getValueAt(selectedRow, 0); // ID sản phẩm
+        String tenSanPham = (String) tbl_sanPham1.getValueAt(selectedRow, 2); // Tên sản phẩm
+        float giaBan = (float) tbl_sanPham1.getValueAt(selectedRow, 4);
+        int soLuongTon = (int) tbl_sanPham1.getValueAt(selectedRow, 3);// Giá bán
+            String input = javax.swing.JOptionPane.showInputDialog(null, "Nhập số lượng sản phẩm để thêm vào hóa đơn:", "Số lượng sản phẩm", javax.swing.JOptionPane.QUESTION_MESSAGE);
+        try {
+            int soLuong = Integer.parseInt(input);
+            if (soLuong > 0) {
+               if(soLuongTon<soLuong){
+                   JOptionPane.showMessageDialog(panel, "Số Lượng Tồn Nhỏ Hơn ");
+               }else{
+                    addProductToOrderDetailAndUpdatePayment(maSanPham, tenSanPham, giaBan, soLuong); 
+                hienThiTrang(ls.getSanPhamChhiTiet());// Sử dụng số lượng nhập từ người dùng
+               }
+            } else {
+                JOptionPane.showMessageDialog(null, "Số lượng phải lớn hơn 0.");
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(null, "Vui lòng nhập một số hợp lệ.");
+        }
+    }
+    }//GEN-LAST:event_tbl_sanPham1MouseClicked
+
+    private void btn_taomaMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btn_taomaMouseEntered
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btn_taomaMouseEntered
 //  public static void main(String args[]) {
 //        /* Set the Nimbus look and feel */
 //        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
