@@ -91,7 +91,11 @@ public class ChuyenChucNang {
                     break;
                 case "ChucNangThongKe":
                     node = new ChucNangThongKe();
+                    break;
+                case "ChucNangVouvher":
+                    node = new ChucNangKhuyenMai();
                     default:
+                        
                     break;
             }
             jpnRoot.removeAll();

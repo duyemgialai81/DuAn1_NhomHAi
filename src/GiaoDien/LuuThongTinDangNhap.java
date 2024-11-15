@@ -4,7 +4,7 @@
  */
 package GiaoDien;
 
-import Entity.NhanVienEntity;
+import Entity.NhanVien.NhanVienEntity;
 import KetNoiSQL.ketnoi;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

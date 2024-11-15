@@ -4,10 +4,10 @@
  */
 package Repository;
 
-import Entity.BanHangSanPham;
-import Entity.HoaDonEntity;
-import Entity.LayMaHoaDon;
-import Entity.SanPhamEntity;
+import Entity.SanPham.BanHangSanPham;
+import Entity.HoaDon.HoaDonEntity;
+import Entity.HoaDon.LayMaHoaDon;
+import Entity.SanPham.SanPhamEntity;
 import KetNoiSQL.ketnoi;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

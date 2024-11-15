@@ -4,7 +4,7 @@
  */
 package Repository;
 
-import Entity.BanHangSanPham;
+import Entity.SanPham.BanHangSanPham;
 import java.util.ArrayList;
 import java.sql.*;
 import KetNoiSQL.ketnoi;

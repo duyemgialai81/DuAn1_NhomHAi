@@ -4,7 +4,7 @@
  */
 package Repository;
 
-import Entity.NhanVienEntity;
+import Entity.NhanVien.NhanVienEntity;
 import java.util.ArrayList;
 import java.sql.*;
 import KetNoiSQL.ketnoi;

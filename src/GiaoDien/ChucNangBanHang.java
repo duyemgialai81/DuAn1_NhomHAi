@@ -4,13 +4,13 @@
  */
 package GiaoDien;
 
-import Entity.BanHangSanPham;
-import Entity.ChiTietHoaDonEntity;
-import Entity.DonHangEntity;
-import Entity.HoaDonEntity;
-import Entity.SanPhamEntity;
-import Entity.ThanhToanEntity;
-import Entity.XemHoaDonTao;
+import Entity.SanPham.BanHangSanPham;
+import Entity.HoaDon.ChiTietHoaDonEntity;
+import Entity.DonHang.DonHangEntity;
+import Entity.HoaDon.HoaDonEntity;
+import Entity.SanPham.SanPhamEntity;
+import Entity.HoaDon.ThanhToanEntity;
+import Entity.HoaDon.XemHoaDonTao;
 import GiaoDien.LuuThongTinDangNhap;
 import KetNoiSQL.ketnoi;
 import Repository.BanHangRepository;

@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package Repository;
-import Entity.ChiTietHoaDonEntity;
+import Entity.HoaDon.ChiTietHoaDonEntity;
 import java.sql.*;
 import KetNoiSQL.ketnoi;
 /**

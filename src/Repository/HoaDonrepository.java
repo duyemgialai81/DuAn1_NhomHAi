@@ -4,18 +4,20 @@
  */
 package Repository;
 
-import Entity.ChiTietHoaDonEntity;
-import Entity.DonHangEntity;
-import Entity.HoaDonEntity;
-import Entity.HoaDonXemDuLieu;
-import Entity.InsertHoaDonEntity;
-import Entity.NhanVienEntity;
-import Entity.SanPhamEntity;
-import Entity.XemHoaDonTao;
+import Entity.HoaDon.ChiTietHoaDonEntity;
+import Entity.DonHang.DonHangEntity;
+import Entity.HoaDon.HoaDonEntity;
+import Entity.HoaDon.HoaDonXemDuLieu;
+import Entity.HoaDon.InsertHoaDonEntity;
+import Entity.NhanVien.NhanVienEntity;
+import Entity.SanPham.SanPhamEntity;
+import Entity.HoaDon.XemHoaDonTao;
+import GiaoDien.HoaDonChiTiet;
 import GiaoDien.LuuThongTinDangNhap;
 import java.util.ArrayList;
 import java.sql.*;
 import KetNoiSQL.ketnoi;
+import java.text.DateFormatSymbols;
 /**
  *
  * @author SingPC
@@ -170,29 +172,31 @@ public boolean capNhatSoLuongSanPham(int idMaSanPham, int soLuongMoi) {
 
     return ls;
 }
- public ArrayList<HoaDonXemDuLieu> getAllChiTietHoaDon(){
-     ArrayList<HoaDonXemDuLieu> ls = new ArrayList<>();
+ public ArrayList<HoaDonChiTiet> getAllChiTietHoaDon(){
+     ArrayList<HoaDonChiTiet> ls = new ArrayList<>();
     String sql ="""
-                select hd.ma_hoa_don, hd.tong_tien, hd.hinh_thuc_chuyen_tien, hd.ngay_lap, hd.trangThai, nv.ma_nhan_vien, nv.ten_nhan_vien, kh.ma_khach_hang, kh.ten_khach_hang
-                from HoaDon hd 
-                join NhanVien nv on hd.ma_nhan_vien = nv.id_ma_nhan_vien
-                join KhachHang kh on kh.id_ma_khach_hang = nv.id_ma_nhan_vien
+                select hd.ma_hoa_don, 
+                sum(dhct.so_luong * dhct.gia_ban - COALESCE(voucher.gia_tri, 0) - dhct.thue) as tongTien,
+                hd.tien_khach_dua - hd.tien_tra_khach as tien_can_thu, hd.tien_khach_dua,hd.tien_tra_khach,hd.phuong_thuc,dh.ngay_dat
+                from HoaDon hd
+                join DonHang dh on hd.ma_don_hang = dh.id_ma_don_hang
+                join ChiTietDonHang dhct on dh.id_ma_don_hang = dhct.ma_don_hang
+                left join Voucher voucher on dhct.ma_voucher = voucher.id_voucher
+                group by hd.ma_hoa_don, hd.tien_khach_dua, hd.tien_tra_khach,hd.phuong_thuc,dh.ngay_dat
                 """;
      try {
          Connection con = ketnoi.getConnection();
          PreparedStatement ps = con.prepareStatement(sql);
          ResultSet rs = ps.executeQuery();
          while(rs.next()){
-             HoaDonXemDuLieu hd = new HoaDonXemDuLieu();
+             HoaDonChiTiet hd = new HoaDonChiTiet();
              hd.setMaHoaDon(rs.getString("ma_hoa_don"));
-             hd.setTongTien(rs.getFloat("tong_tien"));
-             hd.setHinhThuc(rs.getString("hinh_thuc_chuyen_tien"));
-             hd.setNgayLap(rs.getDate("ngay_lap"));
-             hd.setTrangThai(rs.getString("trangThai"));
-             hd.setMaNhanVien(rs.getString("ma_nhan_vien"));
-             hd.setTenNhanVien(rs.getString("ten_nhan_vien"));
-             hd.setMaKhachHang(rs.getString("ma_khach_hang"));
-             hd.setTenKhachHang(rs.getString("ten_khach_hang"));
+             hd.setTongTien(rs.getFloat("tongTien"));
+            hd.setThanhToan(rs.getDouble("tien_can_thu"));
+            hd.setTienKhachDua(rs.getDouble("tien_khach_dua"));
+            hd.setTienTraKhach(rs.getDouble("tien_tra_khach"));
+            hd.setPhuongThuc(rs.getString("phuong_thuc"));
+            hd.setNgayDat(rs.getDate("ngay_dat"));
              ls.add(hd);
          }
      } catch (Exception e) {

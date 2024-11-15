@@ -4,8 +4,8 @@
  */
 package Repository;
 
-import Entity.NhanVienEntity;
-import Entity.TaiKhoanEntity;
+import Entity.NhanVien.NhanVienEntity;
+import Entity.TaiKhoan.TaiKhoanEntity;
 import GiaoDien.LuuThongTinDangNhap;
 import java.util.ArrayList;
 import java.sql.*;

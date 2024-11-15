@@ -4,8 +4,8 @@
  */
 package Repository;
 
-import Entity.ThanhToanEntity;
-import Entity.XemHoaDonTao;
+import Entity.HoaDon.ThanhToanEntity;
+import Entity.HoaDon.XemHoaDonTao;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.sql.*;
