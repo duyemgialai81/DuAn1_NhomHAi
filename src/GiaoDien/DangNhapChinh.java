@@ -14,9 +14,6 @@ import javax.swing.JOptionPane;
 public class DangNhapChinh extends javax.swing.JFrame {
 private TaiKhoanRepository ls = new TaiKhoanRepository();
 private boolean jcbShowPass;
-    /**
-     * Creates new form DangNhapChinh
-     */
     public DangNhapChinh() {
         initComponents();
     }

@@ -85,6 +85,7 @@ private boolean isduyem = false;
     public NewJPanel() {
         initComponents();
           hienThiTrang(ls.getSanPhamChhiTiet());
+         batTatCam();
 //          initWebcam();
     }
 private void hienThiTrang(ArrayList<SanPhamEntity> lss) {
@@ -347,7 +348,7 @@ private void batTatCam() {
     public void run() {
         while (webcam != null && webcam.isOpen()) {
             try {
-                Thread.sleep(8);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -1541,11 +1542,11 @@ while (rsChiTietDonHang.next()) {
     String tenSanPham = rsChiTietDonHang.getString("ten_san_pham");
     int tongSoLuong = rsChiTietDonHang.getInt("tong_so_luong");
     double giaBan = rsChiTietDonHang.getDouble("gia_ban");
+ 
     table.addCell(new Paragraph(tenSanPham).setFont(font));
     table.addCell(new Paragraph(String.valueOf(tongSoLuong)).setFont(font).setTextAlignment(TextAlignment.CENTER));
     table.addCell(new Paragraph(String.format("%,.0f", giaBan)).setFont(font).setTextAlignment(TextAlignment.CENTER));
 }
-
 document.add(table);
     document.add(new Paragraph("----------------------------------------------------------------------------------------------------------------------------------").setFont(font));
 
@@ -1662,8 +1663,8 @@ private void addProductToOrderDetailAndUpdatePayment(int maSanPham, String tenSa
     int maDonHang = Integer.parseInt(txtid.getText()); // Lấy mã đơn hàng từ txthoadon
     float tongTien = giaBan * soLuong; // Tính tổng tiền cho sản phẩm
     String insertSql = """
-        INSERT INTO ChiTietDonHang (ma_don_hang, ma_san_pham, so_luong, gia_ban, tong_tien, ma_voucher, trang_thai, thue)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO ChiTietDonHang (ma_don_hang, ma_san_pham, so_luong, gia_ban, tong_tien, ma_voucher, thue)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     """; 
     String updateSql = """
         UPDATE SanPham
@@ -1692,9 +1693,8 @@ String trangThaiii = "Đang xử lý";
             psInsert.setInt(3, soLuong);     // Số lượng
             psInsert.setFloat(4, giaBan);   // Giá bán
             psInsert.setFloat(5, tongTien); // Tổng tiền
-            psInsert.setObject(6, null, Types.INTEGER); // Mã voucher (null nếu không có)
-            psInsert.setString(7, trangThaiii); // Trạng thái ban đầu
-            psInsert.setDouble(8, 10.00); // Thuế mặc định
+            psInsert.setObject(6, null, Types.INTEGER); // Mã voucher (null nếu không có)// Trạng thái ban đầu
+            psInsert.setDouble(7, 10.00); // Thuế mặc định
 
             int rowsAffected = psInsert.executeUpdate();
             if (rowsAffected > 0) {

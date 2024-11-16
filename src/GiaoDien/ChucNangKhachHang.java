@@ -4,19 +4,96 @@
  */
 package GiaoDien;
 
+import Entity.KhachHang.KhachHang;
+import Repository.KhachHangRepository;
+import java.util.ArrayList;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author SingPC
  */
 public class ChucNangKhachHang extends javax.swing.JPanel {
-
+    private KhachHangRepository repo = new KhachHangRepository();
+    private DefaultTableModel mol = new DefaultTableModel();
+    private int i = -1;
     /**
      * Creates new form ChucNangKhachHang
      */
     public ChucNangKhachHang() {
         initComponents();
+           this.fillTable(repo.getAll());
+        txt_MaKH.setEditable(false);
     }
+ void fillTable(ArrayList<KhachHang> list){
+        mol = (DefaultTableModel) tbl_thongTinKH.getModel();
+        mol.setRowCount(0);
+        for(KhachHang x : list){
+            mol.addRow(x.toDaTaRow());
+        }
+    }
+    public  void showData(int index){
+        String ma, ten, sdt,email,dc;
+        ma =tbl_thongTinKH.getValueAt(index , 0).toString();
+        ten =tbl_thongTinKH.getValueAt(index , 1).toString();
+        sdt =tbl_thongTinKH.getValueAt(index , 2).toString();
+        email =tbl_thongTinKH.getValueAt(index , 3).toString();
+        dc =tbl_thongTinKH.getValueAt(index, 4).toString();
+        txt_MaKH.setText(ma);
+        txt_TenKH.setText(ten);
+        txt_SDT.setText(sdt);
+        txt_Email.setText(email);
+        txt_DiaChi.setText(dc);
+        }
+        KhachHang readForm() {
+        String ten, sdt, email, dc;
 
+        ten = txt_TenKH.getText();
+        if (ten.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Tên khách hàng không được để trống.");
+            txt_TenKH.requestFocus();
+            return null;
+        }
+
+        sdt = txt_SDT.getText();
+        if (sdt.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Số điện thoại không được để trống.");
+            txt_SDT.requestFocus();
+            return null;
+        }
+
+        email = txt_Email.getText();
+        if (email.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Email không được để trống.");
+            txt_Email.requestFocus();
+            return null;
+        }
+
+        dc = txt_DiaChi.getText();
+        if (dc.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Địa chỉ không được để trống.");
+            txt_DiaChi.requestFocus();
+            return null;
+        }
+
+        return new KhachHang(ten, sdt, email, dc);
+    }
+    private void timKiemTuDong() {
+    String soDienThoai = txt_TimKiem.getText().trim();
+
+    if (soDienThoai.isEmpty()) {
+        fillTable(repo.getAll());
+        return;
+    }
+    ArrayList<KhachHang> ketQua = repo.timkiem(soDienThoai);
+    if (ketQua != null && !ketQua.isEmpty()) {
+        fillTable(ketQua);
+    } else {
+        DefaultTableModel model = (DefaultTableModel) tbl_thongTinKH.getModel();
+        model.setRowCount(0);
+    }
+}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -107,14 +184,29 @@ public class ChucNangKhachHang extends javax.swing.JPanel {
         btn_Them.setBackground(new java.awt.Color(255, 204, 0));
         btn_Them.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_Them.setText("Thêm");
+        btn_Them.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_ThemActionPerformed(evt);
+            }
+        });
 
         btn_Sua.setBackground(new java.awt.Color(255, 204, 0));
         btn_Sua.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_Sua.setText("Sửa");
+        btn_Sua.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_SuaActionPerformed(evt);
+            }
+        });
 
         btn_LamMoi.setBackground(new java.awt.Color(255, 204, 0));
         btn_LamMoi.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_LamMoi.setText("Làm Mới");
+        btn_LamMoi.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_LamMoiActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -229,17 +321,28 @@ public class ChucNangKhachHang extends javax.swing.JPanel {
         jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel8.setText("Tìm Kiếm:");
 
+        txt_TimKiem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txt_TimKiemActionPerformed(evt);
+            }
+        });
+
         tbl_thongTinKH.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
             },
             new String [] {
-                "Mã KH", "Tên KH", "Giới Tính", "SĐT", "Email", "Địa Chỉ", "Trạng Thái"
+                "Mã KH", "Tên KH", "SĐT", "Email", "Địa Chỉ"
             }
         ));
+        tbl_thongTinKH.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tbl_thongTinKHMouseClicked(evt);
+            }
+        });
         jScrollPane2.setViewportView(tbl_thongTinKH);
 
         jPanel6.setBackground(new java.awt.Color(255, 255, 255));
@@ -381,6 +484,81 @@ public class ChucNangKhachHang extends javax.swing.JPanel {
             .addComponent(jPanel_Nen, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void txt_TimKiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_TimKiemActionPerformed
+        // TODO add your handling code here:
+         txt_TimKiem.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                timKiemTuDong();
+            }
+
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                timKiemTuDong();
+            }
+
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                timKiemTuDong();
+            }
+        });
+    }//GEN-LAST:event_txt_TimKiemActionPerformed
+
+    private void btn_SuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_SuaActionPerformed
+        // TODO add your handling code here:
+        int i = tbl_thongTinKH.getSelectedRow();
+        if (i < 0) {
+            JOptionPane.showMessageDialog(this, "Bạn chưa chọn dòng cần sửa.");
+            return;
+        }
+        String ma = tbl_thongTinKH.getValueAt(i, 0).toString();
+
+        int chon = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn sửa không?");
+        if (chon == 0) {
+            KhachHang kh = this.readForm();
+            if (kh != null) {
+                KhachHangRepository repo = new KhachHangRepository();
+                int ketQua = repo.sua(ma, kh);
+                if (ketQua > 0) {
+                    JOptionPane.showMessageDialog(this, "Cập nhật thành công.");
+                    this.fillTable(repo.getAll());
+                } else {
+                    JOptionPane.showMessageDialog(this, "Cập nhật thất bại.");
+                }
+            }
+            }
+        
+    }//GEN-LAST:event_btn_SuaActionPerformed
+
+    private void tbl_thongTinKHMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbl_thongTinKHMouseClicked
+        // TODO add your handling code here:
+          i = tbl_thongTinKH.getSelectedRow();
+        showData(i);
+    }//GEN-LAST:event_tbl_thongTinKHMouseClicked
+
+    private void btn_LamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_LamMoiActionPerformed
+        // TODO add your handling code here:
+            txt_MaKH.setText("");
+        txt_TenKH.setText("");
+        txt_SDT.setText("");
+        txt_Email.setText("");
+        txt_DiaChi.setText("");
+    }//GEN-LAST:event_btn_LamMoiActionPerformed
+
+    private void btn_ThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ThemActionPerformed
+        // TODO add your handling code here:
+         if (this.readForm() != null) {
+            int chon = JOptionPane.showConfirmDialog(this, "ban co muon nhap them khong ?");
+            if (chon == 0) {
+                repo.them(this.readForm());
+                JOptionPane.showMessageDialog(this, "them thanh cong");
+                this.fillTable(repo.getAll());
+            } else {
+                JOptionPane.showMessageDialog(this, "chon khong them");
+            }
+        }
+    }//GEN-LAST:event_btn_ThemActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

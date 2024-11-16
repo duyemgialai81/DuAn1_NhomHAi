@@ -104,15 +104,7 @@ private KhuyenMaiRepository km = new KhuyenMaiRepository();
             new String [] {
                 "Select", "Mã Sản Phẩm", "Tên Sản Phẩm"
             }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.Boolean.class, java.lang.Object.class, java.lang.Object.class
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-        });
+        ));
         jScrollPane1.setViewportView(tblsanpham);
 
         javax.swing.GroupLayout jPanel_ChuongTrinhKhuyenMaiLayout = new javax.swing.GroupLayout(jPanel_ChuongTrinhKhuyenMai);

@@ -4,18 +4,229 @@
  */
 package GiaoDien;
 
+import Entity.NhanVien.NhanVienEntity;
+import Repository.NhanVienRepository;
+import java.util.ArrayList;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author SingPC
  */
 public class ChucNangNhanVien extends javax.swing.JPanel {
-
+    private DefaultTableModel mol = new DefaultTableModel();
+    private NhanVienRepository rp = new NhanVienRepository();
+    private int i = -1;
     /**
      * Creates new form ChucNangNhanVien
      */
     public ChucNangNhanVien() {
-        initComponents();
+          initComponents();
+            fillTable(rp.getAll());
+        fillTable2(rp.getAll2());
+
+        txt_TimKiem.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                performSearch();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                performSearch();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                performSearch();
+            }
+//
+////            private void cbo_LocGioiTinhActionPerformed(java.awt.event.ActionEvent evt) {
+////                String gioiTinh = cbo_LocGioiTinh.getSelectedItem().toString();
+////                if (gioiTinh.equals("Tất cả")) { // Giả sử "Tất cả" là giá trị thứ ba
+////                    loadAllData(); // Phương thức để tải toàn bộ dữ liệu ban đầu
+////                } else {
+////                    performSearch();
+////                }
+////            }
+//
+////            private void loadAllData() {
+////                ArrayList<NhanVienEntity> allData = rp.getAll(); // Giả sử bạn có phương thức getAllData() để lấy tất cả dữ liệu
+////                fillTable(allData);
+////            }
+////
+////            private void loadAllData2() {
+////                ArrayList<NhanVienEntity> allData = rp.getAll2(); // Giả sử bạn có phương thức getAllData() để lấy tất cả dữ liệu
+////                fillTable2(allData);
+////            }
+//
+
+            private void performSearch() {
+                String maNV = txt_TimKiem.getText();
+                String gioiTinh = cbo_LocGioiTinh.getSelectedItem().toString();
+                String vaiTo = cbo_LocVaiTro.getSelectedItem().toString();
+
+                if (gioiTinh.equalsIgnoreCase("Tất cả") && vaiTo.equalsIgnoreCase("Tất cả")) {
+                    // Tìm kiếm chỉ dựa trên mã nhân viên và vai trò
+                    ArrayList<NhanVienEntity> result = rp.timNV(maNV, null, null);
+                    fillTable(result);
+
+                    ArrayList<NhanVienEntity> result2 = rp.timNV2(maNV, null, null);
+                    fillTable2(result2);
+                } else if (gioiTinh.equalsIgnoreCase("Tất cả")) {
+                    ArrayList<NhanVienEntity> result = rp.timNV(maNV, null, vaiTo);
+                    fillTable(result);
+
+                    ArrayList<NhanVienEntity> result2 = rp.timNV2(maNV, null, vaiTo);
+                    fillTable2(result2);
+                } else if (vaiTo.equalsIgnoreCase("Tất cả")) {
+                    ArrayList<NhanVienEntity> result = rp.timNV(maNV, gioiTinh, null);
+                    fillTable(result);
+
+                    ArrayList<NhanVienEntity> result2 = rp.timNV2(maNV, gioiTinh, null);
+                    fillTable2(result2);
+                } else {
+                    // Tìm kiếm dựa trên mã nhân viên, giới tính và vai trò
+                    ArrayList<NhanVienEntity> result = rp.timNV(maNV, gioiTinh, vaiTo);
+                    fillTable(result);
+
+                    ArrayList<NhanVienEntity> result2 = rp.timNV2(maNV, gioiTinh, vaiTo);
+                    fillTable2(result2);
+                }
+            }
+
+        });
     }
+        void fillTable(ArrayList<NhanVienEntity> list) {
+        mol = (DefaultTableModel) tbl_DangLamViec.getModel();
+        mol.setRowCount(0);
+        for (NhanVienEntity x : list) {
+            mol.addRow(x.toDataRow());
+        }
+    }
+
+    void fillTable2(ArrayList<NhanVienEntity> list) {
+        mol = (DefaultTableModel) tbl_NghiViec.getModel();
+        mol.setRowCount(0);
+        for (NhanVienEntity x : list) {
+            mol.addRow(x.toDataRow());
+        }
+    }
+       public void showData(int i) {
+        NhanVienEntity nv = rp.getAll().get(i);
+        txt_MaNV.setText(tbl_DangLamViec.getValueAt(i, 0).toString());
+        txt_TenNV.setText(tbl_DangLamViec.getValueAt(i, 1).toString());
+        QuanLy.setSelectedItem(tbl_DangLamViec.getValueAt(i, 2).toString());
+        txt_DiaChi.setText(tbl_DangLamViec.getValueAt(i, 3).toString());
+        txt_SDT.setText(tbl_DangLamViec.getValueAt(i, 4).toString());
+        txt_Date.setText(tbl_DangLamViec.getValueAt(i, 5).toString());
+        txt_Email.setText(tbl_DangLamViec.getValueAt(i, 7).toString());
+        String tt = nv.getTrangThai();
+        boolean gt = nv.isGioiTinh();
+        if (gt == false) {
+            rdo_Nu.setSelected(true);
+        } else {
+            rdo_Nam.setSelected(true);
+        }
+        if (tt.equalsIgnoreCase("Hoạt động")) {
+            rdo_DangLamViec.setSelected(true);
+        } else {
+            rdo_NghiViec.setSelected(true);
+        }
+    }
+    public void showData2(int i) {
+        NhanVienEntity nv = rp.getAll2().get(i);
+        txt_MaNV.setText(tbl_NghiViec.getValueAt(i, 0).toString());
+        txt_TenNV.setText(tbl_NghiViec.getValueAt(i, 1).toString());
+        QuanLy.setSelectedItem(tbl_NghiViec.getValueAt(i, 2).toString());
+        txt_DiaChi.setText(tbl_NghiViec.getValueAt(i, 3).toString());
+        txt_SDT.setText(tbl_NghiViec.getValueAt(i, 4).toString());
+        txt_Date.setText(tbl_NghiViec.getValueAt(i, 5).toString());
+        txt_Email.setText(tbl_NghiViec.getValueAt(i, 7).toString());
+        String tt = nv.getTrangThai();
+        boolean gt = nv.isGioiTinh();
+        if (gt == false) {
+            rdo_Nu.setSelected(true);
+        } else {
+            rdo_Nam.setSelected(true);
+        }
+        if (tt.equalsIgnoreCase("Nghỉ làm")) {
+            rdo_DangLamViec.setSelected(true);
+        } else {
+            rdo_NghiViec.setSelected(true);
+        }
+    }
+
+    public NhanVienEntity readForm() {
+    String tenNhanVien, vaiTro, diaChi,soDienThoai, ngaySinh, email,  matKhau, trangThai;
+    boolean gioiTinh;
+
+    tenNhanVien = txt_TenNV.getText().trim();
+    if (tenNhanVien.isEmpty()) {
+      
+        txt_TenNV.requestFocus();
+        return null;
+    }
+
+    soDienThoai = txt_SDT.getText().trim();
+    if (soDienThoai.isEmpty()) {
+        
+        txt_SDT.requestFocus();
+        return null;
+    }
+
+    ngaySinh = txt_Date.getText().trim();
+    if (ngaySinh.isEmpty()) {
+        
+        txt_Date.requestFocus();
+        return null;
+    }
+
+    email = txt_Email.getText().trim();
+    if (email.isEmpty()) {
+      
+        txt_Email.requestFocus();
+        return null;
+    }
+
+    diaChi = txt_DiaChi.getText().trim();
+    if (diaChi.isEmpty()) {
+       
+        txt_DiaChi.requestFocus();
+        return null;
+    }
+
+    matKhau = txt_MatKhau.getText().trim();
+    if (matKhau.isEmpty()) {
+      
+        txt_MatKhau.requestFocus();
+        return null;
+    }
+
+    vaiTro = (String) QuanLy.getSelectedItem();
+    if (vaiTro == null || vaiTro.isEmpty()) {
+        QuanLy.requestFocus();
+        return null;
+    }
+
+    if (rdo_DangLamViec.isSelected()) {
+        trangThai = "Hoạt động";
+    } else {
+        trangThai = "Nghỉ làm";
+    }
+
+    if (rdo_Nam.isSelected()) {
+        gioiTinh = true;
+    } else {
+        gioiTinh = false;
+    }
+
+    // Đảm bảo thứ tự các tham số khớp với thứ tự trong phương thức khởi tạo NhanVienEntity
+    return new NhanVienEntity(tenNhanVien, vaiTro, diaChi, soDienThoai, ngaySinh, gioiTinh, email, matKhau, trangThai);
+}
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -26,6 +237,8 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        buttonGroup1 = new javax.swing.ButtonGroup();
+        buttonGroup2 = new javax.swing.ButtonGroup();
         jPanel_Nen = new javax.swing.JPanel();
         cbo_VaiTro = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -42,7 +255,7 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        QuanLy = new javax.swing.JComboBox<>();
         txt_Email = new javax.swing.JTextField();
         txt_Date = new javax.swing.JTextField();
         txt_SDT = new javax.swing.JTextField();
@@ -104,27 +317,46 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
         jLabel10.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel10.setText("Trạng Thái:");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Quản Lý", "Nhân Viên Bán Hàng", "Nhân Viên IT", "Nhân Viên Kiểm Kho", "Nhân Viên Giao Hàng" }));
+        QuanLy.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Quản Lý", "Nhân Viên Bán Hàng", "Nhân Viên IT", "Nhân Viên Kiểm Kho", "Nhân Viên Giao Hàng" }));
 
+        buttonGroup1.add(rdo_Nam);
         rdo_Nam.setText("Nam");
 
+        buttonGroup1.add(rdo_Nu);
         rdo_Nu.setText("Nữ");
 
+        buttonGroup2.add(rdo_DangLamViec);
         rdo_DangLamViec.setText("Đang Làm Việc");
 
+        buttonGroup2.add(rdo_NghiViec);
         rdo_NghiViec.setText("Nghỉ Việc");
 
         btn_Them.setBackground(new java.awt.Color(255, 204, 0));
         btn_Them.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_Them.setText("Thêm");
+        btn_Them.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_ThemActionPerformed(evt);
+            }
+        });
 
         btn_LamMoi.setBackground(new java.awt.Color(255, 204, 0));
         btn_LamMoi.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_LamMoi.setText("Làm Mới");
+        btn_LamMoi.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_LamMoiActionPerformed(evt);
+            }
+        });
 
         btn_Sua.setBackground(new java.awt.Color(255, 204, 0));
         btn_Sua.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_Sua.setText("Sửa");
+        btn_Sua.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_SuaActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout cbo_VaiTroLayout = new javax.swing.GroupLayout(cbo_VaiTro);
         cbo_VaiTro.setLayout(cbo_VaiTroLayout);
@@ -156,7 +388,7 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
                                     .addGap(33, 33, 33)))
                             .addGroup(cbo_VaiTroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                 .addComponent(txt_MatKhau)
-                                .addComponent(jComboBox1, 0, 200, Short.MAX_VALUE))))
+                                .addComponent(QuanLy, 0, 200, Short.MAX_VALUE))))
                     .addComponent(btn_Them, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(31, 31, 31)
                 .addGroup(cbo_VaiTroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -215,7 +447,7 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
                 .addGroup(cbo_VaiTroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(jLabel9)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(QuanLy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(rdo_Nam)
                     .addComponent(rdo_Nu))
                 .addGap(18, 18, 18)
@@ -240,11 +472,21 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
         jLabel11.setText("Lọc Theo Giới Tính:");
 
         cbo_LocGioiTinh.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "-", "Nam", "Nữ" }));
+        cbo_LocGioiTinh.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbo_LocGioiTinhActionPerformed(evt);
+            }
+        });
 
         jLabel12.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel12.setText("Lọc Theo Vai Trò:");
 
         cbo_LocVaiTro.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "-", "Quản Lý", "Nhân Viên Bán Hàng", "Nhân Viên IT", "Nhân Viên Kiểm Kho", "Nhân Viên Giao Hàng" }));
+        cbo_LocVaiTro.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbo_LocVaiTroActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -280,6 +522,12 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
         btn_Tim.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_Tim.setText("Tìm");
 
+        txt_TimKiem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txt_TimKiemActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -308,15 +556,20 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
 
         tbl_DangLamViec.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "Mã NV", "Mật Khẩu", "Tên Nhân Viên", "Vai Trò", "Địa Chỉ", "Điện Thoại", "Ngày Sinh", "Giới Tính", "Email", "Trạng Thái"
+                "Mã NV", "Tên Nhân Viên", "Vai Trò", "Địa Chỉ", "Điện Thoại", "Ngày Sinh", "Giới Tính", "Email", "Trạng Thái"
             }
         ));
+        tbl_DangLamViec.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tbl_DangLamViecMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tbl_DangLamViec);
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
@@ -336,15 +589,20 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
 
         tbl_NghiViec.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "Mã NV", "Mật Khẩu", "Tên Nhân Viên", "Vai Trò", "Địa Chỉ", "Điện Thoại", "Ngày Sinh", "Giới Tính", "Email", "Trạng Thái"
+                "Mã NV", "Tên Nhân Viên", "Vai Trò", "Địa Chỉ", "Điện Thoại", "Ngày Sinh", "Giới Tính", "Email", "Trạng Thái"
             }
         ));
+        tbl_NghiViec.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tbl_NghiViecMouseClicked(evt);
+            }
+        });
         jScrollPane2.setViewportView(tbl_NghiViec);
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
@@ -385,7 +643,7 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 89, Short.MAX_VALUE)
+                .addComponent(jTabbedPane1)
                 .addContainerGap())
         );
 
@@ -404,16 +662,162 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btn_ThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ThemActionPerformed
+        // TODO add your handling code here:
+        if (readForm() != null){
+            rp.them(readForm());
+            fillTable(rp.getAll());
+        }
+    }//GEN-LAST:event_btn_ThemActionPerformed
+
+    private void btn_SuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_SuaActionPerformed
+        // TODO add your handling code here:
+            int selectedRowDangLamViec = tbl_DangLamViec.getSelectedRow();
+    int selectedRowNghiViec = tbl_NghiViec.getSelectedRow();
+    
+    if (selectedRowDangLamViec != -1 || selectedRowNghiViec != -1) {
+        String manv;
+        if (selectedRowDangLamViec != -1) {
+            manv = tbl_DangLamViec.getValueAt(selectedRowDangLamViec, 0).toString(); // Giả sử mã nhân viên ở cột đầu tiên
+        } else {
+            manv = tbl_NghiViec.getValueAt(selectedRowNghiViec, 0).toString(); // Giả sử mã nhân viên ở cột đầu tiên
+        }
+        
+        NhanVienEntity nvE = readForm(); // Lấy thông tin từ form
+        if (nvE != null) {
+            int result = rp.capNhatNhanVien(nvE);
+            if (result == 1) {
+//                JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
+                this.fillTable(rp.getAll());
+                this.fillTable2(rp.getAll2());// Làm mới bảng
+            } else {
+//                JOptionPane.showMessageDialog(this, "Cập nhật thất bại!");
+            }
+        }
+    } else {
+//        JOptionPane.showMessageDialog(this, "Vui lòng chọn hàng cần cập nhật!");
+    }
+    }//GEN-LAST:event_btn_SuaActionPerformed
+
+    private void btn_LamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_LamMoiActionPerformed
+        // TODO add your handling code here:
+                txt_MaNV.setText("");
+        txt_TenNV.setText("");
+        txt_MatKhau.setText("");
+        txt_SDT.setText("");
+        txt_Date.setText("");
+        txt_Email.setText("");
+        txt_DiaChi.setText("");
+        QuanLy.setSelectedItem("Quản trị viên");
+        buttonGroup1.clearSelection();
+        buttonGroup2.clearSelection();
+    }//GEN-LAST:event_btn_LamMoiActionPerformed
+
+    private void cbo_LocVaiTroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbo_LocVaiTroActionPerformed
+        // TODO add your handling code here:
+           String maNV = txt_TimKiem.getText();
+        String gioiTinh = cbo_LocGioiTinh.getSelectedItem().toString();
+        String vaiTo = cbo_LocVaiTro.getSelectedItem().toString();
+
+        if (gioiTinh.equalsIgnoreCase("Tất cả") && vaiTo.equalsIgnoreCase("Tất cả")) {
+            // Tìm kiếm chỉ dựa trên mã nhân viên và vai trò
+            ArrayList<NhanVienEntity> result = rp.timNV(maNV, null, null);
+            fillTable(result);
+
+            ArrayList<NhanVienEntity> result2 = rp.timNV2(maNV, null, null);
+            fillTable2(result2);
+        } else if (gioiTinh.equalsIgnoreCase("Tất cả")) {
+            ArrayList<NhanVienEntity> result = rp.timNV(maNV, null, vaiTo);
+            fillTable(result);
+
+            ArrayList<NhanVienEntity> result2 = rp.timNV2(maNV, null, vaiTo);
+            fillTable2(result2);
+        } else if (vaiTo.equalsIgnoreCase("Tất cả")) {
+            ArrayList<NhanVienEntity> result = rp.timNV(maNV, gioiTinh, null);
+            fillTable(result);
+
+            ArrayList<NhanVienEntity> result2 = rp.timNV2(maNV, gioiTinh, null);
+            fillTable2(result2);
+        } else {
+            // Tìm kiếm dựa trên mã nhân viên, giới tính và vai trò
+            ArrayList<NhanVienEntity> result = rp.timNV(maNV, gioiTinh, vaiTo);
+            fillTable(result);
+
+            ArrayList<NhanVienEntity> result2 = rp.timNV2(maNV, gioiTinh, vaiTo);
+            fillTable2(result2);
+        }
+    }//GEN-LAST:event_cbo_LocVaiTroActionPerformed
+
+    private void cbo_LocGioiTinhActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbo_LocGioiTinhActionPerformed
+        // TODO add your handling code here:
+             String maNV = txt_TimKiem.getText();
+        String gioiTinh = cbo_LocGioiTinh.getSelectedItem().toString();
+        String vaiTo = cbo_LocVaiTro.getSelectedItem().toString();
+
+        if (gioiTinh.equalsIgnoreCase("Tất cả") && vaiTo.equalsIgnoreCase("Tất cả")) {
+            // Tìm kiếm chỉ dựa trên mã nhân viên và vai trò
+            ArrayList<NhanVienEntity> result = rp.timNV(maNV, null, null);
+            fillTable(result);
+
+            ArrayList<NhanVienEntity> result2 = rp.timNV2(maNV, null, null);
+            fillTable2(result2);
+        } else if (gioiTinh.equalsIgnoreCase("Tất cả")) {
+            ArrayList<NhanVienEntity> result = rp.timNV(maNV, null, vaiTo);
+            fillTable(result);
+
+            ArrayList<NhanVienEntity> result2 = rp.timNV2(maNV, null, vaiTo);
+            fillTable2(result2);
+        } else if (vaiTo.equalsIgnoreCase("Tất cả")) {
+            ArrayList<NhanVienEntity> result = rp.timNV(maNV, gioiTinh, null);
+            fillTable(result);
+
+            ArrayList<NhanVienEntity> result2 = rp.timNV2(maNV, gioiTinh, null);
+            fillTable2(result2);
+        } else {
+            // Tìm kiếm dựa trên mã nhân viên, giới tính và vai trò
+            ArrayList<NhanVienEntity> result = rp.timNV(maNV, gioiTinh, vaiTo);
+            fillTable(result);
+
+            ArrayList<NhanVienEntity> result2 = rp.timNV2(maNV, gioiTinh, vaiTo);
+            fillTable2(result2);
+        }
+    }//GEN-LAST:event_cbo_LocGioiTinhActionPerformed
+
+    private void txt_TimKiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_TimKiemActionPerformed
+        // TODO add your handling code here:
+              String maNV = txt_TimKiem.getText();
+        String gioiTinh = cbo_LocGioiTinh.getSelectedItem().toString();
+        String vaiTo = cbo_LocVaiTro.getSelectedItem().toString();
+        ArrayList<NhanVienEntity> c = rp.timNV(maNV, gioiTinh, vaiTo);
+        fillTable(c);
+        ArrayList<NhanVienEntity> d = rp.timNV2(maNV, gioiTinh, vaiTo);
+        fillTable2(d);
+    }//GEN-LAST:event_txt_TimKiemActionPerformed
+
+    private void tbl_DangLamViecMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbl_DangLamViecMouseClicked
+        // TODO add your handling code here:
+        int a = tbl_DangLamViec.getSelectedRow();
+        this.showData(a);
+    }//GEN-LAST:event_tbl_DangLamViecMouseClicked
+
+    private void tbl_NghiViecMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbl_NghiViecMouseClicked
+        // TODO add your handling code here:
+        int b = tbl_DangLamViec.getSelectedRow();
+        this.showData2(b);
+    }//GEN-LAST:event_tbl_NghiViecMouseClicked
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> QuanLy;
     private javax.swing.JButton btn_LamMoi;
     private javax.swing.JButton btn_Sua;
     private javax.swing.JButton btn_Them;
     private javax.swing.JButton btn_Tim;
+    private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.JComboBox<String> cbo_LocGioiTinh;
     private javax.swing.JComboBox<String> cbo_LocVaiTro;
     private javax.swing.JPanel cbo_VaiTro;
-    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
