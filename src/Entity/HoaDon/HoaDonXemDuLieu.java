@@ -20,11 +20,12 @@ public class HoaDonXemDuLieu {
     private String tenNhanVien;
     private String maKhachHang;
     private String tenKhachHang;
+    private int idDonHang;
 
     public HoaDonXemDuLieu() {
     }
 
-    public HoaDonXemDuLieu(String maHoaDon, float tongTien, String hinhThuc, Date ngayLap, String trangThai, String maNhanVien, String tenNhanVien, String maKhachHang, String tenKhachHang) {
+    public HoaDonXemDuLieu(String maHoaDon, float tongTien, String hinhThuc, Date ngayLap, String trangThai, String maNhanVien, String tenNhanVien, String maKhachHang, String tenKhachHang, int idDonHang) {
         this.maHoaDon = maHoaDon;
         this.tongTien = tongTien;
         this.hinhThuc = hinhThuc;
@@ -34,6 +35,7 @@ public class HoaDonXemDuLieu {
         this.tenNhanVien = tenNhanVien;
         this.maKhachHang = maKhachHang;
         this.tenKhachHang = tenKhachHang;
+        this.idDonHang = idDonHang;
     }
 
     public String getMaHoaDon() {
@@ -107,5 +109,16 @@ public class HoaDonXemDuLieu {
     public void setTenKhachHang(String tenKhachHang) {
         this.tenKhachHang = tenKhachHang;
     }
+
+    public int getIdDonHang() {
+        return idDonHang;
+    }
+
+    public void setIdDonHang(int idDonHang) {
+        this.idDonHang = idDonHang;
+    }
+
+   
     
+
 }

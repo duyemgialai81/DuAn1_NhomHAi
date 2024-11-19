@@ -5,6 +5,8 @@
 package Repository;
 
 import Entity.DonHangChiTiet.DonHangChiTietEntity;
+import Entity.HoaDon.HoaDonXemDuLieu;
+import GiaoDien.LuuThongTinDangNhap;
 import java.util.ArrayList;
 import java.sql.*;
 import KetNoiSQL.ketnoi;
@@ -105,4 +107,33 @@ public class DonHangChiTietRepository {
     }
     return ls;
 }
+  public ArrayList<HoaDonXemDuLieu> layHhoaDon(){
+      ArrayList<HoaDonXemDuLieu> ls = new ArrayList<>();
+      String tenNhaVien = LuuThongTinDangNhap.getTenNhanVien();
+      String sql ="""
+                  select dh.id_ma_don_hang, dh.ma_don_hang,kh.ten_khach_hang,nv.ten_nhan_vien, dh.ngay_dat, dh.trang_thai
+                  from DonHang dh
+                  join khachhang kh on dh.ma_khach_hang = kh.id_ma_khach_hang
+                  join nhanvien nv on dh.ma_nhan_vien = nv.id_ma_nhan_vien
+                  where dh.trang_thai = N'đang chờ thanh toán'
+                  """;
+      try {
+          Connection con = ketnoi.getConnection();
+          PreparedStatement ps = con.prepareStatement(sql);
+          ResultSet sc = ps.executeQuery();
+          while(sc.next()){
+              HoaDonXemDuLieu dl = new HoaDonXemDuLieu();
+              dl.setIdDonHang(sc.getInt("id_ma_don_hang"));
+              dl.setMaHoaDon(sc.getString("ma_don_hang"));
+              dl.setTenKhachHang(sc.getString("ten_khach_hang"));
+              dl.setTenNhanVien(sc.getString("ten_nhan_vien"));
+              dl.setNgayLap(sc.getDate("ngay_dat"));
+              dl.setTrangThai(sc.getString("trang_thai"));
+             ls.add(dl);
+          }
+      } catch (Exception e) {
+          e.printStackTrace();
+      }
+      return ls;
+  }
 }

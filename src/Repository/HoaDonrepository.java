@@ -6,6 +6,7 @@ package Repository;
 
 import Entity.HoaDon.ChiTietHoaDonEntity;
 import Entity.DonHang.DonHangEntity;
+import Entity.DonHangChiTiet.DonHangChiTietEntity;
 import Entity.HoaDon.HoaDonEntity;
 import Entity.HoaDon.HoaDonXemDuLieu;
 import Entity.HoaDon.InsertHoaDonEntity;
@@ -30,7 +31,7 @@ public class HoaDonrepository {
                     FROM HoaDon hd
                     JOIN NhanVien nv ON nv.id_ma_nhan_vien = hd.ma_nhan_vien
                     JOIN KhachHang kh ON kh.id_ma_khach_hang = hd.ma_khach_hang
-                    WHERE hd.trangThai = N'đang chờ thanh toán';
+                    WHERE hd.trangThai = N'Đang Chờ Thanh Toán';
                      """;
         try (Connection con = ketnoi.getConnection()){
             PreparedStatement ps = con.prepareStatement(sql);
@@ -203,5 +204,34 @@ public boolean capNhatSoLuongSanPham(int idMaSanPham, int soLuongMoi) {
          e.printStackTrace();
      }
      return  ls;
+ }
+ public ArrayList<DonHangChiTietEntity> layGioHangSanPham(int idDonHang){
+     ArrayList<DonHangChiTietEntity> ls= new ArrayList<>();
+     String  sql = """
+                  select sp.ma_san_pham,sp.ten_san_pham, sp.gia_ban,sum( sp.so_luong_ton) as soluongton
+                   from chitietdonhang ctdh
+                   join SanPham sp on ctdh.ma_san_pham = sp.id_ma_san_pham
+                   join DonHang dh on ctdh.ma_don_hang = dh.id_ma_don_hang
+                   where dh.id_ma_don_hang = ?
+                   group by sp.ma_san_pham, sp.gia_ban, sp.so_luong_ton,sp.ten_san_pham 
+                   """;
+     try {
+         Connection con = ketnoi.getConnection();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ps.setObject(1, idDonHang);
+         ResultSet rs = ps.executeQuery();
+         while(rs.next()){
+             DonHangChiTietEntity ct = new DonHangChiTietEntity();
+             ct.setMaSanPham(rs.getString("ma_san_pham"));
+             ct.setTenSanPham(rs.getString("ten_san_pham"));
+             ct.setGiaBan(rs.getFloat("gia_ban"));
+             ct.setSoLuong(rs.getInt("soLuongTon"));
+            ls.add(ct);
+         }
+     } catch (Exception e) {
+         e.printStackTrace();
+     }
+     return ls;
+     
  }
 }

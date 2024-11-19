@@ -4,6 +4,7 @@
  */
 package GiaoDien;
 
+import java.awt.Color;
 import java.util.ArrayList;
 
 /**
@@ -11,10 +12,6 @@ import java.util.ArrayList;
  * @author SingPC
  */
 public class TrangChu extends javax.swing.JFrame {
-
-    /**
-     * Creates new form TrangChu
-     */
     public TrangChu() {
         initComponents();
         
@@ -68,6 +65,8 @@ public class TrangChu extends javax.swing.JFrame {
         nhanvien1 = new javax.swing.JButton();
         khachhang = new javax.swing.JPanel();
         khachhang1 = new javax.swing.JButton();
+        txtdnagxuat1 = new javax.swing.JPanel();
+        txtdanngxuat = new javax.swing.JLabel();
         manhinh = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -310,6 +309,30 @@ public class TrangChu extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
+        txtdanngxuat.setText("Đăng Xuất");
+        txtdanngxuat.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                txtdanngxuatMouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout txtdnagxuat1Layout = new javax.swing.GroupLayout(txtdnagxuat1);
+        txtdnagxuat1.setLayout(txtdnagxuat1Layout);
+        txtdnagxuat1Layout.setHorizontalGroup(
+            txtdnagxuat1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(txtdnagxuat1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(txtdanngxuat, javax.swing.GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        txtdnagxuat1Layout.setVerticalGroup(
+            txtdnagxuat1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(txtdnagxuat1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(txtdanngxuat, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
         javax.swing.GroupLayout chucnangmenuLayout = new javax.swing.GroupLayout(chucnangmenu);
         chucnangmenu.setLayout(chucnangmenuLayout);
         chucnangmenuLayout.setHorizontalGroup(
@@ -328,11 +351,15 @@ public class TrangChu extends javax.swing.JFrame {
                             .addComponent(nhanvien, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(khachhang, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
+            .addGroup(chucnangmenuLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(txtdnagxuat1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         chucnangmenuLayout.setVerticalGroup(
             chucnangmenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(chucnangmenuLayout.createSequentialGroup()
-                .addGap(9, 9, 9)
+                .addContainerGap()
                 .addComponent(text2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(tblsanpham, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -348,7 +375,9 @@ public class TrangChu extends javax.swing.JFrame {
                 .addComponent(khachhang, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(THONGKE, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(67, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(txtdnagxuat1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout menuLayout = new javax.swing.GroupLayout(menu);
@@ -383,7 +412,7 @@ public class TrangChu extends javax.swing.JFrame {
         );
         manhinhLayout.setVerticalGroup(
             manhinhLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGap(0, 721, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -443,6 +472,15 @@ public class TrangChu extends javax.swing.JFrame {
        
     }//GEN-LAST:event_txtvoucherActionPerformed
 
+    private void txtdanngxuatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtdanngxuatMouseClicked
+        // TODO add your handling code here:
+        DangNhapChinh duy = new DangNhapChinh();
+        duy.setVisible(true);
+//        JOptionPane.showConfirmDialog( null,  YES_NO_OPTION);
+        dispose();
+      
+    }//GEN-LAST:event_txtdanngxuatMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -499,6 +537,8 @@ public class TrangChu extends javax.swing.JFrame {
     private javax.swing.JPanel text2;
     private javax.swing.JButton txt1;
     private javax.swing.JLabel txtTenNhanvien;
+    private javax.swing.JLabel txtdanngxuat;
+    private javax.swing.JPanel txtdnagxuat1;
     private javax.swing.JPanel txtvouche;
     private javax.swing.JButton txtvoucher;
     // End of variables declaration//GEN-END:variables

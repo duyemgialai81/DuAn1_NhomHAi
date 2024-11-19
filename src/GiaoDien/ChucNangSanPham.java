@@ -8,6 +8,13 @@ import Entity.SanPham.AddSanPhamEntity;
 import Entity.khac.RoleEntity;
 import Entity.SanPham.SanPhamEntity;
 import Entity.SanPham.ThongTinSanPham;
+import Entity.ThuocTinh.ChatLieuEntity;
+import Entity.ThuocTinh.KichCoEnTity;
+import Entity.ThuocTinh.MauSacEntity;
+import Entity.ThuocTinh.ThuongHieuEntity;
+import Entity.ThuocTinh.XuatXuEntity;
+import Entity.ThuocTinh.loaiSanPhamEntity;
+import KetNoiSQL.ketnoi;
 import Repository.SanPhamRepository;
 import Repository.TaiKhoanRepository;
 import com.google.zxing.BarcodeFormat;
@@ -22,6 +29,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -52,8 +62,153 @@ private String hiddenPath;
 
         hienThiThongTinSanPham(ls.getAll());
         hienThiDuLieu(ls.getSanPhamChhiTiet());
+        thuocTinhLoaiSanPham();
+        thuocTinhLoaiSanPhamm();
+        thuocTinhKichCo();
+        thuocTinhChatLieu();
+        thuocTinhXuatXu();
+        thuocTinhMauSac();
+        thuocTinhThuongHieu();
     }
-
+private void thuocTinhLoaiSanPhamm(){
+        ArrayList<loaiSanPhamEntity> ls = new ArrayList<>();
+        String sql = """
+                     select * from LoaiSanPham
+                     """;
+        try {
+            Connection con = ketnoi.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+             txt_addDanhMuc.removeAllItems();
+            while (rs.next()) {
+                loaiSanPhamEntity sp = new loaiSanPhamEntity();
+                sp.setTenLoaiSanPham(rs.getString("ten_loai_san_pham"));
+                sp.setMota(rs.getString("mo_ta"));
+                ls.add(sp);
+                  String tenLoai = rs.getString("ten_loai_san_pham");
+            txt_addDanhMuc.addItem(tenLoai);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("hiện thị dữ liệu thất bại");
+        }
+}
+private void thuocTinhKichCo(){
+        ArrayList<KichCoEnTity> ls = new ArrayList<>();
+        String sql = """
+                    select kich_co, mo_ta
+                     from kichCo
+                    
+                    """;
+        try {
+            Connection con = ketnoi.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            txt_addSize.removeAllItems();;
+            while (rs.next()) {
+                KichCoEnTity kc = new KichCoEnTity();
+                kc.setKichCo(rs.getString("kich_co"));
+                kc.setMoTa(rs.getString("mo_ta"));
+                ls.add(kc);
+                String kichCo= rs.getString("kich_co");
+                txt_addSize.addItem(kichCo);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+}
+private void thuocTinhChatLieu(){
+    ArrayList<ChatLieuEntity> ls = new ArrayList<>();
+        String sql = """
+                     select chat_lieu_san_pham, mo_ta
+                     from chatLieu
+                     """;
+        try {
+            Connection con = ketnoi.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            txt_addChatLieu.removeAllItems();
+            while(rs.next()){
+                ChatLieuEntity cl = new ChatLieuEntity();
+                cl.setChatLieu(rs.getString("chat_lieu_san_pham"));
+                cl.setMoTa(rs.getString("mo_ta"));
+                ls.add(cl);
+                String chtaLieu = rs.getString("chat_lieu_san_pham");
+                txt_addChatLieu.addItem(chtaLieu);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+}
+private void thuocTinhThuongHieu(){
+    ArrayList<ThuongHieuEntity> ls = new ArrayList<>();
+        String sql = """
+                     select ten_thuong_hieu, mo_ta
+                     from thuongHieu
+                     """;
+        try {
+            Connection con = ketnoi.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            txt_addThuongHieu.removeAllItems();
+            while(rs.next()){
+                ThuongHieuEntity cl = new ThuongHieuEntity();
+                cl.setTenThuongHieu(rs.getString("ten_thuong_hieu"));
+                cl.setMoTa(rs.getString("mo_ta"));
+                ls.add(cl);
+                String thuongHieu = rs.getString("ten_thuong_hieu");
+                txt_addThuongHieu.addItem(thuongHieu);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+}
+private void thuocTinhXuatXu(){
+    ArrayList<XuatXuEntity> ls = new ArrayList<>();
+        String sql ="""
+                    select quoc_gia, mo_ta
+                    from xuatxu
+                    """;
+        try {
+            Connection con = ketnoi.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            txt_addXuatXu.removeAllItems();
+            while(rs.next()){
+                XuatXuEntity xx = new XuatXuEntity();
+                xx.setQuocGia(rs.getString("quoc_gia"));
+                xx.setMota(rs.getString("mo_ta"));
+                ls.add(xx);
+                String quocGia = rs.getString("quoc_gia");
+                txt_addXuatXu.addItem(quocGia);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+}
+private void thuocTinhMauSac(){
+     ArrayList<MauSacEntity> ls = new ArrayList<>();
+        String sql = """
+                     select mau_sac_san_pham, mo_ta
+                     from mauSac 
+                     """;
+        try {
+            Connection con = ketnoi.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            txt_addMau.removeAllItems();
+            while (rs.next()) {
+                MauSacEntity ms = new MauSacEntity();
+                ms.setMauSac(rs.getString("mau_sac_san_pham"));
+                ms.setMoTa(rs.getString("mo_ta"));
+                ls.add(ms);
+                String mauSac = rs.getString("mau_sac_san_pham");
+                txt_addMau.addItem(mauSac);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+}
     private void hienThiThongTinSanPham(ArrayList<ThongTinSanPham> lsss) {
         md = (DefaultTableModel) tbl_thongTinSP.getModel();
         md.setRowCount(0);
@@ -431,7 +586,31 @@ private void timkiemThongTinSanPham() {
         hienThiThongTinSanPham(KetQua);
    
 }
+private void thuocTinhLoaiSanPham(){
+        ArrayList<loaiSanPhamEntity> ls = new ArrayList<>();
+        String sql = """
+                     select * from LoaiSanPham
+                     """;
+        try {
+            Connection con = ketnoi.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+             txtLoaiSanPham.removeAllItems();
+            while (rs.next()) {
+                loaiSanPhamEntity sp = new loaiSanPhamEntity();
+                sp.setTenLoaiSanPham(rs.getString("ten_loai_san_pham"));
+                sp.setMota(rs.getString("mo_ta"));
+                ls.add(sp);
+                  String tenLoai = rs.getString("ten_loai_san_pham");
+            txtLoaiSanPham.addItem(tenLoai);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("hiện thị dữ liệu thất bại");
+        }
+    
 
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -518,6 +697,9 @@ private void timkiemThongTinSanPham() {
         jScrollPane2 = new javax.swing.JScrollPane();
         tbl_sanphamchitiet = new javax.swing.JTable();
         jLabel3 = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        jPanel4 = new javax.swing.JPanel();
+        txtLoaiSanPham = new javax.swing.JComboBox<>();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -1227,6 +1409,46 @@ private void timkiemThongTinSanPham() {
 
         jTabbedPane1.addTab("Sản Phẩm Chi Tiết", jPanel_SanPhamChiTiet);
 
+        txtLoaiSanPham.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        txtLoaiSanPham.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtLoaiSanPhamActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGap(129, 129, 129)
+                .addComponent(txtLoaiSanPham, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(809, Short.MAX_VALUE))
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGap(167, 167, 167)
+                .addComponent(txtLoaiSanPham, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(361, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(90, Short.MAX_VALUE))
+        );
+
+        jTabbedPane1.addTab("Thộc Tính San Phẩm", jPanel2);
+
         add(jTabbedPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 6, 1100, 690));
     }// </editor-fold>//GEN-END:initComponents
 
@@ -1239,14 +1461,45 @@ private void timkiemThongTinSanPham() {
     private void btn_ThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ThemActionPerformed
         // TODO add your handling code here: // Lấy vai trò người dùng
 
-        String taiKhoan = LuuThongTinDangNhap.getTaiKhoan();
-        String vaiTro = LuuThongTinDangNhap.getVaiTro();
-        if ("Quản trị viên".equals(vaiTro)) {
-            add();
-            JOptionPane.showMessageDialog(this, "Thêm Thành Công");
+      String tenSanPham = txt_addTenSanPham.getText().trim();
+
+    if (tenSanPham.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Tên sản phẩm không được để trống");
+        return;
+    }
+
+    // Kiểm tra tên sản phẩm trong cơ sở dữ liệu
+    String sql = "SELECT COUNT(*) AS count FROM SanPham WHERE ten_san_pham = ?";
+    try (Connection con = ketnoi.getConnection();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+
+        ps.setString(1, tenSanPham);
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next() && rs.getInt("count") > 0) {
+            // Nếu sản phẩm đã tồn tại
+            JOptionPane.showMessageDialog(this, "Tên sản phẩm đã tồn tại");
         } else {
-            JOptionPane.showMessageDialog(this, "bạn Là nhân viên bạn không có quyền này");
+            // Kiểm tra quyền
+            String vaiTro = LuuThongTinDangNhap.getVaiTro();
+            if ("Quản trị viên".equals(vaiTro)) {
+                // Thêm sản phẩm
+                ls.addSanPhammm(getFomat());
+                JOptionPane.showMessageDialog(this, "Thêm sản phẩm thành công");
+                hienThiDuLieu(ls.getSanPhamChhiTiet());
+            } else {
+                JOptionPane.showMessageDialog(this, "Bạn là nhân viên, không có quyền này");
+            }
         }
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Lỗi khi kiểm tra tên sản phẩm");
+    }
+        
+        
+        
+        
+        
 
 
     }//GEN-LAST:event_btn_ThemActionPerformed
@@ -1427,6 +1680,10 @@ private String createQRCode(SanPhamEntity sanPham) {
         // TODO add your handling code here:
         timkiemThongTinSanPham();
     }//GEN-LAST:event_txtGiaMinKeyReleased
+
+    private void txtLoaiSanPhamActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtLoaiSanPhamActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtLoaiSanPhamActionPerformed
   
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -1473,7 +1730,9 @@ private String createQRCode(SanPhamEntity sanPham) {
     private javax.swing.JPanel jPanel15;
     private javax.swing.JPanel jPanel16;
     private javax.swing.JPanel jPanel18;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
     private javax.swing.JPanel jPanel_SanPham;
@@ -1486,6 +1745,7 @@ private String createQRCode(SanPhamEntity sanPham) {
     private javax.swing.JComboBox<String> timkiemtrangthia;
     private javax.swing.JTextField txtGiaMin;
     private javax.swing.JTextField txtGiamax;
+    private javax.swing.JComboBox<String> txtLoaiSanPham;
     private javax.swing.JTextField txt_TimKiemSP;
     private javax.swing.JTextField txt_TimKiemThongTinSanPham;
     private javax.swing.JComboBox<String> txt_addChatLieu;

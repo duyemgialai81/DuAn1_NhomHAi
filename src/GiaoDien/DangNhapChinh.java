@@ -1,16 +1,6 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package GiaoDien;
-
 import Repository.TaiKhoanRepository;
 import javax.swing.JOptionPane;
-
-/**
- *
- * @author SingPC
- */
 public class DangNhapChinh extends javax.swing.JFrame {
 private TaiKhoanRepository ls = new TaiKhoanRepository();
 private boolean jcbShowPass;
@@ -59,8 +49,6 @@ private boolean jcbShowPass;
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         duyem = new javax.swing.JCheckBox();
         jLabel9 = new javax.swing.JLabel();
@@ -76,34 +64,28 @@ private boolean jcbShowPass;
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Đăng Nhập");
-        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 380, 90, 30));
+        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 350, 90, 40));
 
-        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Rectangle 5.png"))); // NOI18N
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Rectangle 5 (2).png"))); // NOI18N
         jLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jLabel2MouseClicked(evt);
             }
         });
-        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 360, 360, 70));
-        getContentPane().add(txttaikhoan, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 180, 350, 50));
+        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 350, 260, 40));
+        getContentPane().add(txttaikhoan, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 190, 320, 40));
 
         jLabel3.setText("HOẶC");
-        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 500, -1, -1));
+        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 430, -1, -1));
 
         jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Frame 1.png"))); // NOI18N
-        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(850, 500, 140, 10));
+        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 430, 140, 10));
 
         jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Frame 1.png"))); // NOI18N
-        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 500, 160, 10));
-
-        jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Google-Symbol 1.png"))); // NOI18N
-        getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 510, 40, 40));
-
-        jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/th (19) 1.png"))); // NOI18N
-        getContentPane().add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(850, 510, -1, -1));
+        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 430, 160, 10));
 
         jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Bạn chưa có tài khoản _ Đăng ký.png"))); // NOI18N
-        getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 580, 200, -1));
+        getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 450, 200, -1));
 
         duyem.setText("Hiển thị password");
         duyem.addActionListener(new java.awt.event.ActionListener() {
@@ -111,30 +93,30 @@ private boolean jcbShowPass;
                 duyemActionPerformed(evt);
             }
         });
-        getContentPane().add(duyem, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 450, -1, -1));
+        getContentPane().add(duyem, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 400, -1, -1));
 
         jLabel9.setText("Quên mật khẩu");
-        getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(890, 450, 90, -1));
+        getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 400, 80, -1));
 
         jLabel10.setFont(new java.awt.Font("Source Sans Pro Black", 1, 24)); // NOI18N
         jLabel10.setText("ĐĂNG NHẬP");
-        getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 50, 140, 60));
+        getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 50, 140, 60));
 
         jLabel11.setText("MẬT KHẨU");
-        getContentPane().add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 250, -1, -1));
+        getContentPane().add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 270, -1, -1));
 
         jLabel12.setText("TÀI KHOẢN");
-        getContentPane().add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 150, -1, -1));
+        getContentPane().add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 170, -1, -1));
 
         txtmatkhau.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtmatkhauActionPerformed(evt);
             }
         });
-        getContentPane().add(txtmatkhau, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 290, 350, 50));
+        getContentPane().add(txtmatkhau, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 290, 320, 40));
 
-        nen.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Group 1 (1).png"))); // NOI18N
-        getContentPane().add(nen, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1067, -1));
+        nen.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Group 1 (3).png"))); // NOI18N
+        getContentPane().add(nen, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
 
         pack();
         setLocationRelativeTo(null);
@@ -203,8 +185,6 @@ private boolean jcbShowPass;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JLabel nen;

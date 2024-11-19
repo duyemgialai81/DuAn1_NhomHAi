@@ -62,11 +62,11 @@ public class BanHangTesst {
         ArrayList<HoaDonEntity> ls = new ArrayList<>();
         String sql = """
                     SELECT hd.id_ma_don_hang, hd.ma_don_hang, hd.ngay_dat, nv.ten_nhan_vien, kh.ten_khach_hang, hdd.ma_hoa_don
-                                        FROM DonHang hd
-                                        JOIN NhanVien nv ON nv.id_ma_nhan_vien = hd.ma_nhan_vien
-                                        JOIN KhachHang kh ON kh.id_ma_khach_hang = hd.ma_khach_hang
-                     JOIN hoadon hdd on hd.id_ma_don_hang = hdd.ma_don_hang
-                                        WHERE hd.trang_thai = N'Đang Chờ Thanh Toán';
+                                                            FROM DonHang hd
+                                                            JOIN NhanVien nv ON nv.id_ma_nhan_vien = hd.ma_nhan_vien
+                                                            JOIN KhachHang kh ON kh.id_ma_khach_hang = hd.ma_khach_hang
+                                         JOIN hoadon hdd on hd.id_ma_don_hang = hdd.ma_don_hang
+                                                            WHERE hd.trang_thai = N'Đang Chờ Thanh Toán' or hd.trang_thai = N'Đang Chờ Xác Nhận'
                      """;
         try (Connection con = ketnoi.getConnection()){
             PreparedStatement ps = con.prepareStatement(sql);
@@ -171,7 +171,7 @@ public class BanHangTesst {
         String sql = """
                      select ma_hoa_don
                     from HoaDon
-                    where trang_thai =N'Đang Chờ Thanh Toán'
+                    where trang_thai =N'Đang Chờ Thanh Toán' or trang_thai =N'Đang Chờ Xác Nhận'
                      """;
         try (Connection con = ketnoi.getConnection()){
             PreparedStatement ps = con.prepareStatement(sql);
@@ -210,6 +210,61 @@ String sql = "SELECT ma_san_pham,ten_san_pham,so_luong_ton,gia_ban  FROM SanPham
     }
 
     return ls; // Trả về null nếu không tìm thấy sản phẩm hoặc có lỗi
+}
+ public ArrayList<SanPhamEntity> timkiemSanPhamm(String thuonghieu, String mauSac, String kichCo, String tenSanPham) {
+    ArrayList<SanPhamEntity> ls = new ArrayList<>();
+    String sql = """
+        select sp.ma_san_pham, sp.ten_san_pham, sp.gia_ban, sp.gia_nhap, sp.so_luong_ton, sp.hinh_anh, 
+               lsp.ten_loai_san_pham, ms.mau_sac_san_pham, kc.kich_co, th.ten_thuong_hieu, 
+               cl.chat_lieu_san_pham, xx.quoc_gia, sp.trang_thai
+        from SanPham sp
+        join LoaiSanPham lsp on lsp.id_ma_loai = sp.ma_loai_san_pham
+        join MauSac ms on ms.id_mau_sac = sp.ma_mau_sac
+        join KichCo kc on kc.id_ma_kich_co = sp.ma_kich_co
+        join ThuongHieu th on th.id_ma_thuong_hieu = sp.ma_thuong_hieu
+        join ChatLieu cl on cl.id_chat_lieu = sp.ma_chat_lieu
+        join XuatXu xx on xx.id_ma_xuat_xu = sp.ma_xuat_xu
+         WHERE (sp.ten_san_pham LIKE ? OR ? = '') 
+         AND (ms.mau_sac_san_pham LIKE ? OR ? = '') 
+         AND (th.ten_thuong_hieu LIKE ? OR ? = '') 
+         AND (kc.kich_co LIKE ? OR ? = '')
+    """;
+    try (Connection con = ketnoi.getConnection()) {
+        PreparedStatement ps = con.prepareStatement(sql);
+        
+        // Cài đặt các tham số cho các điều kiện tìm kiếm
+        ps.setString(1, "%" + tenSanPham + "%");  // Tìm theo tên sản phẩm
+        ps.setString(2, tenSanPham);  // Khi tên sản phẩm rỗng, sẽ bỏ qua tìm kiếm
+        ps.setString(3, "%" + mauSac + "%");  // Tìm theo xuất xứ
+        ps.setString(4, mauSac);  // Khi xuất xứ rỗng, sẽ bỏ qua tìm kiếm
+        ps.setString(5, "%" + kichCo + "%");  // Tìm theo trạng thái
+        ps.setString(6, kichCo);  // Khi trạng thái rỗng, sẽ bỏ qua tìm kiếm
+        ps.setString(7, "%" + thuonghieu + "%");  // Tìm theo thương hiệu
+        ps.setString(8, thuonghieu);  // Khi thương hiệu rỗng, sẽ bỏ qua tìm kiếm
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            SanPhamEntity sp = new SanPhamEntity();
+            sp.setMaSanPham(rs.getString("ma_san_pham"));
+            sp.setTenSanPham(rs.getString("ten_san_pham"));
+            sp.setGiaBan(rs.getFloat("gia_ban"));
+            sp.setGiaNhap(rs.getFloat("gia_nhap"));
+            sp.setSoLuong(rs.getInt("so_luong_ton"));
+            sp.setHinhAnh(rs.getString("hinh_anh"));
+            sp.setTenMaLoai(rs.getString("ten_loai_san_pham"));
+            sp.setKichCo(rs.getString("kich_co"));
+            sp.setMauSac(rs.getString("mau_sac_san_pham"));
+            sp.setTenThuongHieu(rs.getString("ten_thuong_hieu"));
+            sp.setChatLieu(rs.getString("chat_lieu_san_pham"));
+            sp.setQuocGia(rs.getString("quoc_gia"));
+            sp.setTrangThai(rs.getString("trang_thai"));
+            ls.add(sp);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return ls;
 }
 
 }
