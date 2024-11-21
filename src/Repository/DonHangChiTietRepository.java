@@ -18,22 +18,27 @@ public class DonHangChiTietRepository {
     public ArrayList<DonHangChiTietEntity> getAll(){
         ArrayList<DonHangChiTietEntity> ls = new ArrayList<>();
         String sql = """
-                SELECT 
-                     SanPham.ma_san_pham, 
-                     SanPham.ten_san_pham, 
-                     SUM(ChiTietDonHang.so_luong) AS tong_so_luong,
-                 	ChiTietDonHang.gia_ban,
-                 	ChiTietDonHang.tong_tien,
-                 	DonHang.trang_thai
-                 FROM 
-                     ChiTietDonHang
-                 JOIN 
-                     SanPham ON SanPham.id_ma_san_pham = ChiTietDonHang.ma_san_pham
-                 	join DonHang on ChiTietDonHang.ma_don_hang = DonHang.id_ma_don_hang
-                 GROUP BY 
-                     SanPham.ma_san_pham, SanPham.ten_san_pham,ChiTietDonHang.gia_ban,
-                 	ChiTietDonHang.tong_tien,
-                 	DonHang.trang_thai	
+                 SELECT 
+                                             SanPham.ma_san_pham, 
+                                             SanPham.ten_san_pham, 
+                                             SUM(ChiTietDonHang.so_luong) AS tong_so_luong,
+                                         	ChiTietDonHang.gia_ban,
+                                         	ChiTietDonHang.tong_tien,
+                                         	DonHang.trang_thai,
+                        					DonHang.ngay_dat, 
+                        					DonHang.ma_don_hang,
+                        					HoaDon.ma_hoa_don
+                                         FROM ChiTietDonHang
+                                             JOIN SanPham ON SanPham.id_ma_san_pham = ChiTietDonHang.ma_san_pham
+                                         	join DonHang on ChiTietDonHang.ma_don_hang = DonHang.id_ma_don_hang
+                        					join HoaDon on DonHang.id_ma_don_hang = HoaDon.ma_don_hang
+                        				
+                                         GROUP BY 
+                                             SanPham.ma_san_pham, SanPham.ten_san_pham,ChiTietDonHang.gia_ban,
+                                         	ChiTietDonHang.tong_tien,
+                                         	DonHang.trang_thai,	DonHang.ngay_dat,	DonHang.ma_don_hang,
+                        					HoaDon.ma_hoa_don
+                        					order by DonHang.ma_don_hang asc
                      """;
         try {
             Connection con = ketnoi.getConnection();

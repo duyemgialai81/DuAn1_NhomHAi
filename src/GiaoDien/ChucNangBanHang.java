@@ -992,9 +992,9 @@ for (XemHoaDonTao ct : productMap.values()) {
         jPanel_PhieuLayout.setHorizontalGroup(
             jPanel_PhieuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel_PhieuLayout.createSequentialGroup()
-                .addGap(24, 24, 24)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 431, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(14, 14, 14)
+                .addComponent(jScrollPane2)
+                .addGap(18, 18, 18)
                 .addGroup(jPanel_PhieuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(btn_themsp, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btn_xoasp, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1476,8 +1476,7 @@ for (XemHoaDonTao ct : productMap.values()) {
     }//GEN-LAST:event_QRAncestorAdded
 
     private void tblhoadon1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblhoadon1MouseClicked
-        // TODO add your handling code here:
-
+        // TODO add your handling code here
         int selectedRowHoaDon = tblhoadon1.getSelectedRow(); // Kiểm tra xem có hàng nào được chọn không
         if (selectedRowHoaDon != -1) {  // Nếu có hàng được chọn
             // Lấy mã giỏ hàng từ cột đầu tiên (cột 0) của hàng được chọn trong bảng hóa đơn

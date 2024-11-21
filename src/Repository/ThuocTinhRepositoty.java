@@ -288,4 +288,23 @@ public class ThuocTinhRepositoty {
         }
         return check >0;
     }
+    public boolean updateLoiaSanPham(loaiSanPhamEntity sp, String maLoaiSanPham){
+        int check =0;
+        String sql = """
+                     update LoaiSanPham
+                     set ten_loai_san_pham =?, mo_ta=?
+                     where ma_loai_san_pham
+                     """;
+        try {
+            Connection con = ketnoi.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setObject(1, sp.getTenLoaiSanPham());
+            ps.setObject(2, sp.getMota());
+            ps.setObject(3, maLoaiSanPham);
+            check = ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return check >0;
+    }
 }

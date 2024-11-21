@@ -33,8 +33,8 @@ public class XuatHoaDonRepository {
                                     ctdh.so_luong,
                                     ctdh.gia_ban,
                                     kh.so_dien_thoai,
-                                    dh.id_ma_don_hang,  -- Lấy mã đơn hàng
-                                    hd.ma_hoa_don        -- Lấy mã hóa đơn
+                                    dh.id_ma_don_hang, 
+                                    hd.ma_hoa_don    
                                 FROM 
                                     DonHang dh
                                 JOIN HoaDon hd 

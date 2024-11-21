@@ -161,7 +161,7 @@ private DonHangChiTietRepository ct = new DonHangChiTietRepository();
         ));
         jScrollPane1.setViewportView(tbl_hoaDon);
 
-        jPanel_HoaDon.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 290, 1006, 148));
+        jPanel_HoaDon.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 290, 1080, 148));
 
         jPanel_TrangThaiThanhToan.setBackground(new java.awt.Color(255, 255, 255));
         jPanel_TrangThaiThanhToan.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
@@ -245,8 +245,8 @@ private DonHangChiTietRepository ct = new DonHangChiTietRepository();
             .addComponent(jPanel_HoaDon, javax.swing.GroupLayout.DEFAULT_SIZE, 1114, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane3)
-                .addGap(30, 30, 30))
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 1084, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

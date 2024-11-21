@@ -35,20 +35,34 @@ public class ChucNangKhachHang extends javax.swing.JPanel {
     }
     public  void showData(int index){
         String ma, ten, sdt,email,dc;
+        boolean gioiTinh, trangThai;
         ma =tbl_thongTinKH.getValueAt(index , 0).toString();
         ten =tbl_thongTinKH.getValueAt(index , 1).toString();
         sdt =tbl_thongTinKH.getValueAt(index , 2).toString();
         email =tbl_thongTinKH.getValueAt(index , 3).toString();
         dc =tbl_thongTinKH.getValueAt(index, 4).toString();
+        gioiTinh = Boolean.parseBoolean( tbl_thongTinKH.getValueAt(index, 5).toString());
+        trangThai = Boolean.parseBoolean(tbl_thongTinKH.getValueAt(index, 6).toString());
         txt_MaKH.setText(ma);
         txt_TenKH.setText(ten);
         txt_SDT.setText(sdt);
         txt_Email.setText(email);
         txt_DiaChi.setText(dc);
+        if(gioiTinh){
+            rdo_Nam.setSelected(true);
+        }else{
+            rdo_Nu.setSelected(true);
+        }
+        if(trangThai){
+            rdo_ConHD.setSelected(true);
+        }else{
+            rdo_NgungHD.setSelected(true);
+        }
         }
         KhachHang readForm() {
         String ten, sdt, email, dc;
-
+        boolean gioiTinh, trangThai;
+        int idMaKhachHang;
         ten = txt_TenKH.getText();
         if (ten.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Tên khách hàng không được để trống.");
@@ -76,8 +90,29 @@ public class ChucNangKhachHang extends javax.swing.JPanel {
             txt_DiaChi.requestFocus();
             return null;
         }
-
-        return new KhachHang(ten, sdt, email, dc);
+           idMaKhachHang = Integer.parseInt(txt_DiaChi.getText());
+        if (dc.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Địa chỉ không được để trống.");
+            txt_DiaChi.requestFocus();
+            return null;
+        }
+        if (rdo_Nam.isSelected()) {
+       gioiTinh = true;  // Giới tính Nam
+    } else if (rdo_Nu.isSelected()) {
+        gioiTinh = false;  // Giới tính Nữ
+    } else {
+        JOptionPane.showMessageDialog(this, "Vui lòng chọn giới tính.");
+        return null;
+    }
+    if (rdo_ConHD.isSelected()) {
+       trangThai = true;  // Giới tính Nam
+    } else if (rdo_NgungHD.isSelected()) {
+        trangThai = false;  // Giới tính Nữ
+    } else {
+        JOptionPane.showMessageDialog(this, "Vui lòng chọn giới tính.");
+        return null;
+    }
+        return new KhachHang(idMaKhachHang, email, ten, sdt, email, dc, gioiTinh, trangThai);
     }
     private void timKiemTuDong() {
     String soDienThoai = txt_TimKiem.getText().trim();

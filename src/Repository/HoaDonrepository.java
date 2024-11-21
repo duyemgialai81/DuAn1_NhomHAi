@@ -74,9 +74,9 @@ public class HoaDonrepository {
         String sql ="""
                     select  sp.ma_san_pham, sp.ten_san_pham, cthd.so_luong,cthd.gia_ban
                     from ChiTietHoaDon cthd
-                    join HoaDon hd on hd.id_ma_hoa_don = cthd.ma_hoa_don
+                    join donhang hd on hd.id_ma_don_hang = cthd.ma_don_hang
                     join SanPham sp on sp.id_ma_san_pham = cthd.ma_san_pham
-                    where hd.id_ma_hoa_don = ?
+                    where hd.id_ma_don_hang = ?
                     """;
         try {
             Connection con = ketnoi.getConnection();
@@ -97,7 +97,7 @@ public class HoaDonrepository {
         return ls;
     }
     public boolean themChiTietHoaDon(int idMaHoaDon, int idMaSanPham, int soLuong, double giaBan) {
-        String sql = "INSERT INTO ChiTietHoaDon (ma_hoa_don, ma_san_pham, so_luong, gia_ban) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO ChiTietHoaDon (ma_don_hang, ma_san_pham, so_luong, gia_ban) VALUES (?, ?, ?, ?)";
         try (Connection con = ketnoi.getConnection()){ 
         PreparedStatement preparedStatement = con.prepareStatement(sql);
             preparedStatement.setInt(1, idMaHoaDon);
@@ -208,12 +208,15 @@ public boolean capNhatSoLuongSanPham(int idMaSanPham, int soLuongMoi) {
  public ArrayList<DonHangChiTietEntity> layGioHangSanPham(int idDonHang){
      ArrayList<DonHangChiTietEntity> ls= new ArrayList<>();
      String  sql = """
-                  select sp.ma_san_pham,sp.ten_san_pham, sp.gia_ban,sum( sp.so_luong_ton) as soluongton
-                   from chitietdonhang ctdh
-                   join SanPham sp on ctdh.ma_san_pham = sp.id_ma_san_pham
-                   join DonHang dh on ctdh.ma_don_hang = dh.id_ma_don_hang
-                   where dh.id_ma_don_hang = ?
-                   group by sp.ma_san_pham, sp.gia_ban, sp.so_luong_ton,sp.ten_san_pham 
+               	SELECT sp.ma_san_pham, 
+                               sp.ten_san_pham, 
+                               sp.gia_ban, 
+                               SUM(ctdh.so_luong) AS tong_so_luong
+                        FROM chitietdonhang ctdh
+                        JOIN SanPham sp ON ctdh.ma_san_pham = sp.id_ma_san_pham
+                        JOIN DonHang dh ON ctdh.ma_don_hang = dh.id_ma_don_hang
+                        WHERE dh.id_ma_don_hang = ?
+                        GROUP BY sp.ma_san_pham, sp.ten_san_pham, sp.gia_ban
                    """;
      try {
          Connection con = ketnoi.getConnection();
@@ -222,10 +225,11 @@ public boolean capNhatSoLuongSanPham(int idMaSanPham, int soLuongMoi) {
          ResultSet rs = ps.executeQuery();
          while(rs.next()){
              DonHangChiTietEntity ct = new DonHangChiTietEntity();
+//             ct.setIdDonHangChiTiet(rs.getInt("id_ma_chi_tiet_don_hang"));
              ct.setMaSanPham(rs.getString("ma_san_pham"));
              ct.setTenSanPham(rs.getString("ten_san_pham"));
              ct.setGiaBan(rs.getFloat("gia_ban"));
-             ct.setSoLuong(rs.getInt("soLuongTon"));
+             ct.setSoLuong(rs.getInt("tong_so_luong"));
             ls.add(ct);
          }
      } catch (Exception e) {

@@ -301,46 +301,43 @@ public class SanPhamRepository {
 //        }
 //        return ls;
 //    }
-   public ArrayList<ThongTinSanPham> timkiemThongtinSanPham(Float giaMin, Float giaMax, String trangThai, String tenSanPham) {
+ public ArrayList<ThongTinSanPham> timkiemThongtinSanPham(Float giaMin, Float giaMax, String trangThai, String tenSanPham) {
     ArrayList<ThongTinSanPham> ls = new ArrayList<>();
     StringBuilder sql = new StringBuilder("SELECT * FROM sanPham WHERE 1=1");
-    
-    // Thêm điều kiện tìm kiếm cho tên sản phẩm
+
+    // Thêm điều kiện cho các tham số nếu có
     if (tenSanPham != null && !tenSanPham.isEmpty()) {
         sql.append(" AND ten_san_pham LIKE ?");
     }
-
-    // Thêm điều kiện tìm kiếm cho trạng thái
     if (trangThai != null && !trangThai.isEmpty()) {
         sql.append(" AND trang_thai LIKE ?");
     }
 
-    // Thêm điều kiện tìm kiếm cho giá bán
+    // Điều kiện giá bán
     if (giaMin != null && giaMax != null) {
         sql.append(" AND gia_ban BETWEEN ? AND ?");
+    } else if (giaMin != null) {
+        sql.append(" AND gia_ban >= ?");
+    } else if (giaMax != null) {
+        sql.append(" AND gia_ban <= ?");
     }
-
     try (Connection con = ketnoi.getConnection()) {
         PreparedStatement ps = con.prepareStatement(sql.toString());
-
         int index = 1;
-        
-        // Thiết lập tham số cho tên sản phẩm
         if (tenSanPham != null && !tenSanPham.isEmpty()) {
             ps.setString(index++, "%" + tenSanPham + "%");
         }
-
-        // Thiết lập tham số cho trạng thái
         if (trangThai != null && !trangThai.isEmpty()) {
             ps.setString(index++, "%" + trangThai + "%");
         }
-
-        // Thiết lập tham số cho giá bán
-        if (giaMin != null && giaMax != null) {
+        if (giaMin != null || giaMax != null) {
             ps.setFloat(index++, giaMin);
             ps.setFloat(index++, giaMax);
+        } else if (giaMin != null) {
+            ps.setFloat(index++, giaMin);
+        } else if (giaMax != null) {
+            ps.setFloat(index++, giaMax);
         }
-
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
             ThongTinSanPham sp = new ThongTinSanPham();
@@ -357,6 +354,7 @@ public class SanPhamRepository {
     }
     return ls;
 }
+
 
 
 }

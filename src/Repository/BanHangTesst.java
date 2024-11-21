@@ -20,7 +20,8 @@ import java.util.ArrayList;
  * @author SingPC
  */
 public class BanHangTesst {
-     public ArrayList<SanPhamEntity> getSanPhamChhiTiet() {
+
+    public ArrayList<SanPhamEntity> getSanPhamChhiTiet() {
         ArrayList<SanPhamEntity> lsss = new ArrayList<>();
         String sql = """
            	select sp.id_ma_san_pham, sp.ma_san_pham, sp.ten_san_pham, sp.gia_ban, sp.gia_nhap, sp.so_luong_ton, sp.hinh_anh, lsp.ten_loai_san_pham, ms.mau_sac_san_pham,kc.kich_co,th.ten_thuong_hieu, cl.chat_lieu_san_pham, xx.quoc_gia, sp.trang_thai
@@ -58,7 +59,8 @@ public class BanHangTesst {
         }
         return lsss;
     }
-      public ArrayList<HoaDonEntity> getAll(){
+
+    public ArrayList<HoaDonEntity> getAll() {
         ArrayList<HoaDonEntity> ls = new ArrayList<>();
         String sql = """
                     SELECT hd.id_ma_don_hang, hd.ma_don_hang, hd.ngay_dat, nv.ten_nhan_vien, kh.ten_khach_hang, hdd.ma_hoa_don
@@ -68,12 +70,12 @@ public class BanHangTesst {
                                          JOIN hoadon hdd on hd.id_ma_don_hang = hdd.ma_don_hang
                                                             WHERE hd.trang_thai = N'Đang Chờ Thanh Toán' or hd.trang_thai = N'Đang Chờ Xác Nhận'
                      """;
-        try (Connection con = ketnoi.getConnection()){
+        try (Connection con = ketnoi.getConnection()) {
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
                 HoaDonEntity dh = new HoaDonEntity();
-                 dh.setIdHoaDon(rs.getInt("id_ma_don_hang"));
+                dh.setIdHoaDon(rs.getInt("id_ma_don_hang"));
                 dh.setMaHoaDon(rs.getString("ma_don_hang"));
                 dh.setMaHoaDonnn(rs.getString("ma_hoa_don"));
                 dh.setNgayLap(rs.getDate("ngay_dat"));
@@ -81,13 +83,14 @@ public class BanHangTesst {
                 dh.setTenKhachHang(rs.getString("ten_khach_hang"));
                 ls.add(dh);
             }
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
         return ls;
     }
-         public ArrayList<HoaDonEntity> getAllLL(){
+
+    public ArrayList<HoaDonEntity> getAllLL() {
         ArrayList<HoaDonEntity> ls = new ArrayList<>();
         String sql = """
                     SELECT hd.id_ma_don_hang, hd.ma_don_hang, hd.ngay_dat, nv.ten_nhan_vien, kh.ten_khach_hang, hdd.ma_hoa_don
@@ -97,12 +100,12 @@ public class BanHangTesst {
                      JOIN hoadon hdd on hd.id_ma_don_hang = hdd.ma_don_hang
                                         WHERE hd.trang_thai = N'Đang Chờ Thanh Toán';
                      """;
-        try (Connection con = ketnoi.getConnection()){
+        try (Connection con = ketnoi.getConnection()) {
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
                 HoaDonEntity dh = new HoaDonEntity();
-                 dh.setIdHoaDon(rs.getInt("id_ma_don_hang"));
+                dh.setIdHoaDon(rs.getInt("id_ma_don_hang"));
                 dh.setMaHoaDon(rs.getString("ma_don_hang"));
                 dh.setMaHoaDonnn(rs.getString("ma_hoa_don"));
                 dh.setNgayLap(rs.getDate("ngay_dat"));
@@ -110,15 +113,16 @@ public class BanHangTesst {
                 dh.setTenKhachHang(rs.getString("ten_khach_hang"));
                 ls.add(dh);
             }
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
         return ls;
     }
-      public ArrayList<SanPhamEntity> timKiemVaLocSanPham(String trangThai, String tenSanPham) {
-    ArrayList<SanPhamEntity> lsss = new ArrayList<>();
-    String sql = """
+
+    public ArrayList<SanPhamEntity> timKiemVaLocSanPham(String trangThai, String tenSanPham) {
+        ArrayList<SanPhamEntity> lsss = new ArrayList<>();
+        String sql = """
         SELECT sp.id_ma_san_pham, sp.ma_san_pham, sp.ten_san_pham, sp.gia_ban, sp.gia_nhap, sp.so_luong_ton, sp.hinh_anh, 
                lsp.ten_loai_san_pham, ms.mau_sac_san_pham, kc.kich_co, th.ten_thuong_hieu, cl.chat_lieu_san_pham, 
                xx.quoc_gia, sp.trang_thai
@@ -133,88 +137,89 @@ public class BanHangTesst {
            AND (sp.trang_thai LIKE ? OR ? = '')
     """;
 
-    try (Connection con = ketnoi.getConnection()) {
-        PreparedStatement ps = con.prepareStatement(sql);
-        // Set the parameters in the correct order
-        ps.setObject(1, "%" + tenSanPham + "%");  // First ? (for ten_san_pham LIKE)
-        ps.setObject(2, tenSanPham);               // Second ? (for OR ? = '')
-        ps.setObject(3, "%" + trangThai + "%");    // Third ? (for trang_thai LIKE)
-        ps.setObject(4, trangThai);                // Fourth ? (for OR ? = '')
+        try (Connection con = ketnoi.getConnection()) {
+            PreparedStatement ps = con.prepareStatement(sql);
+            // Set the parameters in the correct order
+            ps.setObject(1, "%" + tenSanPham + "%");  // First ? (for ten_san_pham LIKE)
+            ps.setObject(2, tenSanPham);               // Second ? (for OR ? = '')
+            ps.setObject(3, "%" + trangThai + "%");    // Third ? (for trang_thai LIKE)
+            ps.setObject(4, trangThai);                // Fourth ? (for OR ? = '')
 
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            SanPhamEntity sp = new SanPhamEntity();
-            sp.setIdSanPham(rs.getInt("id_ma_san_pham"));
-            sp.setMaSanPham(rs.getString("ma_san_pham"));
-            sp.setTenSanPham(rs.getString("ten_san_pham"));
-            sp.setGiaBan(rs.getFloat("gia_ban"));
-            sp.setGiaNhap(rs.getFloat("gia_nhap"));
-            sp.setSoLuong(rs.getInt("so_luong_ton"));
-            sp.setHinhAnh(rs.getString("hinh_anh"));
-            sp.setTenMaLoai(rs.getString("ten_loai_san_pham"));
-            sp.setKichCo(rs.getString("kich_co"));
-            sp.setMauSac(rs.getString("mau_sac_san_pham"));
-            sp.setTenThuongHieu(rs.getString("ten_thuong_hieu"));
-            sp.setChatLieu(rs.getString("chat_lieu_san_pham"));
-            sp.setQuocGia(rs.getString("quoc_gia"));
-            sp.setTrangThai(rs.getString("trang_thai"));
-            lsss.add(sp);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                SanPhamEntity sp = new SanPhamEntity();
+                sp.setIdSanPham(rs.getInt("id_ma_san_pham"));
+                sp.setMaSanPham(rs.getString("ma_san_pham"));
+                sp.setTenSanPham(rs.getString("ten_san_pham"));
+                sp.setGiaBan(rs.getFloat("gia_ban"));
+                sp.setGiaNhap(rs.getFloat("gia_nhap"));
+                sp.setSoLuong(rs.getInt("so_luong_ton"));
+                sp.setHinhAnh(rs.getString("hinh_anh"));
+                sp.setTenMaLoai(rs.getString("ten_loai_san_pham"));
+                sp.setKichCo(rs.getString("kich_co"));
+                sp.setMauSac(rs.getString("mau_sac_san_pham"));
+                sp.setTenThuongHieu(rs.getString("ten_thuong_hieu"));
+                sp.setChatLieu(rs.getString("chat_lieu_san_pham"));
+                sp.setQuocGia(rs.getString("quoc_gia"));
+                sp.setTrangThai(rs.getString("trang_thai"));
+                lsss.add(sp);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
+        return lsss;
     }
-    return lsss;
-}
 
-      public ArrayList<LayMaHoaDon> hoaDon(){
+    public ArrayList<LayMaHoaDon> hoaDon() {
         ArrayList<LayMaHoaDon> ls = new ArrayList<>();
         String sql = """
                      select ma_hoa_don
                     from HoaDon
                     where trang_thai =N'Đang Chờ Thanh Toán' or trang_thai =N'Đang Chờ Xác Nhận'
                      """;
-        try (Connection con = ketnoi.getConnection()){
+        try (Connection con = ketnoi.getConnection()) {
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
                 LayMaHoaDon dh = new LayMaHoaDon();
                 dh.setMaHoaDonnnn(rs.getString("ma_hoa_don"));
                 ls.add(dh);
             }
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
         return ls;
     }
-public ArrayList<SanPhamEntity> findSanPhamByMa(String maSanPhamm) {
-    ArrayList<SanPhamEntity> ls = new ArrayList<>();
-String sql = "SELECT ma_san_pham,ten_san_pham,so_luong_ton,gia_ban  FROM SanPham WHERE ma_san_pham =?";
-    try (Connection con = ketnoi.getConnection(); 
-         PreparedStatement stmt = con.prepareStatement(sql)) {
-        stmt.setObject(1, maSanPhamm);
-        try (ResultSet rs = stmt.executeQuery()) {
-            if (rs.next()) {
-                SanPhamEntity sanPham = new SanPhamEntity();
-                sanPham.setMaSanPham(rs.getString("ma_san_pham"));
-                sanPham.setTenSanPham(rs.getString("ten_san_pham"));
-                sanPham.setSoLuong(rs.getInt("so_luong_ton"));
-                sanPham.setGiaBan(rs.getFloat("gia_ban"));
-                ls.add(sanPham);
-            } else {
-                System.out.println("Không tìm thấy sản phẩm với mã: " + maSanPhamm);
+
+    public ArrayList<SanPhamEntity> findSanPhamByMa(String maSanPhamm) {
+        ArrayList<SanPhamEntity> ls = new ArrayList<>();
+        String sql = "SELECT ma_san_pham,ten_san_pham,so_luong_ton,gia_ban  FROM SanPham WHERE ma_san_pham =?";
+        try (Connection con = ketnoi.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setObject(1, maSanPhamm);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    SanPhamEntity sanPham = new SanPhamEntity();
+                    sanPham.setMaSanPham(rs.getString("ma_san_pham"));
+                    sanPham.setTenSanPham(rs.getString("ten_san_pham"));
+                    sanPham.setSoLuong(rs.getInt("so_luong_ton"));
+                    sanPham.setGiaBan(rs.getFloat("gia_ban"));
+                    ls.add(sanPham);
+                } else {
+                    System.out.println("Không tìm thấy sản phẩm với mã: " + maSanPhamm);
+                }
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
+
+        return ls; // Trả về null nếu không tìm thấy sản phẩm hoặc có lỗi
     }
 
-    return ls; // Trả về null nếu không tìm thấy sản phẩm hoặc có lỗi
-}
- public ArrayList<SanPhamEntity> timkiemSanPhamm(String thuonghieu, String mauSac, String kichCo, String tenSanPham) {
-    ArrayList<SanPhamEntity> ls = new ArrayList<>();
-    String sql = """
-        select sp.ma_san_pham, sp.ten_san_pham, sp.gia_ban, sp.gia_nhap, sp.so_luong_ton, sp.hinh_anh, 
+    public ArrayList<SanPhamEntity> timkiemSanPhamm(String thuonghieu, String mauSac, String kichCo, String tenSanPham) {
+        ArrayList<SanPhamEntity> ls = new ArrayList<>();
+        String sql = """
+        select sp.id_ma_san_pham ,sp.ma_san_pham, sp.ten_san_pham, sp.gia_ban, sp.gia_nhap, sp.so_luong_ton, sp.hinh_anh, 
                lsp.ten_loai_san_pham, ms.mau_sac_san_pham, kc.kich_co, th.ten_thuong_hieu, 
                cl.chat_lieu_san_pham, xx.quoc_gia, sp.trang_thai
         from SanPham sp
@@ -226,45 +231,45 @@ String sql = "SELECT ma_san_pham,ten_san_pham,so_luong_ton,gia_ban  FROM SanPham
         join XuatXu xx on xx.id_ma_xuat_xu = sp.ma_xuat_xu
          WHERE (sp.ten_san_pham LIKE ? OR ? = '') 
          AND (ms.mau_sac_san_pham LIKE ? OR ? = '') 
-         AND (th.ten_thuong_hieu LIKE ? OR ? = '') 
          AND (kc.kich_co LIKE ? OR ? = '')
+         AND (th.ten_thuong_hieu LIKE ? OR ? = '') 
     """;
-    try (Connection con = ketnoi.getConnection()) {
-        PreparedStatement ps = con.prepareStatement(sql);
-        
-        // Cài đặt các tham số cho các điều kiện tìm kiếm
-        ps.setString(1, "%" + tenSanPham + "%");  // Tìm theo tên sản phẩm
-        ps.setString(2, tenSanPham);  // Khi tên sản phẩm rỗng, sẽ bỏ qua tìm kiếm
-        ps.setString(3, "%" + mauSac + "%");  // Tìm theo xuất xứ
-        ps.setString(4, mauSac);  // Khi xuất xứ rỗng, sẽ bỏ qua tìm kiếm
-        ps.setString(5, "%" + kichCo + "%");  // Tìm theo trạng thái
-        ps.setString(6, kichCo);  // Khi trạng thái rỗng, sẽ bỏ qua tìm kiếm
-        ps.setString(7, "%" + thuonghieu + "%");  // Tìm theo thương hiệu
-        ps.setString(8, thuonghieu);  // Khi thương hiệu rỗng, sẽ bỏ qua tìm kiếm
-
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            SanPhamEntity sp = new SanPhamEntity();
-            sp.setMaSanPham(rs.getString("ma_san_pham"));
-            sp.setTenSanPham(rs.getString("ten_san_pham"));
-            sp.setGiaBan(rs.getFloat("gia_ban"));
-            sp.setGiaNhap(rs.getFloat("gia_nhap"));
-            sp.setSoLuong(rs.getInt("so_luong_ton"));
-            sp.setHinhAnh(rs.getString("hinh_anh"));
-            sp.setTenMaLoai(rs.getString("ten_loai_san_pham"));
-            sp.setKichCo(rs.getString("kich_co"));
-            sp.setMauSac(rs.getString("mau_sac_san_pham"));
-            sp.setTenThuongHieu(rs.getString("ten_thuong_hieu"));
-            sp.setChatLieu(rs.getString("chat_lieu_san_pham"));
-            sp.setQuocGia(rs.getString("quoc_gia"));
-            sp.setTrangThai(rs.getString("trang_thai"));
-            ls.add(sp);
+        try (Connection con = ketnoi.getConnection()) {
+            PreparedStatement ps = con.prepareStatement(sql);
+//            ps.setString(1, "%" + maSanPham + "%");  
+//            ps.setString(2, maSanPham); 
+            ps.setString(1, "%" + tenSanPham + "%");  
+            ps.setString(2, tenSanPham);  
+            ps.setString(3, "%" + mauSac + "%");  
+            ps.setString(4, mauSac); 
+            ps.setString(5, "%" + kichCo + "%");  
+            ps.setString(6, kichCo);  
+            ps.setString(7, "%" + thuonghieu + "%");  
+            ps.setString(8, thuonghieu);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                SanPhamEntity sp = new SanPhamEntity();
+                sp.setIdSanPham(rs.getInt("id_ma_san_pham"));
+                sp.setMaSanPham(rs.getString("ma_san_pham"));
+                sp.setTenSanPham(rs.getString("ten_san_pham"));
+                sp.setGiaBan(rs.getFloat("gia_ban"));
+                sp.setGiaNhap(rs.getFloat("gia_nhap"));
+                sp.setSoLuong(rs.getInt("so_luong_ton"));
+                sp.setHinhAnh(rs.getString("hinh_anh"));
+                sp.setTenMaLoai(rs.getString("ten_loai_san_pham"));
+                sp.setKichCo(rs.getString("kich_co"));
+                sp.setMauSac(rs.getString("mau_sac_san_pham"));
+                sp.setTenThuongHieu(rs.getString("ten_thuong_hieu"));
+                sp.setChatLieu(rs.getString("chat_lieu_san_pham"));
+                sp.setQuocGia(rs.getString("quoc_gia"));
+                sp.setTrangThai(rs.getString("trang_thai"));
+                ls.add(sp);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
 
-    return ls;
-}
+        return ls;
+    }
 
 }

@@ -172,6 +172,11 @@ public class TrangChu extends javax.swing.JFrame {
         txt1.setFont(new java.awt.Font("Noto Serif", 1, 18)); // NOI18N
         txt1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/seller.png"))); // NOI18N
         txt1.setText("BÁN HÀNG");
+        txt1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txt1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout text2Layout = new javax.swing.GroupLayout(text2);
         text2.setLayout(text2Layout);
@@ -480,6 +485,10 @@ public class TrangChu extends javax.swing.JFrame {
         dispose();
       
     }//GEN-LAST:event_txtdanngxuatMouseClicked
+
+    private void txt1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txt1ActionPerformed
 
     /**
      * @param args the command line arguments

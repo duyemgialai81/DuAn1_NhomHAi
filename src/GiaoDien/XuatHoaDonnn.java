@@ -4,6 +4,7 @@
  */
 package GiaoDien;
 
+import Entity.DonHangChiTiet.DonHangChiTietEntity;
 import Entity.HoaDon.HoaDonEntity;
 import Entity.HoaDon.XuatHoaDon;
 import Repository.HoaDonrepository;
@@ -25,7 +26,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.Document;
-import GiaoDien.JOptionPane;
 import KetNoiSQL.ketnoi;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
@@ -38,6 +38,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import javax.swing.JOptionPane;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -50,11 +51,9 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 public class XuatHoaDonnn extends javax.swing.JFrame {
 
     private XuatHoaDonRepository hd = new XuatHoaDonRepository();
+     private HoaDonrepository hdd = new HoaDonrepository();
     private DefaultTableModel md = new DefaultTableModel();
-
-   
-    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd"); // Định dạng ngày tháng
-   
+    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
     DecimalFormat formatterr = new DecimalFormat("###,###,###");
 
     /**
@@ -63,23 +62,17 @@ public class XuatHoaDonnn extends javax.swing.JFrame {
     public XuatHoaDonnn() {
         initComponents();
         loadDuLieuu();
+        hienThiDuLieuGioHangg();
     }
-
     private void loadDuLieuu() {
         ArrayList<XuatHoaDon> hdList = hd.getAll();
-
-        // Debug: Kiểm tra dữ liệu trả về
         System.out.println("Số lượng hóa đơn: " + hdList.size());
         if (!hdList.isEmpty()) {
             System.out.println("Dữ liệu hóa đơn đầu tiên: " + hdList.get(0).toString());
-
             XuatHoaDon firstOrder = hdList.get(0);
             nhanvien.setText(firstOrder.getTenNhanVien());
             txtmahoadon.setText(firstOrder.getMaHoaDon());
             txthotenkhachhang.setText(firstOrder.getTenKhachHang());
-            txttensanpham.setText(firstOrder.getTenSanPham());
-            soluong.setText(formatterr.format(firstOrder.getSoLuong())); 
-            gia.setText(formatterr.format(firstOrder.getGiaBan()));     
             giamgia.setText(formatterr.format(firstOrder.getGiaTri()));  
             tongtien.setText(formatterr.format(firstOrder.getThanhTien())); 
             tienkhachdua.setText(formatterr.format(firstOrder.getTienKhachDua())); 
@@ -88,13 +81,59 @@ public class XuatHoaDonnn extends javax.swing.JFrame {
             txtsodienthoaikhachhang.setText(firstOrder.getSoDienThoai());
             txtid.setText(String.valueOf(firstOrder.getIdHoaDon()));     
             phuongthucthanhtoan.setText(firstOrder.getPhuongThuc());
-             String ngayTaoText = ngaytao.getText();
-    ngaytao.setText(formatter.format(ngayTaoText)); 
+           Date ngayLap = (Date) firstOrder.getNgayDat();
+            ngaytao.setText(dateFormat.format(ngayLap));
         } else {
             nhanvien.setText("NULL");
             System.out.println("Danh sách hóa đơn trống.");
         }
     }
+    private void hienThiDuLieuGioHangg() {
+    try {
+        // Kiểm tra nếu txtid rỗng
+        if (txtid.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Không tìm thấy mã sản phẩm trong trường dữ liệu!");
+            return;
+        }
+        int id = Integer.parseInt(txtid.getText().trim());
+        ArrayList<DonHangChiTietEntity> ls = hdd.layGioHangSanPham(id);
+        if (ls.isEmpty()) {
+        } else {
+            hienThiDuLieuGioHang(ls); // Hiển thị danh sách vào bảng
+        }
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "Mã sản phẩm không hợp lệ!");
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Lỗi khi hiển thị dữ liệu: " + ex.getMessage());
+        ex.printStackTrace();
+    }
+}
+        private void hienThiDuLieuGioHang(ArrayList<DonHangChiTietEntity>chitiet){
+        md = (DefaultTableModel) tblxuathoadon.getModel();
+        md.setRowCount(0);
+        for (DonHangChiTietEntity donHangChiTietEntity : chitiet) {
+            md.addRow(new Object[]{
+       donHangChiTietEntity.getTenSanPham(),donHangChiTietEntity.getSoLuong(), donHangChiTietEntity.getGiaBan()
+
+            });
+        }
+        
+    }
+     private ArrayList<DonHangChiTietEntity> layDuLieuTuBang() {
+    ArrayList<DonHangChiTietEntity> danhSachChiTiet = new ArrayList<>();
+    DefaultTableModel model = (DefaultTableModel) tblxuathoadon.getModel();
+    for (int i = 0; i < model.getRowCount(); i++) {
+        DonHangChiTietEntity chiTiet = new DonHangChiTietEntity();
+        chiTiet.setTenSanPham((String) model.getValueAt(i, 0));
+        chiTiet.setSoLuong((int) model.getValueAt(i, 1));       
+        chiTiet.setGiaBan((double) model.getValueAt(i, 2));
+        danhSachChiTiet.add(chiTiet);
+    }
+    return danhSachChiTiet;
+}
+        
+
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -116,22 +155,10 @@ public class XuatHoaDonnn extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
-        txttensanpham = new javax.swing.JLabel();
-        jLabel14 = new javax.swing.JLabel();
-        jPanel2 = new javax.swing.JPanel();
-        jLabel10 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
-        soluong = new javax.swing.JLabel();
-        jLabel16 = new javax.swing.JLabel();
-        gia = new javax.swing.JLabel();
-        jLabel18 = new javax.swing.JLabel();
-        jLabel19 = new javax.swing.JLabel();
         jLabel20 = new javax.swing.JLabel();
         jLabel21 = new javax.swing.JLabel();
         jLabel23 = new javax.swing.JLabel();
         jLabel24 = new javax.swing.JLabel();
-        jLabel25 = new javax.swing.JLabel();
         giamgia = new javax.swing.JLabel();
         tongtien = new javax.swing.JLabel();
         tienkhachdua = new javax.swing.JLabel();
@@ -153,6 +180,8 @@ public class XuatHoaDonnn extends javax.swing.JFrame {
         jLabel13 = new javax.swing.JLabel();
         phuongthucthanhtoan = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblxuathoadon = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -190,64 +219,6 @@ public class XuatHoaDonnn extends javax.swing.JFrame {
         jLabel9.setText("SẢN PHẨM");
         Email.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 350, -1, -1));
 
-        txttensanpham.setText(" ");
-        Email.add(txttensanpham, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 430, 150, -1));
-
-        jLabel14.setText("Áo polo");
-        Email.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 470, 60, -1));
-
-        jPanel2.setBackground(new java.awt.Color(0, 0, 0));
-
-        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel10.setText("Tên");
-
-        jLabel11.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel11.setText("Số Lượng");
-
-        jLabel12.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel12.setText("Giá");
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(21, 21, 21)
-                .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(188, 188, 188)
-                .addComponent(jLabel11)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 200, Short.MAX_VALUE)
-                .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(22, 22, 22))
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
-                    .addComponent(jLabel11)
-                    .addComponent(jLabel12))
-                .addContainerGap())
-        );
-
-        Email.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 380, -1, -1));
-
-        soluong.setText(" ");
-        Email.add(soluong, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 430, -1, -1));
-
-        jLabel16.setText("5");
-        Email.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 470, 15, -1));
-
-        gia.setText(" ");
-        Email.add(gia, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 430, -1, -1));
-
-        jLabel18.setText("10000 VĐN");
-        Email.add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 470, -1, -1));
-
-        jLabel19.setText("Tiền Hàng ");
-        Email.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 500, -1, -1));
-
         jLabel20.setText("Giảm Giá");
         Email.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 540, -1, -1));
 
@@ -259,9 +230,6 @@ public class XuatHoaDonnn extends javax.swing.JFrame {
 
         jLabel24.setText("Tiền trả khách");
         Email.add(jLabel24, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 616, -1, 30));
-
-        jLabel25.setText("10000 VĐN");
-        Email.add(jLabel25, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 500, -1, -1));
 
         giamgia.setText(" ");
         Email.add(giamgia, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 540, -1, -1));
@@ -338,6 +306,21 @@ public class XuatHoaDonnn extends javax.swing.JFrame {
         jLabel15.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Brown Simple Aesthetic Bag Store Logo 2.png"))); // NOI18N
         Email.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 20, -1, 140));
 
+        tblxuathoadon.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
+            },
+            new String [] {
+                "Tên Sản Phẩm", "Số Lượng", "Giá Bán"
+            }
+        ));
+        jScrollPane1.setViewportView(tblxuathoadon);
+
+        Email.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(42, 387, 550, 130));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -356,122 +339,110 @@ public class XuatHoaDonnn extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void XuatHoaDonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_XuatHoaDonActionPerformed
-        // TODO add your handling code here:
-        try {
-            // Tạo file PDF
-            String filePath = "D:\\" + txtmahoadon.getText() + ".pdf";
-            File file = new File(filePath);
+       try {
+    String filePath = "D:\\" + txtmahoadon.getText() + ".pdf";
+    File file = new File(filePath);
+    if (file.exists()) {
+        file.delete();
+    }
+    PdfWriter writer = new PdfWriter(file);
+    PdfDocument pdf = new PdfDocument(writer);
+    com.itextpdf.layout.Document document = new com.itextpdf.layout.Document(pdf);
+    PdfFont font = PdfFontFactory.createFont("D:\\spring_boot\\ARIALUNI.TTF", PdfEncodings.IDENTITY_H);
+    document.add(new Paragraph("HÓA ĐƠN THANH TOÁN")
+            .setFont(font)
+            .setFontSize(20)
+            .setTextAlignment(TextAlignment.CENTER)
+            .setBold());
+    document.add(new Paragraph("Mã Hóa Đơn: \n" + txtmahoadon.getText()).setFont(font).setFontSize(12).setTextAlignment(TextAlignment.LEFT));
+    document.add(new Paragraph("Tên Nhân Viên: \n" + nhanvien.getText()).setFont(font).setFontSize(12).setTextAlignment(TextAlignment.LEFT));
+    document.add(new Paragraph("Địa Chỉ Shop: \n" + diachi.getText()).setFont(font).setFontSize(12).setTextAlignment(TextAlignment.LEFT));
+    document.add(new Paragraph("Hỗ Trợ Khách Hàng: \n" + txtemail.getText()).setFont(font).setFontSize(12).setTextAlignment(TextAlignment.LEFT));
+    document.add(new Paragraph("Tên Khách Hàng: \n" + txthotenkhachhang.getText()).setFont(font).setFontSize(12).setTextAlignment(TextAlignment.LEFT));
+    document.add(new Paragraph("Ngày Tạo Hóa Đơn: \n" + ngaytao.getText()).setFont(font).setFontSize(12).setTextAlignment(TextAlignment.LEFT));
+    document.add(new Paragraph("----------------------------------------------------------------------------------------------------------------------------------").setFont(font));
+    
+    Table table = new Table(4);
+    table.setWidth(pdf.getDefaultPageSize().getWidth() * 0.9f);
+    table.addHeaderCell(new Paragraph("Tên Sản Phẩm").setFont(font).setBold().setTextAlignment(TextAlignment.CENTER));
+    table.addHeaderCell(new Paragraph("Số Lượng").setFont(font).setBold().setTextAlignment(TextAlignment.CENTER));
+    table.addHeaderCell(new Paragraph("Giá Bán").setFont(font).setBold().setTextAlignment(TextAlignment.CENTER));
+    table.addHeaderCell(new Paragraph("Thành Tiền").setFont(font).setBold().setTextAlignment(TextAlignment.CENTER));
+    
+    double totalAmount = 0;
+    ArrayList<DonHangChiTietEntity> danhSachChiTiet = layDuLieuTuBang();
+    for (DonHangChiTietEntity chiTiet : danhSachChiTiet) {
+        double thanhTien = chiTiet.getSoLuong() * chiTiet.getGiaBan();
+        totalAmount += thanhTien;  // Cộng dồn tổng tiền
+        table.addCell(new Paragraph(chiTiet.getTenSanPham()).setFont(font));
+        table.addCell(new Paragraph(String.valueOf(chiTiet.getSoLuong())).setFont(font).setTextAlignment(TextAlignment.CENTER));
+        table.addCell(new Paragraph(String.format("%,.0f", chiTiet.getGiaBan())).setFont(font).setTextAlignment(TextAlignment.CENTER));
+        table.addCell(new Paragraph(String.format("%,.0f", thanhTien)).setFont(font).setTextAlignment(TextAlignment.CENTER));
+    }
+    document.add(table);
+    
+    document.add(new Paragraph("----------------------------------------------------------------------------------------------------------------------------------").setFont(font));
 
-            if (file.exists()) {
-                file.delete(); // Xóa file nếu đã tồn tại
-            }
+    // Thêm thông tin tổng tiền và thuế
+    double tax = totalAmount * 0.1;
+    double totalAmountAfterTax = totalAmount + tax;
+    double discount = Double.parseDouble(giamgia.getText().trim().replace(",", ""));
+    double finalAmount = totalAmountAfterTax - discount;
+    double tienKhachDua = Double.parseDouble(tienkhachdua.getText().trim().replace(",", ""));
+    double tienTraKhach = tienKhachDua - finalAmount;
 
-            PdfWriter writer = new PdfWriter(file);
-            PdfDocument pdf = new PdfDocument(writer);
-            com.itextpdf.layout.Document document = new com.itextpdf.layout.Document(pdf);
+    document.add(new Paragraph("TỔNG TIỀN: " + String.format("%,.0f", totalAmount) + " VND")
+            .setFont(font)
+            .setFontSize(12)
+            .setBold()
+            .setTextAlignment(TextAlignment.RIGHT));
+    document.add(new Paragraph("Thuế (10%): " + String.format("%,.0f", tax) + " VND")
+            .setFont(font)
+            .setFontSize(12)
+            .setTextAlignment(TextAlignment.RIGHT));
+    document.add(new Paragraph("TỔNG TIỀN SAU THUẾ: " + String.format("%,.0f", totalAmountAfterTax) + " VND")
+            .setFont(font)
+            .setFontSize(12)
+            .setTextAlignment(TextAlignment.RIGHT));
 
-            // Đặt font
-            PdfFont font = PdfFontFactory.createFont("D:\\spring_boot\\ARIALUNI.TTF", PdfEncodings.IDENTITY_H);
+    // Thêm thông tin giảm giá, tổng tiền cuối cùng, tiền khách đưa và trả khách
+    document.add(new Paragraph("Giảm Giá: " + String.format("%,.0f", discount) + " VND")
+            .setFont(font).setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
+    document.add(new Paragraph("Tổng Tiền: " + String.format("%,.0f", finalAmount) + " VND")
+            .setFont(font).setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
+    document.add(new Paragraph("Tiền Khách Đưa: " + String.format("%,.0f", tienKhachDua) + " VND")
+            .setFont(font).setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
+    document.add(new Paragraph("Tiền Trả Khách: " + String.format("%,.0f", tienTraKhach) + " VND")
+            .setFont(font).setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
 
-            // Thêm tiêu đề hóa đơn
-            document.add(new Paragraph("HÓA ĐƠN THANH TOÁN")
-                    .setFont(font)
-                    .setFontSize(20)
-                    .setTextAlignment(TextAlignment.CENTER)
-                    .setBold());
-            document.add(new Paragraph("Mã Hóa Đơn: " + txtmahoadon.getText()).setFont(font).setFontSize(12));
-            document.add(new Paragraph("Tên Nhân Viên: " + nhanvien.getText()).setFont(font).setFontSize(12));
-            document.add(new Paragraph("Địa Chỉ Shop: " + diachi.getText()).setFont(font).setFontSize(12));
-            document.add(new Paragraph("Hỗ Trợ Khách Hàng: " + txtemail.getText()).setFont(font).setFontSize(12));
-            document.add(new Paragraph("Tên Khách Hàng: " + txthotenkhachhang.getText()).setFont(font).setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
-            document.add(new Paragraph("Ngày Tạo Hóa Đơn: " + txtemail.getText()).setFont(font).setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
-            document.add(new Paragraph("----------------------------------------------------------------------------------------------------------------------------------").setFont(font));
+    // Thông tin ngân hàng và liên hệ
+    document.add(new Paragraph("GỬI THANH TOÁN ĐẾN")
+            .setFont(font)
+            .setFontSize(10)
+            .setMarginTop(20));
+    document.add(new Paragraph("Số ngân hàng: 0367548754 \nTên ngân hàng: Đoàn Ngọc Duy")
+            .setFont(font)
+            .setFontSize(10));
+    document.add(new Paragraph("LIÊN HỆ")
+            .setFont(font)
+            .setFontSize(10)
+            .setMarginTop(-40)
+            .setTextAlignment(TextAlignment.RIGHT));
+    document.add(new Paragraph("doanngocduy62@gmail.com\nSĐT: 0382424762")
+            .setFont(font)
+            .setFontSize(10)
+            .setTextAlignment(TextAlignment.RIGHT));
 
-            // Tạo bảng chi tiết sản phẩm
-            Table table = new Table(4); // 4 cột: tên sản phẩm, số lượng, giá bán, thành tiền
-            table.setWidth(pdf.getDefaultPageSize().getWidth() * 0.9f);
+    // Đóng tài liệu
+    document.close();
+    dispose();
+} catch (NumberFormatException e) {
+    System.out.println("Lỗi: Dữ liệu nhập không hợp lệ!");
+    e.printStackTrace();
+} catch (IOException e) {
+    e.printStackTrace();
+}
 
-            // Thêm header vào bảng
-            table.addHeaderCell(new Paragraph("Tên Sản Phẩm").setFont(font).setBold().setTextAlignment(TextAlignment.CENTER));
-            table.addHeaderCell(new Paragraph("Số Lượng").setFont(font).setBold().setTextAlignment(TextAlignment.CENTER));
-            table.addHeaderCell(new Paragraph("Giá Bán").setFont(font).setBold().setTextAlignment(TextAlignment.CENTER));
-            table.addHeaderCell(new Paragraph("Thành Tiền").setFont(font).setBold().setTextAlignment(TextAlignment.CENTER));
-
-            // Biến để tính tổng tiền
-            double totalAmount = 0;
-
-            // Duyệt qua danh sách hóa đơn để thêm thông tin vào bảng
-            ArrayList<XuatHoaDon> hdList = hd.getAll();
-            for (XuatHoaDon order : hdList) {
-                double thanhTien = order.getSoLuong() * order.getGiaBan();  // Thành tiền = Số lượng * Giá bán
-                totalAmount += thanhTien;  // Cộng dồn vào tổng tiền
-
-                table.addCell(new Paragraph(order.getTenSanPham()).setFont(font));
-                table.addCell(new Paragraph(String.valueOf(order.getSoLuong())).setFont(font).setTextAlignment(TextAlignment.CENTER));
-                table.addCell(new Paragraph(String.format("%,.0f", order.getGiaBan())).setFont(font).setTextAlignment(TextAlignment.CENTER));
-                table.addCell(new Paragraph(String.format("%,.0f", thanhTien)).setFont(font).setTextAlignment(TextAlignment.CENTER));
-            }
-
-            document.add(table);
-            document.add(new Paragraph("----------------------------------------------------------------------------------------------------------------------------------").setFont(font));
-
-            // Tính thuế (10% của tổng tiền)
-            double tax = totalAmount * 0.1;  // Thuế = 10% tổng tiền
-
-            // Tính tổng tiền sau thuế
-            double totalAmountAfterTax = totalAmount + tax;
-
-            // Thêm thông tin tổng tiền và thuế
-            document.add(new Paragraph("TỔNG TIỀN: " + String.format("%,.0f", totalAmount) + " VND")
-                    .setFont(font)
-                    .setFontSize(12)
-                    .setBold()
-                    .setTextAlignment(TextAlignment.RIGHT));
-            document.add(new Paragraph("Thuế (10%): " + String.format("%,.0f", tax) + " VND")
-                    .setFont(font)
-                    .setFontSize(12)
-                    .setTextAlignment(TextAlignment.RIGHT));
-            document.add(new Paragraph("TỔNG TIỀN SAU THUẾ: " + String.format("%,.0f", totalAmountAfterTax) + " VND")
-                    .setFont(font)
-                    .setFontSize(12)
-                    .setTextAlignment(TextAlignment.RIGHT));
-            double tienKhachDua = Double.parseDouble(tienkhachdua.getText().trim().replace(",", ""));
-            double tienTraKhach = Double.parseDouble(tientrakhac.getText().trim().replace(",", ""));
-            // Thêm các thông tin giảm giá, tiền khách đưa, tiền trả khách
-            document.add(new Paragraph("Giảm Giá: " + String.format("%,.0f", Double.parseDouble(giamgia.getText())) + " VND")
-                    .setFont(font).setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
-            document.add(new Paragraph("Tổng Tiền: " + String.format("%,.0f", totalAmountAfterTax - Double.parseDouble(giamgia.getText())) + " VND")
-                    .setFont(font).setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
-            document.add(new Paragraph("Tiền Khách Đưa: " + formatterr.format(tienKhachDua) + " VND")
-                    .setFont(font).setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
-            document.add(new Paragraph("Tiền Trả Khách: " + formatterr.format(tienTraKhach) + " VND")
-                    .setFont(font).setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
-
-            // Thông tin ngân hàng và liên hệ
-            document.add(new Paragraph("GỬI THANH TOÁN ĐẾN")
-                    .setFont(font)
-                    .setFontSize(10)
-                    .setMarginTop(20));
-            document.add(new Paragraph("Số ngân hàng: 0367548754 \nTên ngân hàng: Đoàn Ngọc Duy")
-                    .setFont(font)
-                    .setFontSize(10));
-            document.add(new Paragraph("LIÊN HỆ")
-                    .setFont(font)
-                    .setFontSize(10)
-                    .setMarginTop(-40)
-                    .setTextAlignment(TextAlignment.RIGHT));
-            document.add(new Paragraph("doanngocduy62@gmail.com\nSĐT: 0382424762")
-                    .setFont(font)
-                    .setFontSize(10)
-                    .setTextAlignment(TextAlignment.RIGHT));
-
-            // Đóng tài liệu
-            document.close();
-            dispose();
-        } catch (IOException e) {
-            // Xử lý lỗi khi tạo hóa đơn PDF
-            e.printStackTrace();
-        }
         // Đường dẫn hình ảnh logo
 
 // String idmaDonHnag = txtid.getText();
@@ -686,25 +657,16 @@ public class XuatHoaDonnn extends javax.swing.JFrame {
     private javax.swing.JPanel Email;
     private javax.swing.JButton XuatHoaDon;
     private javax.swing.JLabel diachi;
-    private javax.swing.JLabel gia;
     private javax.swing.JLabel giamgia;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
-    private javax.swing.JLabel jLabel16;
-    private javax.swing.JLabel jLabel18;
-    private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
-    private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel31;
     private javax.swing.JLabel jLabel32;
@@ -714,13 +676,13 @@ public class XuatHoaDonnn extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollBar jScrollBar1;
     private javax.swing.JScrollBar jScrollBar2;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel ngaytao;
     private javax.swing.JLabel nhanvien;
     private javax.swing.JLabel phuongthucthanhtoan;
-    private javax.swing.JLabel soluong;
+    private javax.swing.JTable tblxuathoadon;
     private javax.swing.JLabel thue;
     private javax.swing.JLabel tienkhachdua;
     private javax.swing.JLabel tientrakhac;
@@ -730,7 +692,6 @@ public class XuatHoaDonnn extends javax.swing.JFrame {
     private javax.swing.JLabel txtid;
     private javax.swing.JLabel txtmahoadon;
     private javax.swing.JLabel txtsodienthoaikhachhang;
-    private javax.swing.JLabel txttensanpham;
     // End of variables declaration//GEN-END:variables
 
 }

@@ -811,18 +811,18 @@ private void thuocTinhLoaiSanPham(){
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Lọc Sản Phẩm", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.ABOVE_TOP, new java.awt.Font("Segoe UI", 1, 14))); // NOI18N
 
-        txtGiamax.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                txtGiamaxKeyReleased(evt);
+        txtGiamax.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtGiamaxActionPerformed(evt);
             }
         });
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel6.setText("Giá Bán Max:");
 
-        txtGiaMin.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                txtGiaMinKeyReleased(evt);
+        txtGiaMin.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtGiaMinActionPerformed(evt);
             }
         });
 
@@ -1460,15 +1460,17 @@ private void thuocTinhLoaiSanPham(){
 
     private void btn_ThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ThemActionPerformed
         // TODO add your handling code here: // Lấy vai trò người dùng
-
-      String tenSanPham = txt_addTenSanPham.getText().trim();
-
+    
+        
+        
+         String taiKhoan = LuuThongTinDangNhap.getTaiKhoan();
+        String vaiTro = LuuThongTinDangNhap.getVaiTro();
+        if ("Quản trị viên".equals(vaiTro)) {
+             String tenSanPham = txt_addTenSanPham.getText().trim();
     if (tenSanPham.isEmpty()) {
         JOptionPane.showMessageDialog(this, "Tên sản phẩm không được để trống");
         return;
     }
-
-    // Kiểm tra tên sản phẩm trong cơ sở dữ liệu
     String sql = "SELECT COUNT(*) AS count FROM SanPham WHERE ten_san_pham = ?";
     try (Connection con = ketnoi.getConnection();
          PreparedStatement ps = con.prepareStatement(sql)) {
@@ -1480,24 +1482,17 @@ private void thuocTinhLoaiSanPham(){
             // Nếu sản phẩm đã tồn tại
             JOptionPane.showMessageDialog(this, "Tên sản phẩm đã tồn tại");
         } else {
-            // Kiểm tra quyền
-            String vaiTro = LuuThongTinDangNhap.getVaiTro();
-            if ("Quản trị viên".equals(vaiTro)) {
-                // Thêm sản phẩm
-                ls.addSanPhammm(getFomat());
-                JOptionPane.showMessageDialog(this, "Thêm sản phẩm thành công");
-                hienThiDuLieu(ls.getSanPhamChhiTiet());
-            } else {
-                JOptionPane.showMessageDialog(this, "Bạn là nhân viên, không có quyền này");
-            }
+            ls.addSanPhammm(getFomat());
+                   hienThiDuLieu(ls.getSanPhamChhiTiet());
+           
         }
     } catch (Exception e) {
         e.printStackTrace();
         JOptionPane.showMessageDialog(this, "Lỗi khi kiểm tra tên sản phẩm");
     }
-        
-        
-        
+        } else {
+            JOptionPane.showMessageDialog(this, "bạn Là nhân viên bạn không có quyền này");
+        }
         
         
 
@@ -1671,19 +1666,19 @@ private String createQRCode(SanPhamEntity sanPham) {
         timkiemThongTinSanPham();
     }//GEN-LAST:event_txt_TimKiemThongTinSanPhamActionPerformed
 
-    private void txtGiamaxKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtGiamaxKeyReleased
-        // TODO add your handling code here:
-        timkiemThongTinSanPham();
-    }//GEN-LAST:event_txtGiamaxKeyReleased
-
-    private void txtGiaMinKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtGiaMinKeyReleased
-        // TODO add your handling code here:
-        timkiemThongTinSanPham();
-    }//GEN-LAST:event_txtGiaMinKeyReleased
-
     private void txtLoaiSanPhamActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtLoaiSanPhamActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtLoaiSanPhamActionPerformed
+
+    private void txtGiaMinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtGiaMinActionPerformed
+        // TODO add your handling code here:
+        timkiemThongTinSanPham();
+    }//GEN-LAST:event_txtGiaMinActionPerformed
+
+    private void txtGiamaxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtGiamaxActionPerformed
+        // TODO add your handling code here:
+        timkiemThongTinSanPham();
+    }//GEN-LAST:event_txtGiamaxActionPerformed
   
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

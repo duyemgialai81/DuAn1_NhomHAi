@@ -14,19 +14,22 @@ public class KhachHangRepository {
     private String sql=null;
     
     public  ArrayList<KhachHang> getAll(){
-        sql="select ma_khach_hang,ten_khach_hang,so_dien_thoai,email,dia_chi from KhachHang";
+        sql="select id_ma_khach_hang, ma_khach_hang,ten_khach_hang,so_dien_thoai,email,dia_chi, gioi_tinh, trang_thai from KhachHang";
         ArrayList<KhachHang> list = new ArrayList();
         try{
             con=ketnoi.getConnection();
             ps=con.prepareStatement(sql);
             rs=ps.executeQuery();
             while(rs.next()){
-                String maKH = rs.getString(1);
-                String tenKH = rs.getString(2);
-                String sdt = rs.getString(3);
-                String email = rs.getString(4);
-                String diachi = rs.getString(5);
-                KhachHang kh = new KhachHang(maKH, tenKH, sdt, email, diachi);
+                int idMaKhachHang = rs.getInt(1);
+                String maKH = rs.getString(2);
+                String tenKH = rs.getString(3);
+                String sdt = rs.getString(4);
+                String email = rs.getString(5);
+                String diachi = rs.getString(6);
+                boolean gioiTinh = rs.getBoolean(7);
+                boolean trangThai = rs.getBoolean(8);
+                KhachHang kh = new KhachHang(idMaKhachHang, maKH, tenKH, sdt, email, diachi, gioiTinh, trangThai);
                 list.add(kh);
             }
             return list;
@@ -83,14 +86,16 @@ public class KhachHangRepository {
         rs = ps.executeQuery();
         
         while (rs.next()) {
-            String maKH = rs.getString("ma_khach_hang");
-            String tenKH = rs.getString("ten_khach_hang");
-            String sdt = rs.getString("so_dien_thoai");
-            String email = rs.getString("email");
-            String diachi = rs.getString("dia_chi");
-            
-            KhachHang kh = new KhachHang(maKH, tenKH, sdt, email, diachi);
-            list.add(kh);
+           int idMaKhachHang = rs.getInt(1);
+                String maKH = rs.getString(2);
+                String tenKH = rs.getString(3);
+                String sdt = rs.getString(4);
+                String email = rs.getString(5);
+                String diachi = rs.getString(6);
+                boolean gioiTinh = rs.getBoolean(7);
+                boolean trangThai = rs.getBoolean(8);
+                KhachHang kh = new KhachHang(idMaKhachHang, maKH, tenKH, sdt, email, diachi, gioiTinh, trangThai);
+                list.add(kh);
         }
     } catch (Exception e) {
         e.printStackTrace();
