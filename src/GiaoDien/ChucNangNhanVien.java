@@ -7,6 +7,7 @@ package GiaoDien;
 import Entity.NhanVien.NhanVienEntity;
 import Repository.NhanVienRepository;
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
@@ -16,15 +17,17 @@ import javax.swing.table.DefaultTableModel;
  * @author SingPC
  */
 public class ChucNangNhanVien extends javax.swing.JPanel {
+
     private DefaultTableModel mol = new DefaultTableModel();
     private NhanVienRepository rp = new NhanVienRepository();
     private int i = -1;
+
     /**
      * Creates new form ChucNangNhanVien
      */
     public ChucNangNhanVien() {
-          initComponents();
-            fillTable(rp.getAll());
+        initComponents();
+        fillTable(rp.getAll());
         fillTable2(rp.getAll2());
 
         txt_TimKiem.getDocument().addDocumentListener(new DocumentListener() {
@@ -99,7 +102,8 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
 
         });
     }
-        void fillTable(ArrayList<NhanVienEntity> list) {
+
+    void fillTable(ArrayList<NhanVienEntity> list) {
         mol = (DefaultTableModel) tbl_DangLamViec.getModel();
         mol.setRowCount(0);
         for (NhanVienEntity x : list) {
@@ -114,7 +118,8 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
             mol.addRow(x.toDataRow());
         }
     }
-       public void showData(int i) {
+
+    public void showData(int i) {
         NhanVienEntity nv = rp.getAll().get(i);
         txt_MaNV.setText(tbl_DangLamViec.getValueAt(i, 0).toString());
         txt_TenNV.setText(tbl_DangLamViec.getValueAt(i, 1).toString());
@@ -136,6 +141,7 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
             rdo_NghiViec.setSelected(true);
         }
     }
+
     public void showData2(int i) {
         NhanVienEntity nv = rp.getAll2().get(i);
         txt_MaNV.setText(tbl_NghiViec.getValueAt(i, 0).toString());
@@ -153,80 +159,79 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
             rdo_Nam.setSelected(true);
         }
         if (tt.equalsIgnoreCase("Nghỉ làm")) {
-            rdo_DangLamViec.setSelected(true);
-        } else {
             rdo_NghiViec.setSelected(true);
+        } else {
+            rdo_DangLamViec.setSelected(true);
         }
     }
 
     public NhanVienEntity readForm() {
-    String tenNhanVien, vaiTro, diaChi,soDienThoai, ngaySinh, email,  matKhau, trangThai;
-    boolean gioiTinh;
+        String tenNhanVien, vaiTro, diaChi, soDienThoai, ngaySinh, email, matKhau, trangThai;
+        boolean gioiTinh;
 
-    tenNhanVien = txt_TenNV.getText().trim();
-    if (tenNhanVien.isEmpty()) {
-      
-        txt_TenNV.requestFocus();
-        return null;
+        tenNhanVien = txt_TenNV.getText().trim();
+        if (tenNhanVien.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Tên nhân viên đang trống!");
+            txt_TenNV.requestFocus();
+            return null;
+        }
+
+        soDienThoai = txt_SDT.getText().trim();
+        if (soDienThoai.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Số điện thoại đang trống!");
+            txt_SDT.requestFocus();
+            return null;
+        }
+
+        ngaySinh = txt_Date.getText().trim();
+        if (ngaySinh.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Ngày sinh đang trống!");
+            txt_Date.requestFocus();
+            return null;
+        }
+
+        email = txt_Email.getText().trim();
+        if (email.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Email đang trống!");
+            txt_Email.requestFocus();
+            return null;
+        }
+
+        diaChi = txt_DiaChi.getText().trim();
+        if (diaChi.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Địa chỉ đang trống!");
+            txt_DiaChi.requestFocus();
+            return null;
+        }
+
+        matKhau = txt_MatKhau.getText().trim();
+        if (matKhau.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Mật khẩu đang trống!");
+            txt_MatKhau.requestFocus();
+            return null;
+        }
+
+        vaiTro = (String) QuanLy.getSelectedItem();
+        if (vaiTro == null || vaiTro.isEmpty()) {
+            QuanLy.requestFocus();
+            return null;
+        }
+
+        if (rdo_DangLamViec.isSelected()) {
+            trangThai = "Hoạt động";
+        } else {
+            trangThai = "Nghỉ làm";
+        }
+
+        if (rdo_Nam.isSelected()) {
+            gioiTinh = true;
+        } else {
+            gioiTinh = false;
+        }
+
+        // Đảm bảo thứ tự các tham số khớp với thứ tự trong phương thức khởi tạo NhanVienEntity
+        return new NhanVienEntity(tenNhanVien, vaiTro, diaChi, soDienThoai, ngaySinh, gioiTinh, email, matKhau, trangThai);
     }
-
-    soDienThoai = txt_SDT.getText().trim();
-    if (soDienThoai.isEmpty()) {
-        
-        txt_SDT.requestFocus();
-        return null;
-    }
-
-    ngaySinh = txt_Date.getText().trim();
-    if (ngaySinh.isEmpty()) {
-        
-        txt_Date.requestFocus();
-        return null;
-    }
-
-    email = txt_Email.getText().trim();
-    if (email.isEmpty()) {
-      
-        txt_Email.requestFocus();
-        return null;
-    }
-
-    diaChi = txt_DiaChi.getText().trim();
-    if (diaChi.isEmpty()) {
-       
-        txt_DiaChi.requestFocus();
-        return null;
-    }
-
-    matKhau = txt_MatKhau.getText().trim();
-    if (matKhau.isEmpty()) {
-      
-        txt_MatKhau.requestFocus();
-        return null;
-    }
-
-    vaiTro = (String) QuanLy.getSelectedItem();
-    if (vaiTro == null || vaiTro.isEmpty()) {
-        QuanLy.requestFocus();
-        return null;
-    }
-
-    if (rdo_DangLamViec.isSelected()) {
-        trangThai = "Hoạt động";
-    } else {
-        trangThai = "Nghỉ làm";
-    }
-
-    if (rdo_Nam.isSelected()) {
-        gioiTinh = true;
-    } else {
-        gioiTinh = false;
-    }
-
-    // Đảm bảo thứ tự các tham số khớp với thứ tự trong phương thức khởi tạo NhanVienEntity
-    return new NhanVienEntity(tenNhanVien, vaiTro, diaChi, soDienThoai, ngaySinh, gioiTinh, email, matKhau, trangThai);
-}
-
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -317,7 +322,7 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
         jLabel10.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel10.setText("Trạng Thái:");
 
-        QuanLy.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Quản Lý", "Nhân Viên Bán Hàng", "Nhân Viên IT", "Nhân Viên Kiểm Kho", "Nhân Viên Giao Hàng" }));
+        QuanLy.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Quản trị viên", "Quản lý", "Nhân viên bán hàng", "Nhân viên kho", "Kế toán" }));
 
         buttonGroup1.add(rdo_Nam);
         rdo_Nam.setText("Nam");
@@ -471,7 +476,7 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
         jLabel11.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel11.setText("Lọc Theo Giới Tính:");
 
-        cbo_LocGioiTinh.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "-", "Nam", "Nữ" }));
+        cbo_LocGioiTinh.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Tất cả", "Nam", "Nữ" }));
         cbo_LocGioiTinh.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cbo_LocGioiTinhActionPerformed(evt);
@@ -481,7 +486,7 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
         jLabel12.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel12.setText("Lọc Theo Vai Trò:");
 
-        cbo_LocVaiTro.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "-", "Quản Lý", "Nhân Viên Bán Hàng", "Nhân Viên IT", "Nhân Viên Kiểm Kho", "Nhân Viên Giao Hàng" }));
+        cbo_LocVaiTro.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Tất cả", "Quản trị viên", "Kế toán", "Nhân viên kho", "Nhân viên bán hàng" }));
         cbo_LocVaiTro.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cbo_LocVaiTroActionPerformed(evt);
@@ -576,7 +581,7 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 979, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1101, Short.MAX_VALUE)
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -609,7 +614,7 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 983, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 1105, Short.MAX_VALUE)
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -630,7 +635,7 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addComponent(jTabbedPane1))
                 .addContainerGap())
         );
         jPanel_NenLayout.setVerticalGroup(
@@ -664,7 +669,7 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
 
     private void btn_ThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ThemActionPerformed
         // TODO add your handling code here:
-        if (readForm() != null){
+        if (readForm() != null) {
             rp.them(readForm());
             fillTable(rp.getAll());
         }
@@ -672,36 +677,36 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
 
     private void btn_SuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_SuaActionPerformed
         // TODO add your handling code here:
-            int selectedRowDangLamViec = tbl_DangLamViec.getSelectedRow();
-    int selectedRowNghiViec = tbl_NghiViec.getSelectedRow();
-    
-    if (selectedRowDangLamViec != -1 || selectedRowNghiViec != -1) {
-        String manv;
-        if (selectedRowDangLamViec != -1) {
-            manv = tbl_DangLamViec.getValueAt(selectedRowDangLamViec, 0).toString(); // Giả sử mã nhân viên ở cột đầu tiên
-        } else {
-            manv = tbl_NghiViec.getValueAt(selectedRowNghiViec, 0).toString(); // Giả sử mã nhân viên ở cột đầu tiên
-        }
-        
-        NhanVienEntity nvE = readForm(); // Lấy thông tin từ form
-        if (nvE != null) {
-            int result = rp.capNhatNhanVien(nvE);
-            if (result == 1) {
-//                JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
-                this.fillTable(rp.getAll());
-                this.fillTable2(rp.getAll2());// Làm mới bảng
+        int selectedRowDangLamViec = tbl_DangLamViec.getSelectedRow();
+        int selectedRowNghiViec = tbl_NghiViec.getSelectedRow();
+
+        if (selectedRowDangLamViec != -1 || selectedRowNghiViec != -1) {
+            String manv;
+            if (selectedRowDangLamViec != -1) {
+                manv = tbl_DangLamViec.getValueAt(selectedRowDangLamViec, 0).toString(); // Giả sử mã nhân viên ở cột đầu tiên
             } else {
-//                JOptionPane.showMessageDialog(this, "Cập nhật thất bại!");
+                manv = tbl_NghiViec.getValueAt(selectedRowNghiViec, 0).toString(); // Giả sử mã nhân viên ở cột đầu tiên
             }
+
+            NhanVienEntity nvE = readForm(); // Lấy thông tin từ form
+            if (nvE != null) {
+                int result = rp.update(manv, nvE);
+                if (result == 1) {
+//                JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
+                    this.fillTable(rp.getAll());
+                    this.fillTable2(rp.getAll2());// Làm mới bảng
+                } else {
+                JOptionPane.showMessageDialog(this, "Cập nhật thất bại!");
+                }
+            }
+        } else {
+        JOptionPane.showMessageDialog(this, "Vui lòng chọn hàng cần cập nhật!");
         }
-    } else {
-//        JOptionPane.showMessageDialog(this, "Vui lòng chọn hàng cần cập nhật!");
-    }
     }//GEN-LAST:event_btn_SuaActionPerformed
 
     private void btn_LamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_LamMoiActionPerformed
         // TODO add your handling code here:
-                txt_MaNV.setText("");
+        txt_MaNV.setText("");
         txt_TenNV.setText("");
         txt_MatKhau.setText("");
         txt_SDT.setText("");
@@ -715,7 +720,7 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
 
     private void cbo_LocVaiTroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbo_LocVaiTroActionPerformed
         // TODO add your handling code here:
-           String maNV = txt_TimKiem.getText();
+        String maNV = txt_TimKiem.getText();
         String gioiTinh = cbo_LocGioiTinh.getSelectedItem().toString();
         String vaiTo = cbo_LocVaiTro.getSelectedItem().toString();
 
@@ -750,7 +755,7 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
 
     private void cbo_LocGioiTinhActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbo_LocGioiTinhActionPerformed
         // TODO add your handling code here:
-             String maNV = txt_TimKiem.getText();
+        String maNV = txt_TimKiem.getText();
         String gioiTinh = cbo_LocGioiTinh.getSelectedItem().toString();
         String vaiTo = cbo_LocVaiTro.getSelectedItem().toString();
 
@@ -785,7 +790,7 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
 
     private void txt_TimKiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_TimKiemActionPerformed
         // TODO add your handling code here:
-              String maNV = txt_TimKiem.getText();
+        String maNV = txt_TimKiem.getText();
         String gioiTinh = cbo_LocGioiTinh.getSelectedItem().toString();
         String vaiTo = cbo_LocVaiTro.getSelectedItem().toString();
         ArrayList<NhanVienEntity> c = rp.timNV(maNV, gioiTinh, vaiTo);
@@ -802,7 +807,7 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
 
     private void tbl_NghiViecMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbl_NghiViecMouseClicked
         // TODO add your handling code here:
-        int b = tbl_DangLamViec.getSelectedRow();
+        int b = tbl_NghiViec.getSelectedRow();
         this.showData2(b);
     }//GEN-LAST:event_tbl_NghiViecMouseClicked
 

@@ -99,9 +99,9 @@ public class ChucNangBanHang extends javax.swing.JPanel {
      */
     public ChucNangBanHang() {
         initComponents();
-        hienThiDuLieu(sp.getSanPhamChhiTiet());
-        HienThiDuLiuHoaDon(hd.getAll());
-//        int maGioHangHienTai;
+//        hienThiDuLieu(sp.getSanPhamChhiTiet());
+//        HienThiDuLiuHoaDon(hd.getAll());
+////        int maGioHangHienTai;
 
 //        HienThiDuLieuGioHang(hd.getAllGioHang());
     }
@@ -276,11 +276,9 @@ public class ChucNangBanHang extends javax.swing.JPanel {
     }
     
     DecimalFormat formatter = new DecimalFormat("###,###,###");
-
-    // Thêm dữ liệu từ Map vào bảng và tính tổng tiền
     for (XemHoaDonTao chiTiet : productMap.values()) {
         double thanhTien = chiTiet.getGiaBan() * chiTiet.getSoLuong();
-        tongTien += thanhTien; // Cộng dồn vào tổng tiền
+        tongTien += thanhTien;
 
         Object[] rowData = {
             chiTiet.getMaSanPham(),
@@ -1507,7 +1505,7 @@ private static String scanQRCode(BufferedImage bufferedImage) throws FormatExcep
         mat.get(0, 0, ((DataBufferByte) image.getRaster().getDataBuffer()).getData());
         return image;
     }
-
+ 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel Jpanel_Nen;
     private javax.swing.JLabel QR;

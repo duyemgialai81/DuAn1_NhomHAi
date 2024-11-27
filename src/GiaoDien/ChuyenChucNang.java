@@ -29,7 +29,7 @@ public class ChuyenChucNang {
         this.jpnRoot = jpnRoot;
     }
 
-    public void setView(JPanel jpnItem, JButton tblItem) {
+    public void setView(JPanel jpnItem, JLabel tblItem) {
         kindSelected = "ChucNangBanHang";
         jpnRoot.removeAll();
         jpnRoot.setLayout(new BorderLayout());
@@ -44,7 +44,8 @@ public class ChuyenChucNang {
      */
     public void DuyEm(ArrayList<ChucNang> duyem) {
         for (ChucNang ls : duyem) {
-            ls.getLpb().addMouseListener(new LaBalEvent(ls.getKind(), ls.getJpn(), ls.getLpb()));
+            ls.getLpb().addMouseListener(new LaBalEvent(ls.getKind(), ls.getJpn(),ls.getLpb()));
+//            ls.getLpb().addMouseListener(new LaBalEvent(ls.getKind(), ls.getJpn(), ls.getLpb()));
         }
     }
 
@@ -54,15 +55,15 @@ public class ChuyenChucNang {
 
         private String kinh;
         private JPanel jpnItem;
-        private JButton tblItem;
+        private JLabel tblItem;
 
         public LaBalEvent() {
         }
 
-        public LaBalEvent(String kinh, JPanel jpnItem, JButton tblItem) {
+        public LaBalEvent(String kinh, JPanel jpnItem, JLabel tblItem) {
             this.kinh = kinh;
             this.jpnItem = jpnItem;
-            this.tblItem = tblItem;
+            this.tblItem = this.tblItem;
         }
 
         @Override

@@ -45,7 +45,6 @@ public class HoaDonrepository {
                 dh.setTenKhachHang(rs.getString("ten_khach_hang"));
                 ls.add(dh);
             }
-            
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -208,15 +207,16 @@ public boolean capNhatSoLuongSanPham(int idMaSanPham, int soLuongMoi) {
  public ArrayList<DonHangChiTietEntity> layGioHangSanPham(int idDonHang){
      ArrayList<DonHangChiTietEntity> ls= new ArrayList<>();
      String  sql = """
-               	SELECT sp.ma_san_pham, 
-                               sp.ten_san_pham, 
-                               sp.gia_ban, 
-                               SUM(ctdh.so_luong) AS tong_so_luong
+                      select	
+                	ctdh.id_ma_chi_tiet_don_hang,
+                	sp.ma_san_pham, 
+                        sp.ten_san_pham, 
+                        sp.gia_ban, 
+                        ctdh.so_luong
                         FROM chitietdonhang ctdh
                         JOIN SanPham sp ON ctdh.ma_san_pham = sp.id_ma_san_pham
                         JOIN DonHang dh ON ctdh.ma_don_hang = dh.id_ma_don_hang
                         WHERE dh.id_ma_don_hang = ?
-                        GROUP BY sp.ma_san_pham, sp.ten_san_pham, sp.gia_ban
                    """;
      try {
          Connection con = ketnoi.getConnection();
@@ -225,11 +225,11 @@ public boolean capNhatSoLuongSanPham(int idMaSanPham, int soLuongMoi) {
          ResultSet rs = ps.executeQuery();
          while(rs.next()){
              DonHangChiTietEntity ct = new DonHangChiTietEntity();
-//             ct.setIdDonHangChiTiet(rs.getInt("id_ma_chi_tiet_don_hang"));
+             ct.setIdDonHangChiTiet(rs.getInt("id_ma_chi_tiet_don_hang"));
              ct.setMaSanPham(rs.getString("ma_san_pham"));
              ct.setTenSanPham(rs.getString("ten_san_pham"));
              ct.setGiaBan(rs.getFloat("gia_ban"));
-             ct.setSoLuong(rs.getInt("tong_so_luong"));
+             ct.setSoLuong(rs.getInt("so_luong"));
             ls.add(ct);
          }
      } catch (Exception e) {

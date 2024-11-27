@@ -13,33 +13,6 @@ import KetNoiSQL.ketnoi;
  * @author SingPC
  */
 public class NhanVienRepository {
-//   public ArrayList<NhanVienEntity> getAll() {
-//    ArrayList<NhanVienEntity> ls = new ArrayList<>();
-//    String sql = """
-//                 select ma_nhan_vien, ten_nhan_vien, so_dien_thoai, email, dia_chi , id_role
-//                 from NhanVien nv
-//                 join Role r on nv.id_role = r.id_ma_role where
-//                 """;
-//    try (Connection con = ketnoi.getConnection();
-//         PreparedStatement ps = con.prepareStatement(sql)) {
-//// Đặt giá trị cho tham số id_role
-//        
-//        ResultSet rs = ps.executeQuery();
-//        while (rs.next()) {
-//            NhanVienEntity nv = new NhanVienEntity();
-//            nv.setMaNhanVien(rs.getString("ma_nhan_vien"));
-//            nv.setTenNhanVien(rs.getString("ten_nhan_vien"));
-//            nv.setSoDienThoai(rs.getString("so_dien_thoai"));
-//            nv.setEmail(rs.getString("email"));
-//            nv.setDiaChi(rs.getString("dia_chi"));
-//            nv.setI
-//            ls.add(nv);
-//        }
-//    } catch (Exception e) {
-//        e.printStackTrace();
-//    }
-//    return ls;
-//}
     private Connection con = null;
     private PreparedStatement ps = null;
     private ResultSet rs = null;
@@ -214,50 +187,59 @@ public ArrayList<NhanVienEntity> getAll() {
         return ls;
     }
 
-   public int capNhatNhanVien(NhanVienEntity nvE) {
-    String sql = """
-        UPDATE NhanVien 
-        SET ten_nhan_vien = ?, so_dien_thoai = ?, email = ?, dia_chi = ?, 
-            trang_thai = ?, mat_khau = ?, ngay_sinh = ?, gioi_tinh = ?
-        WHERE ma_nhan_vien = ?
-        """;
-    String sqlRole = """
-        UPDATE Role 
-        SET ten_role = ? 
-        WHERE id_ma_role = (SELECT id_role FROM NhanVien WHERE ma_nhan_vien = ?)
-        """;
-    try (Connection con = ketnoi.getConnection()) {
-        con.setAutoCommit(false);
-        try (PreparedStatement ps = con.prepareStatement(sql);
-             PreparedStatement psRole = con.prepareStatement(sqlRole)) {
-            // Cập nhật nhân viên
-            ps.setString(1, nvE.getTenNhanVien());
-            ps.setString(2, nvE.getSoDienThoai());
-            ps.setString(3, nvE.getEmail());
-            ps.setString(4, nvE.getDiaChi());
-            ps.setString(5, nvE.getTrangThai());
-            ps.setString(6, nvE.getMatKhau());
-            ps.setString(7, nvE.getNgaySinh());
-            ps.setBoolean(8, nvE.isGioiTinh());
-            ps.setString(9, nvE.getMaNhanVien());
-            ps.executeUpdate();
+   public int update(String manv, NhanVienEntity nvE) {
+        String sql = """
+                    UPDATE NhanVien SET 
+                        ten_nhan_vien = ?,
+                        so_dien_thoai = ?,
+                        email = ?, 
+                        dia_chi = ?,
+                        trang_thai = ?,
+                        mat_khau = ?,
+                        ngay_sinh = ?,
+                        gioi_tinh = ?
+                    WHERE ma_nhan_vien = ?;
+                """;
 
-            // Cập nhật vai trò
-            psRole.setString(1, nvE.getVaiTro());
-            psRole.setString(2, nvE.getMaNhanVien());
-            psRole.executeUpdate();
+        String updateRoleSQL = """
+                        UPDATE Role 
+                        SET ten_role = ? 
+                        WHERE id_ma_role = (
+                            SELECT id_role 
+                            FROM NhanVien 
+                            WHERE ma_nhan_vien = ?
+                        );
+                """;
 
-            con.commit();
-            return 1; // Thành công
+        try (Connection con = ketnoi.getConnection()) {
+            // Cập nhật bảng NhanVien
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setString(1, nvE.getTenNhanVien());
+                ps.setString(2, nvE.getSoDienThoai());
+                ps.setString(3, nvE.getEmail());
+                ps.setString(4, nvE.getDiaChi());
+                ps.setString(5, nvE.getTrangThai());
+                ps.setString(6, nvE.getMatKhau());
+                ps.setString(7, nvE.getNgaySinh());
+                ps.setBoolean(8, nvE.isGioiTinh());
+                ps.setString(9, manv);
+                ps.executeUpdate();
+            }
+
+            // Cập nhật bảng Role
+            try (PreparedStatement ps2 = con.prepareStatement(updateRoleSQL)) {
+                ps2.setString(1, nvE.getVaiTro());
+                ps2.setString(2, manv);
+                ps2.executeUpdate();
+            }
+
+            return 1; // Trả về giá trị thành công
+
         } catch (SQLException e) {
-            con.rollback();
             e.printStackTrace();
+            return 0; // Trả về giá trị thất bại
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
     }
-    return 0; // Thất bại
-}
 
     public int them(NhanVienEntity nv) {
         String sqlNhanVien = """

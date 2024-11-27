@@ -88,6 +88,82 @@ public ArrayList<SanPhamEntity>layDanhSachSanPham(){
     }
     return ls;
 }
+public boolean themKhuyenMai(KhuyenMaiEntity km){
+    int check =0;
+    String sql = """
+                 insert into voucher (ten_voucher,gia_tri, ngay_bat_dau, ngay_ket_thuc,mo_ta,loai_gia_tri,chuong_trinh_khuyen_mai)
+                 values(?,?,?,?,?,?,?)
+                 """;
+    try {
+        Connection con = ketnoi.getConnection();
+        PreparedStatement ps = con.prepareStatement(sql);
+        ps.setObject(1, km.getTenVouCher());
+        ps.setObject(2, km.getGiaTri());
+        ps.setObject(3, km.getNgayKetThuc());
+        ps.setObject(4, km.getNgayKetThuc());
+        ps.setObject(5, km.getMoTa());
+        ps.setObject(6, km.getLoaiTriGia());
+        ps.setObject(7, km.getTruongTrinhKhuyenMai());
+        check = ps.executeUpdate();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return check >0;
+}
+    
+public boolean updateKhuyenMai(KhuyenMaiEntity km,int maKhuyenMai){
+    int check =0;
+    String sql = """
+                 update voucher 
+                 set ten_voucher =?, gia_tri =?, ngay_bat_dau =?, ngay_ket_thuc =?,mo_ta=?,loai_gia_tri=?,chuong_trinh_khuyen_mai=?
+                 where id_voucher =?
+                 """;
+    try {
+        Connection con = ketnoi.getConnection();
+        PreparedStatement ps = con.prepareStatement(sql);
+        ps.setObject(1, km.getTenVouCher());
+        ps.setObject(2, km.getGiaTri());
+        ps.setObject(3, km.getNgayKetThuc());
+        ps.setObject(4, km.getNgayKetThuc());
+        ps.setObject(5, km.getMoTa());
+        ps.setObject(6, km.getLoaiTriGia());
+        ps.setObject(7, km.getTruongTrinhKhuyenMai());
+        ps.setObject(8, maKhuyenMai);
+        check = ps.executeUpdate();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
 
-
+    return check >0;
+}
+public ArrayList<KhuyenMaiEntity> hienThiDuLieuKhuyenMai(){
+    ArrayList<KhuyenMaiEntity> ls = new ArrayList<>();
+    String sql ="""
+                select id_voucher, ten_voucher, gia_tri, ngay_bat_dau, ngay_ket_thuc,mo_ta,loai_gia_tri,chuong_trinh_khuyen_mai, trang_thai
+                from voucher
+                """;
+    try {
+        Connection con = ketnoi.getConnection();
+        PreparedStatement ps = con.prepareStatement(sql);
+        ResultSet rs =ps.executeQuery();
+        while(rs.next()){
+            KhuyenMaiEntity km = new KhuyenMaiEntity();
+            km.setIdVoucher(rs.getInt("id_voucher"));
+            km.setTenVouCher(rs.getString("ten_voucher"));
+            km.setGiaTri(rs.getFloat("gia_tri"));
+            km.setNgayBatDau(rs.getDate("ngay_bat_dau"));
+            km.setNgayKetThuc(rs.getDate("ngay_ket_thuc"));
+            km.setMoTa(rs.getString("mo_ta"));
+            km.setLoaiTriGia(rs.getString("loai_gia_tri"));
+            km.setTruongTrinhKhuyenMai(rs.getString("chuong_trinh_khuyen_mai"));
+            km.setTrangThai(rs.getString("trang_thai"));
+            ls.add(km);
+            
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return ls;
+}
+  
 }

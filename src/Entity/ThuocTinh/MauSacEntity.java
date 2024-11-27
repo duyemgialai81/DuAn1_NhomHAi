@@ -9,15 +9,36 @@ package Entity.ThuocTinh;
  * @author SingPC
  */
 public class MauSacEntity {
+    private int IdMauSac;
+    private String maMauSac;
+    
     private String mauSac;
     private String moTa;
 
     public MauSacEntity() {
     }
 
-    public MauSacEntity(String mauSac, String moTa) {
+    public MauSacEntity(int IdMauSac, String maMauSac, String mauSac, String moTa) {
+        this.IdMauSac = IdMauSac;
+        this.maMauSac = maMauSac;
         this.mauSac = mauSac;
         this.moTa = moTa;
+    }
+
+    public int getIdMauSac() {
+        return IdMauSac;
+    }
+
+    public void setIdMauSac(int IdMauSac) {
+        this.IdMauSac = IdMauSac;
+    }
+
+    public String getMaMauSac() {
+        return maMauSac;
+    }
+
+    public void setMaMauSac(String maMauSac) {
+        this.maMauSac = maMauSac;
     }
 
     public String getMauSac() {
@@ -35,7 +56,5 @@ public class MauSacEntity {
     public void setMoTa(String moTa) {
         this.moTa = moTa;
     }
-
-   
     
 }

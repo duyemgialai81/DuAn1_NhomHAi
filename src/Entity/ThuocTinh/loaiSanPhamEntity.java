@@ -9,15 +9,35 @@ package Entity.ThuocTinh;
  * @author SingPC
  */
 public class loaiSanPhamEntity {
+    private int idLoaiSanPham;
+    private String maLoaiSanPham;
     private String tenLoaiSanPham;
     private String mota;
 
     public loaiSanPhamEntity() {
     }
 
-    public loaiSanPhamEntity(String tenLoaiSanPham, String mota) {
+    public loaiSanPhamEntity(int idLoaiSanPham, String maLoaiSanPham, String tenLoaiSanPham, String mota) {
+        this.idLoaiSanPham = idLoaiSanPham;
+        this.maLoaiSanPham = maLoaiSanPham;
         this.tenLoaiSanPham = tenLoaiSanPham;
         this.mota = mota;
+    }
+
+    public int getIdLoaiSanPham() {
+        return idLoaiSanPham;
+    }
+
+    public void setIdLoaiSanPham(int idLoaiSanPham) {
+        this.idLoaiSanPham = idLoaiSanPham;
+    }
+
+    public String getMaLoaiSanPham() {
+        return maLoaiSanPham;
+    }
+
+    public void setMaLoaiSanPham(String maLoaiSanPham) {
+        this.maLoaiSanPham = maLoaiSanPham;
     }
 
     public String getTenLoaiSanPham() {
@@ -35,6 +55,8 @@ public class loaiSanPhamEntity {
     public void setMota(String mota) {
         this.mota = mota;
     }
+
+    
     
     
     

@@ -9,6 +9,8 @@ package Entity.ThuocTinh;
  * @author SingPC
  */
 public class XuatXuEntity {
+    private int idMaXuatXu;
+    private String maXuatXu;
     private String quocGia;
 
     private String mota;
@@ -16,9 +18,27 @@ public class XuatXuEntity {
     public XuatXuEntity() {
     }
 
-    public XuatXuEntity(String quocGia, String mota) {
+    public XuatXuEntity(int idMaXuatXu, String maXuatXu, String quocGia, String mota) {
+        this.idMaXuatXu = idMaXuatXu;
+        this.maXuatXu = maXuatXu;
         this.quocGia = quocGia;
         this.mota = mota;
+    }
+
+    public int getIdMaXuatXu() {
+        return idMaXuatXu;
+    }
+
+    public void setIdMaXuatXu(int idMaXuatXu) {
+        this.idMaXuatXu = idMaXuatXu;
+    }
+
+    public String getMaXuatXu() {
+        return maXuatXu;
+    }
+
+    public void setMaXuatXu(String maXuatXu) {
+        this.maXuatXu = maXuatXu;
     }
 
     public String getQuocGia() {
@@ -36,6 +56,7 @@ public class XuatXuEntity {
     public void setMota(String mota) {
         this.mota = mota;
     }
+
     
     
     

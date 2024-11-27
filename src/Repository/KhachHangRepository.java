@@ -111,5 +111,28 @@ public class KhachHangRepository {
     }
     return list;
 }
+    public ArrayList<KhachHang>timKiemKhachHang(String soDienThoai){
+        ArrayList<KhachHang> ls = new ArrayList<>();
+        String sql = """
+                     select id_ma_khach_hang, ten_khach_hang
+                     from khachHang 
+                     where so_dien_thoai = ?
+                     """;
+        try {
+            Connection con = ketnoi.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setObject(1, soDienThoai);
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                KhachHang  kh = new KhachHang();
+                kh.setIdKhachHang(rs.getInt("id_ma_khach_hang"));
+                kh.setTenKH(rs.getString("ten_khach_hang"));
+                ls.add(kh);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ls;
+    }
 
 }

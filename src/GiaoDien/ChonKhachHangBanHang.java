@@ -30,9 +30,9 @@ private DefaultTableModel md = new DefaultTableModel();
     public ChonKhachHangBanHang() {
         
         initComponents();
-        hienThiLuaChoKhachHang(kh.layThongTinKhachHang());
+//        hienThiLuaChoKhachHang(kh.layThongTinKhachHang());
         hienThiLuaChoKhachHangg(kh.layThongTinKhachHang());
-        hienThiDuLieu(dh.layHhoaDon());
+//        hienThiDuLieu(dh.layHhoaDon());
     }
            private void hienThiLuaChoKhachHangg(ArrayList<KhachHang> khachHang){
         md = (DefaultTableModel) tblthemkhachhang.getModel();
@@ -43,24 +43,24 @@ private DefaultTableModel md = new DefaultTableModel();
             });
         }
     }
-    private void hienThiLuaChoKhachHang(ArrayList<KhachHang> khachHang){
-        md = (DefaultTableModel) tblhienthikhachhang1.getModel();
-        md.setRowCount(0);
-        for (KhachHang khachHang1 : khachHang) {
-            md.addRow(new Object[]{
-              khachHang1.getIdKhachHang(),  khachHang1.getMaKH(), khachHang1.getTenKH(), khachHang1.getEmail(),khachHang1.getSDT(),khachHang1.getDiaChi(), khachHang1.isGioiTinh()?"Nam":"Nữ", khachHang1.isTrangThai()?"Đang Hoạt Động":"Ngừng Hoạt Đông"
-            });
-        }
-    }
-         private void hienThiDuLieu(ArrayList<HoaDonXemDuLieu> lss) {
-        md = (DefaultTableModel) tblhoadon.getModel();
-        md.setRowCount(0);
-        for (HoaDonXemDuLieu ls1 : lss) {
-            md.addRow(new Object[]{
-                ls1.getIdDonHang(), ls1.getMaHoaDon(), ls1.getTenKhachHang(), ls1.getTenNhanVien(), ls1.getNgayLap(), ls1.getTrangThai()
-            });
-        }
-    }
+//    private void hienThiLuaChoKhachHang(ArrayList<KhachHang> khachHang){
+//        md = (DefaultTableModel) tblhienthikhachhang1.getModel();
+//        md.setRowCount(0);
+//        for (KhachHang khachHang1 : khachHang) {
+//            md.addRow(new Object[]{
+//              khachHang1.getIdKhachHang(),  khachHang1.getMaKH(), khachHang1.getTenKH(), khachHang1.getEmail(),khachHang1.getSDT(),khachHang1.getDiaChi(), khachHang1.isGioiTinh()?"Nam":"Nữ", khachHang1.isTrangThai()?"Đang Hoạt Động":"Ngừng Hoạt Đông"
+//            });
+//        }
+//    }
+//         private void hienThiDuLieu(ArrayList<HoaDonXemDuLieu> lss) {
+//        md = (DefaultTableModel) tblhoadon.getModel();
+//        md.setRowCount(0);
+//        for (HoaDonXemDuLieu ls1 : lss) {
+//            md.addRow(new Object[]{
+//                ls1.getIdDonHang(), ls1.getMaHoaDon(), ls1.getTenKhachHang(), ls1.getTenNhanVien(), ls1.getNgayLap(), ls1.getTrangThai()
+//            });
+//        }
+//    }
     private void add(){
         kh.addThongTinKhachHang(getFomat());
         hienThiLuaChoKhachHangg(kh.layThongTinKhachHang());
@@ -117,18 +117,6 @@ private DefaultTableModel md = new DefaultTableModel();
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
         jPanel1 = new javax.swing.JPanel();
-        jTabbedPane1 = new javax.swing.JTabbedPane();
-        jPanel2 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        tblhoadon = new javax.swing.JTable();
-        loc_GioiTinh = new javax.swing.JComboBox<>();
-        LocTrangThai = new javax.swing.JComboBox<>();
-        txt_timKiemKhachHang = new javax.swing.JTextField();
-        jLabel6 = new javax.swing.JLabel();
-        jButton5 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        tblhienthikhachhang1 = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
         txtemail = new javax.swing.JTextField();
         txttenkahchhang = new javax.swing.JTextField();
@@ -152,88 +140,9 @@ private DefaultTableModel md = new DefaultTableModel();
         jButton4 = new javax.swing.JButton();
         txtmaKhachHang = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
+        jButton7 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
-        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        tblhoadon.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
-            },
-            new String [] {
-                "ID Mã Hóa Đơn", "Mã Hóa Đơn", "Tên Khách Hàng", "Tên Nhân Viên", "Ngày Lập", "Trạng Thái"
-            }
-        ));
-        tblhoadon.addAncestorListener(new javax.swing.event.AncestorListener() {
-            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
-                tblhoadonAncestorAdded(evt);
-            }
-            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
-            }
-            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
-            }
-        });
-        tblhoadon.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tblhoadonMouseClicked(evt);
-            }
-        });
-        jScrollPane1.setViewportView(tblhoadon);
-
-        jPanel2.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 400, 620, 180));
-
-        loc_GioiTinh.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        jPanel2.add(loc_GioiTinh, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 90, 160, -1));
-
-        LocTrangThai.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        jPanel2.add(LocTrangThai, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 90, 180, -1));
-        jPanel2.add(txt_timKiemKhachHang, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 260, -1));
-
-        jLabel6.setFont(new java.awt.Font("Serif", 1, 18)); // NOI18N
-        jLabel6.setText("LỰA CHỌN KHÁCH HÀNG ĐỂ THÊM VÔ HÓA ĐƠN");
-        jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 30, -1, -1));
-
-        jButton5.setText("Thoát");
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
-            }
-        });
-        jPanel2.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 160, -1, -1));
-
-        jButton6.setText("Thay Thế");
-        jButton6.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton6ActionPerformed(evt);
-            }
-        });
-        jPanel2.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 160, -1, -1));
-
-        tblhienthikhachhang1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
-            },
-            new String [] {
-                "Mã Khách Hàng", "Tên Khách Hàng", "Email", "Số Điện Thoại", "Địa Chỉ", "Giới Tính", "Trang Thái"
-            }
-        ));
-        tblhienthikhachhang1.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tblhienthikhachhang1MouseClicked(evt);
-            }
-        });
-        jScrollPane2.setViewportView(tblhienthikhachhang1);
-
-        jPanel2.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 200, 620, 180));
-
-        jTabbedPane1.addTab("Thông Tin Khách Hàng", jPanel2);
 
         buttonGroup2.add(rdoNam);
         rdoNam.setText("Nam");
@@ -296,11 +205,18 @@ private DefaultTableModel md = new DefaultTableModel();
             }
         });
 
-        jButton4.setText("Làm Mới");
+        jButton4.setText("Thoát");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
 
         txtmaKhachHang.setText(" ");
 
         jLabel8.setText("Mã Khách Hàng");
+
+        jButton7.setText("Làm Mới");
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -330,17 +246,19 @@ private DefaultTableModel md = new DefaultTableModel();
                                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                                             .addGap(86, 86, 86)
                                             .addComponent(jButton4)))))
-                            .addGap(35, 35, 35)
-                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(jPanel3Layout.createSequentialGroup()
-                                        .addComponent(jButton1)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton3)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(jButton2))
-                                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 287, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addGap(6, 6, 6)
+                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 287, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(jPanel3Layout.createSequentialGroup()
+                                    .addComponent(jButton7)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(jButton1)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(jButton3)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(jButton2))))
                         .addGroup(jPanel3Layout.createSequentialGroup()
                             .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(txttenkahchhang, javax.swing.GroupLayout.PREFERRED_SIZE, 276, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -353,7 +271,7 @@ private DefaultTableModel md = new DefaultTableModel();
                             .addComponent(jLabel1)
                             .addGap(187, 187, 187))
                         .addComponent(jScrollPane4)))
-                .addContainerGap(28, Short.MAX_VALUE))
+                .addContainerGap(16, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -398,7 +316,8 @@ private DefaultTableModel md = new DefaultTableModel();
                             .addComponent(jButton2)
                             .addComponent(jButton3)
                             .addComponent(jButton4)
-                            .addComponent(txtmaKhachHang, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(txtmaKhachHang, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton7)))
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -407,17 +326,21 @@ private DefaultTableModel md = new DefaultTableModel();
                 .addContainerGap())
         );
 
-        jTabbedPane1.addTab("Thêm Khách Hàng Mới", jPanel3);
-
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(0, 6, Short.MAX_VALUE)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 6, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -435,31 +358,26 @@ private DefaultTableModel md = new DefaultTableModel();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void tblthemkhachhangMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblthemkhachhangMouseClicked
-        // TODO add your handling code here:
-        int index = tblthemkhachhang.getSelectedRow();
-        hienThiDuLieuLenTextFile(index);
-    }//GEN-LAST:event_tblthemkhachhangMouseClicked
-
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
         update();
     }//GEN-LAST:event_jButton3ActionPerformed
-
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        // TODO add your handling code here:
-        dispose();
-        hienThiDuLieu(dh.layHhoaDon());
-    }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         add();
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void tblhienthikhachhang1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblhienthikhachhang1MouseClicked
+    private void tblthemkhachhangMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblthemkhachhangMouseClicked
         // TODO add your handling code here:
-    }//GEN-LAST:event_tblhienthikhachhang1MouseClicked
+        int index = tblthemkhachhang.getSelectedRow();
+        hienThiDuLieuLenTextFile(index);
+    }//GEN-LAST:event_tblthemkhachhangMouseClicked
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        // TODO add your handling code here:
+        dispose();
+    }//GEN-LAST:event_jButton4ActionPerformed
  public boolean capNhatKhachHang(int maHoaDon, int maKhachHang) {
 int check = 0;
         String cauLenhSQL = "UPDATE DonHang SET ma_khach_hang = ? WHERE id_ma_don_hang = ?";
@@ -469,7 +387,7 @@ int check = 0;
             lenh.setInt(2, maHoaDon);
             check = lenh.executeUpdate();
             if (check > 0) {
-                hienThiDuLieu(dh.layHhoaDon());
+//                hienThiDuLieu(dh.layHhoaDon());
                 System.out.println("Cập nhật thành công!");
             } else {
                 System.out.println("Không tìm thấy hóa đơn phù hợp!");
@@ -479,33 +397,6 @@ int check = 0;
         }
     return check >0;
     }
-    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-
-int dongKhachHangChon = tblhienthikhachhang1.getSelectedRow();
-int dongHoaDonChon = tblhoadon.getSelectedRow();
-if (dongKhachHangChon == -1 || dongHoaDonChon == -1) {
-    JOptionPane.showMessageDialog(this, "Vui lòng chọn cả khách hàng và hóa đơn!");
-    return;
-}
-int maKhachHang = Integer.parseInt(tblhienthikhachhang1.getValueAt(dongKhachHangChon, 0).toString());
-int maHoaDon = Integer.parseInt(tblhoadon.getValueAt(dongHoaDonChon, 0).toString());
-capNhatKhachHang(maHoaDon, maKhachHang);
-String tenKhachHang = tblhienthikhachhang1.getValueAt(dongKhachHangChon, 1).toString();
-tblhoadon.setValueAt(tenKhachHang, dongHoaDonChon, 2);
-JOptionPane.showMessageDialog(this, "Cập nhật khách hàng cho hóa đơn thành công!");
-
-    }//GEN-LAST:event_jButton6ActionPerformed
-
-    private void tblhoadonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblhoadonMouseClicked
-        // TODO add your handling code here:
-        
-    }//GEN-LAST:event_tblhoadonMouseClicked
-
-    private void tblhoadonAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_tblhoadonAncestorAdded
-        // TODO add your handling code here:
-        hienThiDuLieu(dh.layHhoaDon());
-    }//GEN-LAST:event_tblhoadonAncestorAdded
-
     /**
      * @param args the command line arguments
      */
@@ -542,39 +433,28 @@ JOptionPane.showMessageDialog(this, "Cập nhật khách hàng cho hóa đơn th
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox<String> LocTrangThai;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton7;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
-    private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JComboBox<String> loc_GioiTinh;
     private javax.swing.JRadioButton rdoDangHoatDong;
     private javax.swing.JRadioButton rdoNam;
     private javax.swing.JRadioButton rdoNgungHoatDong;
     private javax.swing.JRadioButton rdoNu;
-    private javax.swing.JTable tblhienthikhachhang1;
-    private javax.swing.JTable tblhoadon;
     private javax.swing.JTable tblthemkhachhang;
-    private javax.swing.JTextField txt_timKiemKhachHang;
     private javax.swing.JTextArea txtdiachi;
     private javax.swing.JTextField txtemail;
     private javax.swing.JLabel txtmaKhachHang;

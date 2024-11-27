@@ -9,15 +9,35 @@ package Entity.ThuocTinh;
  * @author SingPC
  */
 public class KichCoEnTity {
+    private int idKichCo;
+    private String maKichCo;
     private String kichCo;
     private String moTa;
 
     public KichCoEnTity() {
     }
 
-    public KichCoEnTity(String kichCo, String moTa) {
+    public KichCoEnTity(int idKichCo, String maKichCo, String kichCo, String moTa) {
+        this.idKichCo = idKichCo;
+        this.maKichCo = maKichCo;
         this.kichCo = kichCo;
         this.moTa = moTa;
+    }
+
+    public int getIdKichCo() {
+        return idKichCo;
+    }
+
+    public void setIdKichCo(int idKichCo) {
+        this.idKichCo = idKichCo;
+    }
+
+    public String getMaKichCo() {
+        return maKichCo;
+    }
+
+    public void setMaKichCo(String maKichCo) {
+        this.maKichCo = maKichCo;
     }
 
     public String getKichCo() {
@@ -35,7 +55,9 @@ public class KichCoEnTity {
     public void setMoTa(String moTa) {
         this.moTa = moTa;
     }
-     
+    
+
+    
     
     
     

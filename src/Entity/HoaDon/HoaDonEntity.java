@@ -19,11 +19,12 @@ public class HoaDonEntity {
     private String tenNhanVien;
     private String tenKhachHang;
        private String maHoaDonnn;
+       private int idMaKhachHang;
 
     public HoaDonEntity() {
     }
 
-    public HoaDonEntity(int idHoaDon, String maHoaDon, Date ngayLap, float tongTien, String tenNhanVien, String tenKhachHang, String maHoaDonnn) {
+    public HoaDonEntity(int idHoaDon, String maHoaDon, Date ngayLap, float tongTien, String tenNhanVien, String tenKhachHang, String maHoaDonnn, int idMaKhachHang) {
         this.idHoaDon = idHoaDon;
         this.maHoaDon = maHoaDon;
         this.ngayLap = ngayLap;
@@ -31,6 +32,7 @@ public class HoaDonEntity {
         this.tenNhanVien = tenNhanVien;
         this.tenKhachHang = tenKhachHang;
         this.maHoaDonnn = maHoaDonnn;
+        this.idMaKhachHang = idMaKhachHang;
     }
 
     public int getIdHoaDon() {
@@ -89,6 +91,15 @@ public class HoaDonEntity {
         this.maHoaDonnn = maHoaDonnn;
     }
 
+    public int getIdMaKhachHang() {
+        return idMaKhachHang;
+    }
+
+    public void setIdMaKhachHang(int idMaKhachHang) {
+        this.idMaKhachHang = idMaKhachHang;
+    }
+
+    
    
    
     

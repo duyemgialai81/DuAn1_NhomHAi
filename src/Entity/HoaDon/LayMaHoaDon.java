@@ -9,21 +9,32 @@ package Entity.HoaDon;
  * @author SingPC
  */
 public class LayMaHoaDon {
+    private int idMaHoaDon;
     private String maHoaDonnn;
 
     public LayMaHoaDon() {
     }
 
-    public LayMaHoaDon(String maHoaDon) {
-        this.maHoaDonnn = maHoaDon;
+    public LayMaHoaDon(int idMaHoaDon, String maHoaDonnn) {
+        this.idMaHoaDon = idMaHoaDon;
+        this.maHoaDonnn = maHoaDonnn;
+    }
+
+    public int getIdMaHoaDon() {
+        return idMaHoaDon;
+    }
+
+    public void setIdMaHoaDon(int idMaHoaDon) {
+        this.idMaHoaDon = idMaHoaDon;
     }
 
     public String getMaHoaDonnn() {
         return maHoaDonnn;
     }
 
-    public void setMaHoaDonnnn(String maHoaDon) {
-        this.maHoaDonnn = maHoaDon;
+    public void setMaHoaDonnn(String maHoaDonnn) {
+        this.maHoaDonnn = maHoaDonnn;
     }
-    
+
+  
 }

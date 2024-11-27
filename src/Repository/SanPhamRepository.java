@@ -147,6 +147,19 @@ public class SanPhamRepository {
 
     public boolean delete(String maSanPham) {
         int check = 0;
+        int check1 =0;
+        String sql1 ="""
+                    delete chitietdonhang
+                    where ma_san_pham = ?
+                     """;
+        try (Connection con = ketnoi.getConnection()) {
+            PreparedStatement ps = con.prepareStatement(sql1);
+            ps.setObject(1, maSanPham);
+            check1 = ps.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         String sql = """
                      delete SanPham
                      where ma_san_pham = ?

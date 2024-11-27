@@ -9,6 +9,8 @@ import Entity.HoaDon.HoaDonEntity;
 import Entity.HoaDon.HoaDonXemDuLieu;
 import Entity.HoaDon.LayMaHoaDon;
 import Entity.HoaDon.XemHoaDonTao;
+import Entity.HoaDon.XuatHoaDon;
+import Entity.KhachHang.KhachHang;
 import Entity.SanPham.SanPhamEntity;
 import Entity.ThuocTinh.ChatLieuEntity;
 import Entity.ThuocTinh.KichCoEnTity;
@@ -22,6 +24,7 @@ import java.sql.*;
 import KetNoiSQL.ketnoi;
 import Repository.DonHangChiTietRepository;
 import Repository.HoaDonrepository;
+import Repository.KhachHangRepository;
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamResolution;
 import com.google.zxing.BinaryBitmap;
@@ -67,16 +70,19 @@ import java.awt.Image;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
-
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import java.awt.Color;
 import java.io.FileNotFoundException;
 import java.lang.System.Logger.Level;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -97,13 +103,14 @@ public class NewJPanel extends javax.swing.JPanel implements Runnable, ThreadFac
     private boolean isduyem = false;
     private DonHangChiTietRepository dh = new DonHangChiTietRepository();
     private HoaDonrepository hd = new HoaDonrepository();
+    private KhachHangRepository khachHang = new KhachHangRepository();
 
     /**
      * Creates new form NewJPanel
      */
     public NewJPanel() {
         initComponents();
-       hienThiDuLieuuu(ls.getSanPhamChhiTiet());
+        hienThiDuLieuuu(ls.getSanPhamChhiTiet());
 //         batTatCam();
 //          initWebcam();
         initWebcam();
@@ -111,15 +118,14 @@ public class NewJPanel extends javax.swing.JPanel implements Runnable, ThreadFac
         hienThiDuLieu(dh.layHhoaDon());
         hienThiDuLieuGioHangg();
 //        HienThiDuLiuHoaDon(hd.getAll());
-thuocTinhThuongHieu();
-thuocTinhMauSac();
-thuocTinhKichCo();
+        thuocTinhThuongHieu();
+        thuocTinhMauSac();
+        thuocTinhKichCo();
 
     }
 
-    private void hienThiDuLieuGioHangg() {
+    public void hienThiDuLieuGioHangg() {
         try {
-            // Kiểm tra nếu txtid rỗng
             if (txtid.getText().trim().isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Không tìm thấy mã sản phẩm trong trường dữ liệu!");
                 return;
@@ -128,7 +134,7 @@ thuocTinhKichCo();
             ArrayList<DonHangChiTietEntity> ls = hd.layGioHangSanPham(id);
             if (ls.isEmpty()) {
             } else {
-                hienThiDuLieuGioHang(ls); // Hiển thị danh sách vào bảng
+                hienThiDuLieuGioHang(ls);
             }
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Mã sản phẩm không hợp lệ!");
@@ -138,12 +144,295 @@ thuocTinhKichCo();
         }
     }
 
-      private void hienThiDuLieuuu(ArrayList<SanPhamEntity> lss) {
+   public void timKimMaKhachHang() {
+        String soDienThaoi = txtsodienthoai.getText();
+        ArrayList<KhachHang> kh = khachHang.timKiemKhachHang(soDienThaoi);
+        if (!kh.isEmpty()) {
+            KhachHang khtimkiem = kh.get(0);
+
+            txtidkhachhang.setText(String.valueOf(khtimkiem.getIdKhachHang()));
+            txtTenKhachHang.setText(khtimkiem.getTenKH());
+        } else {
+            ChonKhachHangBanHang duyemdayne = new ChonKhachHangBanHang();
+            duyemdayne.setVisible(true);
+        }
+
+    }
+
+  private void hienThiDuLieuGioHangg(int maGioHang) {
+    try (Connection con = ketnoi.getConnection()) {
+        String sqlChiTiet = """
+               SELECT	
+                ctdh.id_ma_chi_tiet_don_hang,
+                sp.ma_san_pham, 
+                sp.ten_san_pham, 
+                sp.gia_ban, 
+                ctdh.so_luong
+               FROM chitietdonhang ctdh
+               JOIN SanPham sp ON ctdh.ma_san_pham = sp.id_ma_san_pham
+               JOIN DonHang dh ON ctdh.ma_don_hang = dh.id_ma_don_hang
+               WHERE dh.id_ma_don_hang = ?
+        """;
+        String sqlTongTienThue = """
+            SELECT 
+            SUM(tong_tien) AS tongTien,
+            SUM(tong_tien * thue / 100) AS tongThue
+            FROM ChiTietDonHang ctdh
+            JOIN donhang dh ON ctdh.ma_don_hang = dh.id_ma_don_hang
+            WHERE ctdh.ma_don_hang = ?
+        """;
+        try (PreparedStatement psChiTiet = con.prepareStatement(sqlChiTiet); 
+             PreparedStatement psTongTienThue = con.prepareStatement(sqlTongTienThue)) {
+             
+            // Lấy dữ liệu sản phẩm
+            psChiTiet.setInt(1, maGioHang);
+            ResultSet rsChiTiet = psChiTiet.executeQuery();
+            Map<String, Object[]> productMap = new HashMap<>();
+            while (rsChiTiet.next()) {
+                int idMaDonHang = rsChiTiet.getInt("id_ma_chi_tiet_don_hang");
+                String maSanPham = rsChiTiet.getString("ma_san_pham");
+                String tenSanPham = rsChiTiet.getString("ten_san_pham");
+                float giaBan = rsChiTiet.getFloat("gia_ban");
+                int soLuong = rsChiTiet.getInt("so_luong");
+                if (productMap.containsKey(maSanPham)) {
+                    Object[] productData = productMap.get(maSanPham);
+                    productData[4] = (int) productData[4] + soLuong;
+                } else {
+                    productMap.put(maSanPham, new Object[]{
+                        idMaDonHang,
+                        maSanPham,
+                        tenSanPham,
+                        giaBan,
+                        soLuong
+                    });
+                }
+            }
+            
+            // Hiển thị dữ liệu vào bảng
+            DefaultTableModel model = (DefaultTableModel) hienthigiohang.getModel();
+            model.setRowCount(0);
+            for (Object[] product : productMap.values()) {
+                model.addRow(product);
+            }
+            
+            // Tính tổng tiền và thuế
+            psTongTienThue.setInt(1, maGioHang);
+            ResultSet rsTongTienThue = psTongTienThue.executeQuery();
+            if (rsTongTienThue.next()) {
+                float tongTien = rsTongTienThue.getFloat("tongTien");
+                float tongThue = rsTongTienThue.getFloat("tongThue");
+                // Tính tổng thành tiền
+                float giamGia = 0;
+                float thanhTien = tongTien + tongThue; 
+//                if (tongTien > 1000000) {
+//                    giamGia = thanhTien * 0.02f;
+//                }
+                DecimalFormat formatter = new DecimalFormat("#,###.##");
+                txttongSoTien.setText(formatter.format(tongTien));
+                txtthue.setText(formatter.format(tongThue));
+                txtthanhtien.setText(formatter.format(thanhTien));
+                txtGiamGia.setText(formatter.format(giamGia));
+                apDungKhuyenMai();
+                // Cập nhật tiền thừa khi khách nhập tiền
+                txt_tienKhachDua.getDocument().addDocumentListener(new DocumentListener() {
+                    @Override
+                    public void insertUpdate(DocumentEvent e) {
+                        capNhatTienThua();
+                    }
+
+                    @Override
+                    public void removeUpdate(DocumentEvent e) {
+                        capNhatTienThua();
+                    }
+
+                    @Override
+                    public void changedUpdate(DocumentEvent e) {
+                        capNhatTienThua();
+                    }
+
+                    private void capNhatTienThua() {
+                        String inputAmountStr = txt_tienKhachDua.getText();
+                        if (!inputAmountStr.isEmpty()) {
+                            try {
+                                String cleanedInput = inputAmountStr.replaceAll("[,\\s]", "");
+                                double inputAmount = Double.parseDouble(cleanedInput);
+                                double moneyLeft = inputAmount - thanhTien;
+                                if (moneyLeft < 0) {
+                                    txtTienTraKhac.setText("Số tiền bạn nhập không đủ để thanh toán!");
+                                } else {
+                                    txtTienTraKhac.setText(formatter.format(moneyLeft));
+                                }
+                            } catch (NumberFormatException e) {
+                                txtTienTraKhac.setText("Vui lòng nhập số tiền hợp lệ.");
+                            }
+                        } else {
+                            txtTienTraKhac.setText("");
+                        }
+                    }
+                });
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu giỏ hàng: " + e.getMessage(),
+                "Lỗi", JOptionPane.ERROR_MESSAGE);
+    }
+}
+//     private void hienThiDuLieuGioHangg(int maGioHang) {
+//    try (Connection con = ketnoi.getConnection()) {
+//        String sqlChiTiet = """
+//               SELECT	
+//                ctdh.id_ma_chi_tiet_don_hang,
+//                sp.ma_san_pham, 
+//                sp.ten_san_pham, 
+//                sp.gia_ban, 
+//                ctdh.so_luong,
+//                ctdh.ma_voucher
+//               FROM chitietdonhang ctdh
+//               JOIN SanPham sp ON ctdh.ma_san_pham = sp.id_ma_san_pham
+//               JOIN DonHang dh ON ctdh.ma_don_hang = dh.id_ma_don_hang
+//               WHERE dh.id_ma_don_hang = ?
+//        """;
+//        String sqlVoucher = """
+//            SELECT 
+//            gia_tri, 
+//            ngay_bat_dau, 
+//            ngay_ket_thuc, 
+//            trang_thai, 
+//            loai_gia_tri
+//            FROM Voucher
+//            WHERE id_voucher = ?
+//        """;
+//        String sqlTongTienThue = """
+//            SELECT 
+//            SUM(tong_tien) AS tongTien,
+//            SUM(tong_tien * thue / 100) AS tongThue
+//            FROM ChiTietDonHang ctdh
+//            JOIN donhang dh ON ctdh.ma_don_hang = dh.id_ma_don_hang
+//            WHERE ctdh.ma_don_hang = ?
+//        """;
+//
+//        try (PreparedStatement psChiTiet = con.prepareStatement(sqlChiTiet); 
+//             PreparedStatement psVoucher = con.prepareStatement(sqlVoucher);
+//             PreparedStatement psTongTienThue = con.prepareStatement(sqlTongTienThue)) {
+//             
+//            // Lấy dữ liệu sản phẩm
+//            psChiTiet.setInt(1, maGioHang);
+//            ResultSet rsChiTiet = psChiTiet.executeQuery();
+//            Map<String, Object[]> productMap = new HashMap<>();
+//            while (rsChiTiet.next()) {
+//                int idMaDonHang = rsChiTiet.getInt("id_ma_chi_tiet_don_hang");
+//                String maSanPham = rsChiTiet.getString("ma_san_pham");
+//                String tenSanPham = rsChiTiet.getString("ten_san_pham");
+//                float giaBan = rsChiTiet.getFloat("gia_ban");
+//                int soLuong = rsChiTiet.getInt("so_luong");
+//                int maVoucher = rsChiTiet.getInt("ma_voucher");
+//                if (maVoucher > 0) {
+//                    psVoucher.setInt(1, maVoucher);
+//                    ResultSet rsVoucher = psVoucher.executeQuery();
+//                    if (rsVoucher.next()) {
+//                        Date ngayBatDau = rsVoucher.getDate("ngay_bat_dau");
+//                        Date ngayKetThuc = rsVoucher.getDate("ngay_ket_thuc");
+//                        String trangThai = rsVoucher.getString("trang_thai");
+//                        float giaTri = rsVoucher.getFloat("gia_tri");
+//                        String loaiGiaTri = rsVoucher.getString("loai_gia_tri");
+//                        LocalDate currentDate = LocalDate.now();
+//                        if (trangThai.equals("active") && !currentDate.isBefore(ngayBatDau.toLocalDate()) && !currentDate.isAfter(ngayKetThuc.toLocalDate())) {
+//                            // Voucher hợp lệ
+//                            float discount = 0;
+//                            if (loaiGiaTri.equals("Giảm Theo %")) {
+//                                discount = giaBan * giaTri / 100;
+//                            } else if (loaiGiaTri.equals("Giảm Tiền Trực Tiếp")) {
+//                                discount = giaTri;
+//                            }
+//                            giaBan -= discount;
+//                        }
+//                    }
+//                }
+//                if (productMap.containsKey(maSanPham)) {
+//                    Object[] productData = productMap.get(maSanPham);
+//                    productData[4] = (int) productData[4] + soLuong;
+//                } else {
+//                    productMap.put(maSanPham, new Object[]{
+//                        idMaDonHang,
+//                        maSanPham,
+//                        tenSanPham,
+//                        giaBan,
+//                        soLuong
+//                    });
+//                }
+//            }
+//            DefaultTableModel model = (DefaultTableModel) hienthigiohang.getModel();
+//            model.setRowCount(0);
+//            for (Object[] product : productMap.values()) {
+//                model.addRow(product);
+//            }
+//            psTongTienThue.setInt(1, maGioHang);
+//            ResultSet rsTongTienThue = psTongTienThue.executeQuery();
+//            if (rsTongTienThue.next()) {
+//                float tongTien = rsTongTienThue.getFloat("tongTien");
+//                float tongThue = rsTongTienThue.getFloat("tongThue");
+//                float thanhTien = tongTien + tongThue; 
+//              
+//                DecimalFormat formatter = new DecimalFormat("#,###.##");
+//                txttongSoTien.setText(formatter.format(tongTien));
+//                txtthue.setText(formatter.format(tongThue));
+//                txtthanhtien.setText(formatter.format(thanhTien));
+//                  apDungKhuyenMai();
+//                  hienThiDuLieuGioHangg();
+////                  hienThiDuLieuGioHangg();
+////                txt_tienKhachDua.getDocument().addDocumentListener(new DocumentListener() {
+////                    @Override
+////                    public void insertUpdate(DocumentEvent e) {
+////                        capNhatTienThua();
+////                    }
+////
+////                    @Override
+////                    public void removeUpdate(DocumentEvent e) {
+////                        capNhatTienThua();
+////                    }
+////
+////                    @Override
+////                    public void changedUpdate(DocumentEvent e) {
+////                        capNhatTienThua();
+////                    }
+////
+////                    private void capNhatTienThua() {
+////                        String inputAmountStr = txt_tienKhachDua.getText();
+////                        if (!inputAmountStr.isEmpty()) {
+////                            try {
+////                                String cleanedInput = inputAmountStr.replaceAll("[,\\s]", "");
+////                                double inputAmount = Double.parseDouble(cleanedInput);
+////                                double moneyLeft = inputAmount - thanhTien;
+////                                if (moneyLeft < 0) {
+////                                    txtTienTraKhac.setText("Số tiền bạn nhập không đủ để thanh toán!");
+////                                } else {
+////                                    txtTienTraKhac.setText(formatter.format(moneyLeft));
+////                                }
+////                            } catch (NumberFormatException e) {
+////                                txtTienTraKhac.setText("Vui lòng nhập số tiền hợp lệ.");
+////                            }
+////                        } else {
+////                            txtTienTraKhac.setText("");
+////                        }
+////                    }
+////                });
+//            }
+//        }
+//    } catch (SQLException e) {
+//        e.printStackTrace();
+//        JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu giỏ hàng: " + e.getMessage(),
+//                "Lỗi", JOptionPane.ERROR_MESSAGE);
+//    }
+//}
+
+
+    private void hienThiDuLieuuu(ArrayList<SanPhamEntity> lss) {
         md = (DefaultTableModel) tbl_sanPham1.getModel();
         md.setRowCount(0);
         for (SanPhamEntity l : lss) {
             md.addRow(new Object[]{
-              l.getIdSanPham(),  l.getMaSanPham(), l.getTenSanPham(), l.getSoLuong(), l.getGiaBan(),l.getGiaNhap(), l.getHinhAnh(), l.getKichCo(), l.getMauSac(), l.getTenThuongHieu(), l.getChatLieu(), l.getQuocGia(), l.getTenMaLoai(), l.getTrangThai()
+                l.getIdSanPham(), l.getMaSanPham(), l.getTenSanPham(), l.getSoLuong(), l.getGiaBan(), l.getGiaNhap(), l.getHinhAnh(), l.getKichCo(), l.getMauSac(), l.getTenThuongHieu(), l.getChatLieu(), l.getQuocGia(), l.getTenMaLoai(), l.getTrangThai()
             });
         }
     }
@@ -161,13 +450,12 @@ thuocTinhKichCo();
 //            hienThiTrang(lss);
 //        }
 //    }
-
     private void hienThiDuLieuGioHang(ArrayList<DonHangChiTietEntity> chitiet) {
         md = (DefaultTableModel) hienthigiohang.getModel();
         md.setRowCount(0);
         for (DonHangChiTietEntity donHangChiTietEntity : chitiet) {
             md.addRow(new Object[]{
-                donHangChiTietEntity.getMaSanPham(), donHangChiTietEntity.getTenSanPham(), donHangChiTietEntity.getGiaBan(), donHangChiTietEntity.getSoLuong()
+                donHangChiTietEntity.getIdDonHangChiTiet(), donHangChiTietEntity.getMaSanPham(), donHangChiTietEntity.getTenSanPham(), donHangChiTietEntity.getGiaBan(), donHangChiTietEntity.getSoLuong()
 
             });
         }
@@ -184,14 +472,14 @@ thuocTinhKichCo();
     }
 
     private void locSanPham() {
-    // Lấy giá trị từ các trường lọc
-    String thuongHieu = (String) thuonghieu.getSelectedItem();
-    String mauSac = (String) txtLocMauSac.getSelectedItem();
-    String kichCo = (String) txtlockichco1.getSelectedItem();
-    String tenSanPham = txtLocTenSanPham1.getText().trim();
-    ArrayList<SanPhamEntity> sanPham = ls.timkiemSanPhamm(thuongHieu, mauSac, kichCo, tenSanPham);
+        // Lấy giá trị từ các trường lọc
+        String thuongHieu = (String) thuonghieu.getSelectedItem();
+        String mauSac = (String) txtLocMauSac.getSelectedItem();
+        String kichCo = (String) txtlockichco1.getSelectedItem();
+        String tenSanPham = txtLocTenSanPham1.getText().trim();
+        ArrayList<SanPhamEntity> sanPham = ls.timkiemSanPhamm(thuongHieu, mauSac, kichCo, tenSanPham);
         hienThiDuLieuuu(sanPham);
-}
+    }
 
 //private void initWebcam() {
 //    Dimension size = WebcamResolution.QVGA.getSize();
@@ -207,7 +495,6 @@ thuocTinhKichCo();
 //    duyemWebcam.add(panel, 0);
 //    executor.execute( this);
 //}
-
 //@Override
 //public void run() {
 //    do {
@@ -447,99 +734,91 @@ thuocTinhKichCo();
     }
 
 // Lấy mã sản phẩm từ QR code và hiển thị sản phẩm
-    private void handleQRCodeScan(String maSanPhamHoaDon) {
-        ArrayList<SanPhamEntity> ls = new ArrayList<>();
-        String sql = "SELECT ma_san_pham, ten_san_pham, so_luong_ton, gia_ban FROM SanPham WHERE ma_san_pham = ?";
+  private void handleQRCodeScan(String maSanPhamHoaDon) {
+    ArrayList<SanPhamEntity> productList = new ArrayList<>();
+    String sql = "SELECT ma_san_pham, ten_san_pham, so_luong_ton, gia_ban FROM SanPham WHERE ma_san_pham = ?";
 
-        try (Connection con = ketnoi.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
-            stmt.setObject(1, maSanPhamHoaDon);
+    try (Connection con = ketnoi.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+        stmt.setObject(1, maSanPhamHoaDon);
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    SanPhamEntity sanPham = new SanPhamEntity();
-                    sanPham.setMaSanPham(rs.getString("ma_san_pham"));
-                    sanPham.setTenSanPham(rs.getString("ten_san_pham"));
-                    sanPham.setSoLuong(rs.getInt("so_luong_ton"));
-                    sanPham.setGiaBan(rs.getFloat("gia_ban"));
-                    ls.add(sanPham);
-                } else {
-                    System.out.println("Không tìm thấy sản phẩm với mã: " + maSanPhamHoaDon);
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        // Nhập số lượng sản phẩm từ người dùng
-        String input = javax.swing.JOptionPane.showInputDialog(null, "Nhập số lượng sản phẩm để thêm vào hóa đơn:", "Số lượng sản phẩm", javax.swing.JOptionPane.QUESTION_MESSAGE);
-        try {
-            int soLuongg = Integer.parseInt(input);
-            if (soLuongg <= 0) {
-                JOptionPane.showMessageDialog(null, "Số lượng phải lớn hơn 0.");
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                SanPhamEntity product = new SanPhamEntity();
+                product.setMaSanPham(rs.getString("ma_san_pham"));
+                product.setTenSanPham(rs.getString("ten_san_pham"));
+                product.setSoLuong(rs.getInt("so_luong_ton"));
+                product.setGiaBan(rs.getFloat("gia_ban"));
+                productList.add(product);
+            } else {
+                JOptionPane.showMessageDialog(null, "Không tìm thấy sản phẩm với mã: " + maSanPhamHoaDon);
                 return;
             }
+        }
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(null, "Lỗi khi kết nối cơ sở dữ liệu: " + e.getMessage());
+        e.printStackTrace();
+    }
 
-            // Gọi phương thức để thêm sản phẩm vào hóa đơn
-            addAllProductsToOrder(ls, soLuongg);
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(null, "Vui lòng nhập một số hợp lệ.");
+    if (!productList.isEmpty()) {
+        SanPhamEntity product = productList.get(0); // Chỉ lấy sản phẩm đầu tiên
+        int quantity = promptQuantity(product);
+        if (quantity > 0) {
+            addProductToOrder(product, quantity);
         }
     }
-    private void addAllProductsToOrder(ArrayList<SanPhamEntity> ls, int soLuongg) {
-        // Lấy sản phẩm từ danh sách đã tìm
-        for (SanPhamEntity sanPham : ls) {
-            int maSanPham = Integer.parseInt(sanPham.getMaSanPham().replace("SP", ""));  // Nếu maSanPham là chuỗi như "SP0001", chuyển thành int
-            String tenSanPham = sanPham.getTenSanPham();
-            float giaBan = sanPham.getGiaBan();
+}
 
-            if (soLuongg > 0) {
-                // Thêm sản phẩm vào chi tiết hóa đơn và cập nhật thanh toán
-                addProductToOrderDetailAndUpdatePayment(maSanPham, tenSanPham, giaBan, soLuongg);
-                updateProductQuantity(maSanPham, soLuongg);
-                hienThiDuLieuGioHangg();
+private int promptQuantity(SanPhamEntity product) {
+    while (true) {
+        String input = JOptionPane.showInputDialog(null, 
+                "Nhập số lượng cho sản phẩm " + product.getTenSanPham() + " (Tồn kho: " + product.getSoLuong() + "):");
+        if (input == null || input.isEmpty()) {
+            return -1; // Hủy bỏ
+        }
+
+        try {
+            int quantity = Integer.parseInt(input);
+            if (quantity > 0 && quantity <= product.getSoLuong()) {
+                return quantity;
             } else {
-                JOptionPane.showMessageDialog(null, "Số lượng sản phẩm phải lớn hơn 0.");
+                JOptionPane.showMessageDialog(null, "Số lượng không hợp lệ, vui lòng nhập lại.");
             }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Vui lòng nhập số lượng hợp lệ.");
         }
     }
+}
 
-// Cập nhật số lượng tồn kho trong cơ sở dữ liệu
-    private void updateProductQuantity(int maSanPham, int soLuong) {
-        String sql = "UPDATE SanPham SET so_luong_ton = so_luong_ton - ? WHERE ma_san_pham = ?";
-        try (Connection con = ketnoi.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
-            stmt.setInt(1, soLuong);
-            stmt.setInt(2, maSanPham);
-            int rowsAffected = stmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Cập nhật số lượng tồn kho thành công.");
-            } else {
-                System.out.println("Không thể cập nhật số lượng tồn kho.");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+private void addProductToOrder(SanPhamEntity product, int quantity) {
+    int maSanPham = Integer.parseInt(product.getMaSanPham().replace("SP", ""));
+    float giaBan = product.getGiaBan();
+
+    if (quantity > 0 && quantity <= product.getSoLuong()) {
+        addProductToOrderDetailAndUpdatePayment(maSanPham, product.getTenSanPham(), giaBan, quantity);
+        updateProductQuantity(maSanPham, quantity);
+        hienThiDuLieuGioHangg();
+    } else {
+        JOptionPane.showMessageDialog(null, "Không đủ số lượng trong kho. Tồn kho hiện tại: " + product.getSoLuong());
     }
+}
 
-    private int nhapSoLuong(SanPhamEntity sanPham) {
-        while (true) {
-            String input = JOptionPane.showInputDialog(this, "Nhập số lượng cho sản phẩm " + sanPham.getTenSanPham() + ":");
-            if (input == null || input.isEmpty()) {
-                return -1;
-            }
-
-            try {
-                int soLuong = Integer.parseInt(input);
-                if (soLuong <= 0) {
-                    JOptionPane.showMessageDialog(this, "Số lượng không hợp lệ, vui lòng nhập lại.");
-                } else {
-
-                    return soLuong;
-                }
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Vui lòng nhập số lượng hợp lệ.");
-            }
+private void updateProductQuantity(int maSanPham, int quantity) {
+    String sql = "UPDATE SanPham SET so_luong_ton = so_luong_ton - ? WHERE id_ma_san_pham = ?";
+    try (Connection con = ketnoi.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+        stmt.setInt(1, quantity);
+        stmt.setInt(2, maSanPham);
+        int rowsAffected = stmt.executeUpdate();
+        if (rowsAffected > 0) {
+            System.out.println("Cập nhật số lượng tồn kho thành công.");
+        } else {
+            System.out.println("Không thể cập nhật số lượng tồn kho.");
         }
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(null, "Lỗi khi cập nhật số lượng tồn kho: " + e.getMessage());
+        e.printStackTrace();
     }
+}
+
 
     @Override
     public Thread newThread(Runnable r) {
@@ -658,99 +937,99 @@ thuocTinhKichCo();
 //        ArrayList<SanPhamEntity> sc = ls.timKiemVaLocSanPham(trangThai, tenSanPham);
 //        hienThiTrang(sc);
 //    }
-  private void thuocTinhKichCo() {
-    ArrayList<KichCoEnTity> ls = new ArrayList<>();
-    String sql = """
+    private void thuocTinhKichCo() {
+        ArrayList<KichCoEnTity> ls = new ArrayList<>();
+        String sql = """
                  select kich_co, mo_ta
                  from kichCo
                  """;
-    try {
-        // Làm trống combobox trước khi thêm dữ liệu mới
-        txtlockichco1.removeAllItems();
-        txtlockichco1.addItem("");
-        Connection con = ketnoi.getConnection();
-        PreparedStatement ps = con.prepareStatement(sql);
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            KichCoEnTity kc = new KichCoEnTity();
-            kc.setKichCo(rs.getString("kich_co"));
-            kc.setMoTa(rs.getString("mo_ta"));
-            ls.add(kc);
-            String kichCo = rs.getString("kich_co");
+        try {
+            // Làm trống combobox trước khi thêm dữ liệu mới
+            txtlockichco1.removeAllItems();
+            txtlockichco1.addItem("");
+            Connection con = ketnoi.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                KichCoEnTity kc = new KichCoEnTity();
+                kc.setKichCo(rs.getString("kich_co"));
+                kc.setMoTa(rs.getString("mo_ta"));
+                ls.add(kc);
+                String kichCo = rs.getString("kich_co");
 
-            // Thêm item vào combobox
-            txtlockichco1.addItem(kichCo);
+                // Thêm item vào combobox
+                txtlockichco1.addItem(kichCo);
+            }
+
+            // Cập nhật lại giao diện
+            txtlockichco1.revalidate();
+            txtlockichco1.repaint();
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        // Cập nhật lại giao diện
-        txtlockichco1.revalidate();
-        txtlockichco1.repaint();
-
-    } catch (Exception e) {
-        e.printStackTrace();
     }
-}
 
-private void thuocTinhMauSac() {
-    ArrayList<MauSacEntity> ls = new ArrayList<>();
-    String sql = """
+    private void thuocTinhMauSac() {
+        ArrayList<MauSacEntity> ls = new ArrayList<>();
+        String sql = """
                  select mau_sac_san_pham, mo_ta
                  from mauSac 
                  """;
-    try {
-        // Làm trống combobox trước khi thêm dữ liệu mới
-        txtLocMauSac.removeAllItems();
-        txtLocMauSac.addItem("");
-        Connection con = ketnoi.getConnection();
-        PreparedStatement ps = con.prepareStatement(sql);
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            MauSacEntity ms = new MauSacEntity();
-            ms.setMauSac(rs.getString("mau_sac_san_pham"));
-            ms.setMoTa(rs.getString("mo_ta"));
-            ls.add(ms);
-            String mauSac = rs.getString("mau_sac_san_pham");
+        try {
+            // Làm trống combobox trước khi thêm dữ liệu mới
+            txtLocMauSac.removeAllItems();
+            txtLocMauSac.addItem("");
+            Connection con = ketnoi.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                MauSacEntity ms = new MauSacEntity();
+                ms.setMauSac(rs.getString("mau_sac_san_pham"));
+                ms.setMoTa(rs.getString("mo_ta"));
+                ls.add(ms);
+                String mauSac = rs.getString("mau_sac_san_pham");
 
-            // Thêm item vào combobox
-            txtLocMauSac.addItem(mauSac);
+                // Thêm item vào combobox
+                txtLocMauSac.addItem(mauSac);
+            }
+
+            // Cập nhật lại giao diện
+            txtLocMauSac.revalidate();
+            txtLocMauSac.repaint();
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        // Cập nhật lại giao diện
-        txtLocMauSac.revalidate();
-        txtLocMauSac.repaint();
-
-    } catch (Exception e) {
-        e.printStackTrace();
     }
-}
 
-private void thuocTinhThuongHieu() {
-    ArrayList<ThuongHieuEntity> ls = new ArrayList<>();
-    String sql = """
+    private void thuocTinhThuongHieu() {
+        ArrayList<ThuongHieuEntity> ls = new ArrayList<>();
+        String sql = """
                  select ten_thuong_hieu, mo_ta
                  from thuongHieu
                  """;
-    try {
-        thuonghieu.removeAllItems();
-        thuonghieu.addItem("");
-        Connection con = ketnoi.getConnection();
-        PreparedStatement ps = con.prepareStatement(sql);
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            ThuongHieuEntity cl = new ThuongHieuEntity();
-            cl.setTenThuongHieu(rs.getString("ten_thuong_hieu"));
-            cl.setMoTa(rs.getString("mo_ta"));
-            ls.add(cl);
-            String thuongHieuu = rs.getString("ten_thuong_hieu");
-            thuonghieu.addItem(thuongHieuu);
-        }
-        thuonghieu.revalidate();
-        thuonghieu.repaint();
+        try {
+            thuonghieu.removeAllItems();
+            thuonghieu.addItem("");
+            Connection con = ketnoi.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                ThuongHieuEntity cl = new ThuongHieuEntity();
+                cl.setTenThuongHieu(rs.getString("ten_thuong_hieu"));
+                cl.setMoTa(rs.getString("mo_ta"));
+                ls.add(cl);
+                String thuongHieuu = rs.getString("ten_thuong_hieu");
+                thuonghieu.addItem(thuongHieuu);
+            }
+            thuonghieu.revalidate();
+            thuonghieu.repaint();
 
-    } catch (Exception e) {
-        e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -775,13 +1054,9 @@ private void thuocTinhThuongHieu() {
         dd = new javax.swing.JPanel();
         jScrollPane5 = new javax.swing.JScrollPane();
         tbldanhsachdonhagcho = new javax.swing.JTable();
-        jScrollPane7 = new javax.swing.JScrollPane();
-        hienthigiohang = new javax.swing.JTable();
         jButton1 = new javax.swing.JButton();
-        jCheckBox1 = new javax.swing.JCheckBox();
         jButton5 = new javax.swing.JButton();
         jPanel_DonHang1 = new javax.swing.JPanel();
-        jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
@@ -794,8 +1069,6 @@ private void thuocTinhThuongHieu() {
         txtTienTraKhac = new javax.swing.JLabel();
         txtthanhtien = new javax.swing.JLabel();
         txttongSoTien = new javax.swing.JLabel();
-        txtmahoadon = new javax.swing.JLabel();
-        btn_taoma = new javax.swing.JButton();
         jLabel19 = new javax.swing.JLabel();
         jLabel20 = new javax.swing.JLabel();
         jLabel21 = new javax.swing.JLabel();
@@ -806,21 +1079,23 @@ private void thuocTinhThuongHieu() {
         jPanel5 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
         txtTenKhachHang = new javax.swing.JLabel();
-        btn_chon1 = new javax.swing.JButton();
-        txtdonhang = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
+        txtsodienthoai = new javax.swing.JTextField();
+        jLabel7 = new javax.swing.JLabel();
+        btn_taoma = new javax.swing.JButton();
+        jButton12 = new javax.swing.JButton();
+        txtidkhachhang = new javax.swing.JLabel();
+        jButton14 = new javax.swing.JButton();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         txtid = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        txtdonhang = new javax.swing.JLabel();
         txtTenNhanVien = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
         txtngaytao = new javax.swing.JLabel();
-        jButton13 = new javax.swing.JButton();
-        jButton12 = new javax.swing.JButton();
-        jButton14 = new javax.swing.JButton();
-        txtgiamin = new javax.swing.JTextField();
+        jLabel24 = new javax.swing.JLabel();
+        chuyenkhoan = new javax.swing.JLabel();
         jLabel26 = new javax.swing.JLabel();
         jLabel27 = new javax.swing.JLabel();
         thuonghieu = new javax.swing.JComboBox<>();
@@ -828,10 +1103,15 @@ private void thuocTinhThuongHieu() {
         jLabel4 = new javax.swing.JLabel();
         txtLocMauSac = new javax.swing.JComboBox<>();
         txtLocTenSanPham1 = new javax.swing.JTextField();
-        jLabel13 = new javax.swing.JLabel();
-        txtgiamax = new javax.swing.JTextField();
-        jLabel24 = new javax.swing.JLabel();
         txtlockichco1 = new javax.swing.JComboBox<>();
+        jScrollPane7 = new javax.swing.JScrollPane();
+        hienthigiohang = new javax.swing.JTable();
+        jLabel28 = new javax.swing.JLabel();
+        txtLocTenSanPham2 = new javax.swing.JTextField();
+        jLabel29 = new javax.swing.JLabel();
+        txtLocTenSanPham3 = new javax.swing.JTextField();
+        xoaTatCa = new javax.swing.JCheckBox();
+        jButton4 = new javax.swing.JButton();
 
         tbl_sanPham.setBackground(new java.awt.Color(242, 242, 242));
         tbl_sanPham.setModel(new javax.swing.table.DefaultTableModel(
@@ -902,11 +1182,11 @@ private void thuocTinhThuongHieu() {
         });
         jScrollPane6.setViewportView(tbl_sanPham1);
 
-        jPanel2.add(jScrollPane6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 550, 710, 180));
+        jPanel2.add(jScrollPane6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 120, 710, 200));
 
         duyemWebcam.setBackground(new java.awt.Color(255, 255, 255));
         duyemWebcam.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
-        jPanel2.add(duyemWebcam, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 0, 190, 190));
+        jPanel2.add(duyemWebcam, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 400, 190, 130));
 
         dd.setBackground(new java.awt.Color(255, 255, 255));
         dd.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "ĐƠN HÀNG CHỜ", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.DEFAULT_POSITION));
@@ -934,38 +1214,18 @@ private void thuocTinhThuongHieu() {
         ddLayout.setHorizontalGroup(
             ddLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ddLayout.createSequentialGroup()
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 504, Short.MAX_VALUE)
+                .addContainerGap()
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 698, Short.MAX_VALUE)
                 .addContainerGap())
         );
         ddLayout.setVerticalGroup(
             ddLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ddLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 161, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
-        jPanel2.add(dd, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 520, 190));
-
-        hienthigiohang.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
-            },
-            new String [] {
-                "ID ", "Mã Sản Phẩm", "Tên Sản Phẩm", "Số Lượng", "Giá Bán"
-            }
-        ));
-        hienthigiohang.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                hienthigiohangMouseClicked(evt);
-            }
-        });
-        jScrollPane7.setViewportView(hienthigiohang);
-
-        jPanel2.add(jScrollPane7, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 210, 510, 210));
+        jPanel2.add(dd, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 540, 720, 190));
 
         jButton1.setText("Xóa");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -973,51 +1233,56 @@ private void thuocTinhThuongHieu() {
                 jButton1ActionPerformed(evt);
             }
         });
-        jPanel2.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 210, 90, -1));
-        jPanel2.add(jCheckBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 240, 90, -1));
+        jPanel2.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 340, 80, -1));
 
-        jButton5.setText("Cập Nhập");
-        jPanel2.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 210, 90, -1));
+        jButton5.setText("Cập Nhập +");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 340, 100, -1));
 
         jPanel_DonHang1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel_DonHang1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Đơn Hàng", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 1, 14))); // NOI18N
         jPanel_DonHang1.setForeground(new java.awt.Color(242, 242, 242));
         jPanel_DonHang1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel9.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel9.setText("Mã Hoá Đơn:");
-        jPanel_DonHang1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 190, -1, 50));
-
         jLabel10.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel10.setText("Tổng Tiền:");
-        jPanel_DonHang1.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 240, -1, -1));
+        jPanel_DonHang1.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 350, -1, -1));
 
         jLabel11.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel11.setText("Giảm Giá:");
-        jPanel_DonHang1.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 280, -1, -1));
+        jPanel_DonHang1.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 390, -1, -1));
 
         jLabel12.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel12.setText("Thanh Toán:");
-        jPanel_DonHang1.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 320, -1, -1));
+        jPanel_DonHang1.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 430, -1, -1));
 
         jLabel14.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel14.setText("Tiền Khách Đưa:");
-        jPanel_DonHang1.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 360, -1, -1));
+        jPanel_DonHang1.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 470, -1, -1));
 
         jLabel15.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel15.setText("Tiền Thừa Trả Khách:");
-        jPanel_DonHang1.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 400, -1, -1));
+        jPanel_DonHang1.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 510, -1, -1));
 
         jLabel16.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel16.setText("Hình Thức Thanh Toán:");
-        jPanel_DonHang1.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 440, -1, -1));
+        jPanel_DonHang1.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 550, -1, -1));
 
         jLabel17.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel17.setText("Thuế");
-        jPanel_DonHang1.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 480, 37, -1));
+        jPanel_DonHang1.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 590, 37, -1));
 
-        cbo_hinhThucThanhToan.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Tiền Mặt", "Chuyển Khoản", "Quẹt Thẻ", " " }));
-        jPanel_DonHang1.add(cbo_hinhThucThanhToan, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 440, 190, -1));
+        cbo_hinhThucThanhToan.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "      ", "Chuyển Khoản", "Tiền Mặt", " " }));
+        cbo_hinhThucThanhToan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbo_hinhThucThanhToanActionPerformed(evt);
+            }
+        });
+        jPanel_DonHang1.add(cbo_hinhThucThanhToan, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 550, 190, -1));
 
         txt_tienKhachDua.setBackground(new java.awt.Color(242, 242, 242));
         txt_tienKhachDua.setText(" 0");
@@ -1026,13 +1291,13 @@ private void thuocTinhThuongHieu() {
                 txt_tienKhachDuaActionPerformed(evt);
             }
         });
-        jPanel_DonHang1.add(txt_tienKhachDua, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 360, 160, -1));
+        jPanel_DonHang1.add(txt_tienKhachDua, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 470, 160, -1));
 
         txtTienTraKhac.setText("0");
-        jPanel_DonHang1.add(txtTienTraKhac, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 400, 149, -1));
+        jPanel_DonHang1.add(txtTienTraKhac, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 510, 149, -1));
 
         txtthanhtien.setText("0");
-        jPanel_DonHang1.add(txtthanhtien, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 320, 153, -1));
+        jPanel_DonHang1.add(txtthanhtien, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 430, 153, -1));
 
         txttongSoTien.setText("0");
         txttongSoTien.addAncestorListener(new javax.swing.event.AncestorListener() {
@@ -1044,19 +1309,61 @@ private void thuocTinhThuongHieu() {
             public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
             }
         });
-        jPanel_DonHang1.add(txttongSoTien, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 240, 153, -1));
+        jPanel_DonHang1.add(txttongSoTien, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 350, 153, -1));
 
-        txtmahoadon.setText("Vui lòng tạo!");
-        txtmahoadon.addAncestorListener(new javax.swing.event.AncestorListener() {
+        jLabel19.setText("VNĐ");
+        jPanel_DonHang1.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 350, -1, -1));
+
+        jLabel20.setText("VNĐ");
+        jPanel_DonHang1.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 430, -1, -1));
+
+        jLabel21.setText("VNĐ");
+        jPanel_DonHang1.add(jLabel21, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 390, -1, -1));
+
+        jLabel22.setText("VNĐ");
+        jPanel_DonHang1.add(jLabel22, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 460, -1, 40));
+
+        jLabel23.setText("VNĐ");
+        jPanel_DonHang1.add(jLabel23, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 510, -1, -1));
+
+        txtGiamGia.setText("0");
+        jPanel_DonHang1.add(txtGiamGia, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 390, 153, -1));
+        jPanel_DonHang1.add(txtthue, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 590, 150, 20));
+
+        jPanel5.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
+        jPanel5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel5.setText("Nhập Số Điện Thoại:");
+        jPanel5.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 110, -1));
+
+        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel6.setText("Tên Khách Hàng:");
+        jPanel5.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 70, 100, -1));
+
+        txtTenKhachHang.setForeground(new java.awt.Color(255, 0, 0));
+        txtTenKhachHang.setText("NUll");
+        txtTenKhachHang.addAncestorListener(new javax.swing.event.AncestorListener() {
             public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
-                txtmahoadonAncestorAdded(evt);
+                txtTenKhachHangAncestorAdded(evt);
             }
             public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
             }
             public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
             }
         });
-        jPanel_DonHang1.add(txtmahoadon, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 190, -1, 50));
+        jPanel5.add(txtTenKhachHang, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 70, -1, -1));
+
+        txtsodienthoai.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtsodienthoaiActionPerformed(evt);
+            }
+        });
+        jPanel5.add(txtsodienthoai, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 10, 210, -1));
+
+        jLabel7.setText("ID Khách Hàng:");
+        jPanel5.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, -1, -1));
 
         btn_taoma.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_taoma.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/add.png"))); // NOI18N
@@ -1069,67 +1376,65 @@ private void thuocTinhThuongHieu() {
                 btn_taomaMouseEntered(evt);
             }
         });
-        jPanel_DonHang1.add(btn_taoma, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 200, 90, 30));
+        jPanel5.add(btn_taoma, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 130, 90, 30));
 
-        jLabel19.setText("VNĐ");
-        jPanel_DonHang1.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 240, -1, -1));
+        jButton12.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jButton12.setText("Huỷ Hoá Đơn");
+        jButton12.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton12ActionPerformed(evt);
+            }
+        });
+        jPanel5.add(jButton12, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 130, -1, 30));
 
-        jLabel20.setText("VNĐ");
-        jPanel_DonHang1.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 320, -1, -1));
-
-        jLabel21.setText("VNĐ");
-        jPanel_DonHang1.add(jLabel21, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 280, -1, -1));
-
-        jLabel22.setText("VNĐ");
-        jPanel_DonHang1.add(jLabel22, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 350, -1, 40));
-
-        jLabel23.setText("VNĐ");
-        jPanel_DonHang1.add(jLabel23, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 400, -1, -1));
-
-        txtGiamGia.setText("0");
-        jPanel_DonHang1.add(txtGiamGia, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 280, 153, -1));
-        jPanel_DonHang1.add(txtthue, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 480, 150, 20));
-
-        jPanel5.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
-        jPanel5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel5.setText("Mã Khách Hàng:");
-        jPanel5.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(11, 10, 100, -1));
-
-        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel6.setText("Tên Khách Hàng:");
-        jPanel5.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 36, 100, -1));
-
-        jLabel7.setForeground(new java.awt.Color(255, 0, 0));
-        jLabel7.setText("KH00");
-        jPanel5.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 10, -1, -1));
-
-        txtTenKhachHang.setForeground(new java.awt.Color(255, 0, 0));
-        txtTenKhachHang.setText("Khách Mua Tại Quầy");
-        txtTenKhachHang.addAncestorListener(new javax.swing.event.AncestorListener() {
+        txtidkhachhang.setForeground(new java.awt.Color(255, 0, 0));
+        txtidkhachhang.addAncestorListener(new javax.swing.event.AncestorListener() {
             public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
-                txtTenKhachHangAncestorAdded(evt);
+                txtidkhachhangAncestorAdded(evt);
             }
             public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
             }
             public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
             }
         });
-        jPanel5.add(txtTenKhachHang, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 36, -1, -1));
+        jPanel5.add(txtidkhachhang, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 40, 100, 20));
 
-        btn_chon1.setBackground(new java.awt.Color(204, 204, 204));
-        btn_chon1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        btn_chon1.setForeground(new java.awt.Color(51, 51, 51));
-        btn_chon1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/check-mark.png"))); // NOI18N
-        btn_chon1.setText("Chọn");
-        btn_chon1.addActionListener(new java.awt.event.ActionListener() {
+        jPanel_DonHang1.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(11, 32, 350, 170));
+
+        jButton14.setFont(new java.awt.Font("Sylfaen", 1, 18)); // NOI18N
+        jButton14.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/payment.png"))); // NOI18N
+        jButton14.setText("THANH TOÁN");
+        jButton14.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn_chon1ActionPerformed(evt);
+                jButton14ActionPerformed(evt);
             }
         });
-        jPanel5.add(btn_chon1, new org.netbeans.lib.awtextra.AbsoluteConstraints(255, 7, 80, -1));
+        jPanel_DonHang1.add(jButton14, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 660, 250, 60));
+
+        jLabel3.setText("Tên nhân viên:");
+        jPanel_DonHang1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 290, 100, -1));
+
+        jLabel8.setText("Ngày Tạo");
+        jPanel_DonHang1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 250, 90, 40));
+
+        jLabel2.setText("ID");
+        jPanel_DonHang1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 240, 90, -1));
+
+        txtid.setForeground(new java.awt.Color(255, 0, 102));
+        txtid.setText("0");
+        txtid.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                txtidAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
+        jPanel_DonHang1.add(txtid, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 240, 133, -1));
+
+        jLabel1.setText("Đơn Hàng");
+        jPanel_DonHang1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 210, 100, -1));
 
         txtdonhang.setBackground(new java.awt.Color(255, 0, 0));
         txtdonhang.setForeground(new java.awt.Color(255, 0, 0));
@@ -1143,29 +1448,7 @@ private void thuocTinhThuongHieu() {
             public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
             }
         });
-        jPanel5.add(txtdonhang, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 56, 133, -1));
-
-        jLabel1.setText("Đơn Hàng");
-        jPanel5.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 56, 100, -1));
-
-        jLabel2.setText("ID");
-        jPanel5.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 78, 100, -1));
-
-        txtid.setForeground(new java.awt.Color(255, 0, 102));
-        txtid.setText("0");
-        txtid.addAncestorListener(new javax.swing.event.AncestorListener() {
-            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
-                txtidAncestorAdded(evt);
-            }
-            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
-            }
-            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
-            }
-        });
-        jPanel5.add(txtid, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 78, 133, -1));
-
-        jLabel3.setText("Tên nhân viên:");
-        jPanel5.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 100, 100, -1));
+        jPanel_DonHang1.add(txtdonhang, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 210, 133, -1));
 
         txtTenNhanVien.addAncestorListener(new javax.swing.event.AncestorListener() {
             public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
@@ -1176,10 +1459,7 @@ private void thuocTinhThuongHieu() {
             public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
             }
         });
-        jPanel5.add(txtTenNhanVien, new org.netbeans.lib.awtextra.AbsoluteConstraints(128, 100, 140, 19));
-
-        jLabel8.setText("  Ngày Tạo");
-        jPanel5.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 130, 90, -1));
+        jPanel_DonHang1.add(txtTenNhanVien, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 290, 150, 19));
 
         txtngaytao.addAncestorListener(new javax.swing.event.AncestorListener() {
             public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
@@ -1190,56 +1470,22 @@ private void thuocTinhThuongHieu() {
             public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
             }
         });
-        jPanel5.add(txtngaytao, new org.netbeans.lib.awtextra.AbsoluteConstraints(133, 130, 130, 22));
+        jPanel_DonHang1.add(txtngaytao, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 260, 140, 22));
 
-        jPanel_DonHang1.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(11, 32, 350, 160));
+        jLabel24.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel24.setText("Chuyển Khoản");
+        jPanel_DonHang1.add(jLabel24, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 620, 100, 30));
+        jPanel_DonHang1.add(chuyenkhoan, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 620, 150, 20));
 
-        jButton13.setBackground(new java.awt.Color(255, 204, 0));
-        jButton13.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jButton13.setText("Làm Mới");
-        jButton13.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton13ActionPerformed(evt);
-            }
-        });
-        jPanel_DonHang1.add(jButton13, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 580, 125, -1));
-
-        jButton12.setBackground(new java.awt.Color(255, 204, 0));
-        jButton12.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jButton12.setText("Huỷ Hoá Đơn");
-        jButton12.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton12ActionPerformed(evt);
-            }
-        });
-        jPanel_DonHang1.add(jButton12, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 580, -1, -1));
-
-        jButton14.setFont(new java.awt.Font("Sylfaen", 1, 18)); // NOI18N
-        jButton14.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/payment.png"))); // NOI18N
-        jButton14.setText("THANH TOÁN");
-        jButton14.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton14ActionPerformed(evt);
-            }
-        });
-        jPanel_DonHang1.add(jButton14, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 620, 250, 60));
-
-        jPanel2.add(jPanel_DonHang1, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 0, 369, 730));
-
-        txtgiamin.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtgiaminActionPerformed(evt);
-            }
-        });
-        jPanel2.add(txtgiamin, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 350, 190, 30));
+        jPanel2.add(jPanel_DonHang1, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 0, 380, 730));
 
         jLabel26.setFont(new java.awt.Font("Source Sans Pro Black", 1, 14)); // NOI18N
         jLabel26.setText("Tên Sản Phẩm");
-        jPanel2.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 440, -1, 31));
+        jPanel2.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 50, -1, 30));
 
         jLabel27.setFont(new java.awt.Font("Source Sans Pro Black", 1, 14)); // NOI18N
         jLabel27.setText("Lọc Thương Hiệu");
-        jPanel2.add(jLabel27, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 430, -1, 31));
+        jPanel2.add(jLabel27, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 0, -1, 20));
 
         thuonghieu.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "      ", "Adidas", "Puma", "Nike", "Reebok", "Under Armour" }));
         thuonghieu.addActionListener(new java.awt.event.ActionListener() {
@@ -1247,15 +1493,15 @@ private void thuocTinhThuongHieu() {
                 thuonghieuActionPerformed(evt);
             }
         });
-        jPanel2.add(thuonghieu, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 470, 141, 31));
+        jPanel2.add(thuonghieu, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 20, 180, 31));
 
         jLabel18.setFont(new java.awt.Font("Source Sans Pro Black", 1, 14)); // NOI18N
         jLabel18.setText("Lọc Kích Cỡ");
-        jPanel2.add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 430, -1, 31));
+        jPanel2.add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 0, -1, 20));
 
         jLabel4.setFont(new java.awt.Font("Source Sans Pro Black", 1, 14)); // NOI18N
         jLabel4.setText("Lọc Màu Sắc");
-        jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 430, -1, 31));
+        jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 0, -1, 20));
 
         txtLocMauSac.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "         " }));
         txtLocMauSac.addActionListener(new java.awt.event.ActionListener() {
@@ -1263,27 +1509,14 @@ private void thuocTinhThuongHieu() {
                 txtLocMauSacActionPerformed(evt);
             }
         });
-        jPanel2.add(txtLocMauSac, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 470, 142, 31));
+        jPanel2.add(txtLocMauSac, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 20, 142, 31));
 
         txtLocTenSanPham1.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 txtLocTenSanPham1KeyReleased(evt);
             }
         });
-        jPanel2.add(txtLocTenSanPham1, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 470, 190, 30));
-
-        jLabel13.setText("Giá Max");
-        jPanel2.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 330, -1, -1));
-
-        txtgiamax.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtgiamaxActionPerformed(evt);
-            }
-        });
-        jPanel2.add(txtgiamax, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 410, 190, 30));
-
-        jLabel24.setText("Giá Min");
-        jPanel2.add(jLabel24, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 390, -1, -1));
+        jPanel2.add(txtLocTenSanPham1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 80, 140, 30));
 
         txtlockichco1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "         " }));
         txtlockichco1.addActionListener(new java.awt.event.ActionListener() {
@@ -1291,7 +1524,72 @@ private void thuocTinhThuongHieu() {
                 txtlockichco1ActionPerformed(evt);
             }
         });
-        jPanel2.add(txtlockichco1, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 470, 140, 30));
+        jPanel2.add(txtlockichco1, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 20, 170, 30));
+
+        hienthigiohang.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "ID ", "Mã Sản Phẩm", "Tên Sản Phẩm", "Giá Bán", "Số Lượng"
+            }
+        ));
+        hienthigiohang.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                hienthigiohangMouseClicked(evt);
+            }
+        });
+        jScrollPane7.setViewportView(hienthigiohang);
+        if (hienthigiohang.getColumnModel().getColumnCount() > 0) {
+            hienthigiohang.getColumnModel().getColumn(0).setPreferredWidth(10);
+            hienthigiohang.getColumnModel().getColumn(1).setPreferredWidth(10);
+            hienthigiohang.getColumnModel().getColumn(2).setPreferredWidth(10);
+            hienthigiohang.getColumnModel().getColumn(3).setPreferredWidth(10);
+            hienthigiohang.getColumnModel().getColumn(4).setPreferredWidth(10);
+        }
+
+        jPanel2.add(jScrollPane7, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 340, 510, 190));
+
+        jLabel28.setFont(new java.awt.Font("Source Sans Pro Black", 1, 14)); // NOI18N
+        jLabel28.setText("Giá Min");
+        jPanel2.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 50, -1, 30));
+
+        txtLocTenSanPham2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtLocTenSanPham2ActionPerformed(evt);
+            }
+        });
+        txtLocTenSanPham2.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtLocTenSanPham2KeyReleased(evt);
+            }
+        });
+        jPanel2.add(txtLocTenSanPham2, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 80, 170, 30));
+
+        jLabel29.setFont(new java.awt.Font("Source Sans Pro Black", 1, 14)); // NOI18N
+        jLabel29.setText("Giá Max");
+        jPanel2.add(jLabel29, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 50, -1, 30));
+
+        txtLocTenSanPham3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtLocTenSanPham3ActionPerformed(evt);
+            }
+        });
+        txtLocTenSanPham3.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtLocTenSanPham3KeyReleased(evt);
+            }
+        });
+        jPanel2.add(txtLocTenSanPham3, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 80, 180, 30));
+
+        xoaTatCa.setText("All");
+        jPanel2.add(xoaTatCa, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 370, 50, -1));
+
+        jButton4.setText("Cập Nhập -");
+        jPanel2.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 370, 100, -1));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -1309,95 +1607,35 @@ private void thuocTinhThuongHieu() {
         jPanel2.getAccessibleContext().setAccessibleName("Sản Phẩm");
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btn_chon1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_chon1ActionPerformed
-        // TODO add your handling code here:
-        ChonKhachHangBanHang duyem = new ChonKhachHangBanHang();
-        duyem.setVisible(true);
-    }//GEN-LAST:event_btn_chon1ActionPerformed
-
     private void txttongSoTienAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_txttongSoTienAncestorAdded
         // TODO add your handling code here:
     }//GEN-LAST:event_txttongSoTienAncestorAdded
 
     private void btn_taomaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btn_taomaMouseClicked
-
-        // TODO add your handling code here:
         int idNhanVien = LuuThongTinDangNhap.getInNhanVien();
-        int maKhachHang = 3;
-        String trangThai = "đang chờ thanh toán";
+        int maKhachHang = Integer.parseInt(txtidkhachhang.getText());
         String trangThaiDonHnag = "đang chờ thanh toán";
-        String hinhThuc = "Đang Đợi";
-        String hinhThucBanHang = "Hình Thức Bán Hàng";
 
         String sqlDonHang = """
         INSERT INTO DonHang (ngay_dat, ma_nhan_vien, ma_khach_hang,trang_thai)
         VALUES (GETDATE(), ?, ?,?)
         """;
-        String sqlHoaDon = """
-        INSERT INTO HoaDon (ngay_lap, tien_khach_dua, tien_tra_khach, phuong_thuc, trang_thai, ma_don_hang)
-        VALUES (GETDATE(), ?, ?, ?, ?, ?)
-        """;
         try (Connection con = ketnoi.getConnection()) {
-            con.setAutoCommit(false);
-            try (PreparedStatement psDonHang = con.prepareStatement(sqlDonHang, Statement.RETURN_GENERATED_KEYS)) {
+
+            try (PreparedStatement psDonHang = con.prepareStatement(sqlDonHang)) {
                 psDonHang.setInt(1, idNhanVien);
                 psDonHang.setInt(2, maKhachHang);
                 psDonHang.setString(3, trangThaiDonHnag);
                 int rowsAffectedDonHang = psDonHang.executeUpdate();
-                if (rowsAffectedDonHang > 0) {
-                    try (ResultSet rs = psDonHang.getGeneratedKeys()) {
-                        if (rs.next()) {
-                            int maDonHang = rs.getInt(1);  // Mã đơn hàng mới tạo
-                            float tienKhacDua = 0;
-                            float tienTraKhach = 0;
-                            String trangTThai = "Đang Chờ Thanh Toán";
-                            try (PreparedStatement psHoaDon = con.prepareStatement(sqlHoaDon)) {
-                                psHoaDon.setDouble(1, tienKhacDua);
-                                psHoaDon.setDouble(2, tienTraKhach);
-                                psHoaDon.setObject(3, cbo_hinhThucThanhToan.getSelectedItem());
-                                psHoaDon.setString(4, trangTThai);
-                                psHoaDon.setInt(5, maDonHang);
-                                int rowsAffectedHoaDon = psHoaDon.executeUpdate();
-                                if (rowsAffectedHoaDon > 0) {
-                                    JOptionPane.showMessageDialog(panel, "Tạo Thành Công");
-                                    System.out.println("Đơn hàng và hóa đơn đã được tạo thành công.");
-                                    con.commit();
-                                    loadDuLieu();
-                                    hienThiDuLieu(dh.layHhoaDon());
-
-                                } else {
-                                    con.rollback();
-                                    System.out.println("Không thể thêm hóa đơn vào cơ sở dữ liệu.");
-
-                                }
-                            } catch (SQLException e) {
-                                JOptionPane.showMessageDialog(panel, "Đăng Nhập Để Tạo Mật Khẩu");
-                                con.rollback();
-                                System.out.println("Lỗi khi thực thi câu lệnh SQL cho hóa đơn: " + e.getMessage());
-
-                            }
-                        }
-                    } catch (SQLException e) {
-                        con.rollback();
-                        JOptionPane.showMessageDialog(panel, "Đăng Nhập Để Tạo Mật Khẩu");
-                        System.out.println("Lỗi khi lấy mã đơn hàng mới: " + e.getMessage());
-
-                    }
-                } else {
-                    con.rollback();
-                    JOptionPane.showMessageDialog(panel, "Đăng Nhập Để Tạo Mật Khẩu");
-                    System.out.println("Không thể thêm đơn hàng vào cơ sở dữ liệu.");
-                    con.commit();
-                }
-            } catch (SQLException e) {
-                con.rollback();
-                JOptionPane.showMessageDialog(panel, "Đăng Nhập Để Tạo Mật Khẩu");
-                System.out.println("Lỗi khi thực thi câu lệnh SQL cho đơn hàng: " + e.getMessage());
                 con.commit();
+                loadDuLieu();
+                hienThiDuLieu(dh.layHhoaDon());
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(panel, "Đăng Nhập Để Tạo Mật Khẩu");
-            e.printStackTrace(); // In ra lỗi nếu có vấn đề với kết nối
+            JOptionPane.showMessageDialog(panel, "Đăng Nhập Để Tạo Hóa Đơn");
+            e.printStackTrace();
         }
     }//GEN-LAST:event_btn_taomaMouseClicked
 
@@ -1753,45 +1991,43 @@ private void thuocTinhThuongHieu() {
 //} catch (Exception e) {
 //    e.printStackTrace();
 //}
-        String idmaDonHnag = txtid.getText();
-        String maDonHang = txtmahoadon.getText();
-        String trangThaiHoaDon = "Thanh Toán Thành Công";
+        int idmaDonHnag = Integer.parseInt(txtid.getText());
+        String trangThaiHoaDon = "Đang Chờ Thanh Toán";
+        String rawValue = txtthanhtien.getText().trim();
+        String numericValue = rawValue.replaceAll("[^\\d.]", "");
+        float thanhTien = Float.parseFloat(numericValue);
+        double tienKhachDua = Double.parseDouble(txt_tienKhachDua.getText().trim().replace(",", ""));
+        String rawValuee = txtTienTraKhac.getText().trim();
+        String numericValuee = rawValuee.replaceAll("[^\\d.]", "");
+        double tienTraKhach = Double.parseDouble(numericValuee);
+        String phuongThuc = cbo_hinhThucThanhToan.getSelectedItem().toString();
+        String rawValueee = chuyenkhoan.getText().trim();
+        String numericValueee = rawValueee.replaceAll("[^\\d.]", "");
+        double chuyenKhoan = Double.parseDouble(numericValuee);
         String sql = """
-    UPDATE hoadon
-    SET ngay_lap = GETDATE(), tien_khach_dua = ?, tien_tra_khach = ?, phuong_thuc = ?, trang_thai = ?
-    WHERE ma_hoa_don = ?
+    insert into hoadon (ngay_lap, tien_khach_dua , tien_tra_khach , phuong_thuc , trang_thai, thanh_tien, ma_don_hang, tien_chuyen_khoan)
+    values(getdate(),?,?,?,?,?,?,?)
     """;
-        String trangThaiDonHang = "Thanh Toán Thành Công";
-        String DonHang = txtdonhang.getText();
-        String sqlDonHang = """
-    UPDATE donhang
-    SET trang_thai = ?
-    WHERE ma_don_hang = ?
-    """;
+
         try {
             Connection con = ketnoi.getConnection();
-            PreparedStatement psDonHang = con.prepareStatement(sqlDonHang);
-            psDonHang.setObject(1, trangThaiDonHang);
-            psDonHang.setObject(2, DonHang);
-            int checkDonHang = psDonHang.executeUpdate();
-            double tienKhachDua = Double.parseDouble(txt_tienKhachDua.getText().trim().replace(",", ""));
-            double tienTraKhach = Double.parseDouble(txtTienTraKhac.getText().trim().replace(",", ""));
-            String phuongThuc = cbo_hinhThucThanhToan.getSelectedItem().toString();
             PreparedStatement psHoaDon = con.prepareStatement(sql);
             psHoaDon.setObject(1, tienKhachDua);
             psHoaDon.setObject(2, tienTraKhach);
             psHoaDon.setObject(3, phuongThuc);
             psHoaDon.setObject(4, trangThaiHoaDon);
-            psHoaDon.setObject(5, maDonHang);
+            psHoaDon.setFloat(5, thanhTien);
+            psHoaDon.setObject(6, idmaDonHnag);
+            psHoaDon.setObject(7, chuyenKhoan);
             int checkHoaDon = psHoaDon.executeUpdate();
-            if (checkDonHang > 0 && checkHoaDon > 0) {
-                XuatHoaDonnn duyem = new XuatHoaDonnn();
-                duyem.setVisible(true);
+            if (checkHoaDon > 0) {
+             XuatHoaDonnn duyem = new XuatHoaDonnn();
+              duyem.setVisible(true);
+              
                 hienThiDuLieu(dh.layHhoaDon());
             } else {
                 JOptionPane.showMessageDialog(this, "Thanh Toán Thất Bại");
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1858,110 +2094,371 @@ private void thuocTinhThuongHieu() {
 //        e.printStackTrace();
 //    }
 //}
-    private void addProductToOrderDetailAndUpdatePayment(int maSanPham, String tenSanPham, float giaBan, int soLuong) {
-    int maDonHang = Integer.parseInt(txtid.getText());
-    float tongTien = giaBan * soLuong;
-    String insertSql = """
-    INSERT INTO ChiTietDonHang (ma_don_hang, ma_san_pham, so_luong, gia_ban, tong_tien, ma_voucher, thue)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-    """;
-    String updateSql = """
-    UPDATE SanPham
-    SET so_luong_ton = so_luong_ton - ?
-    WHERE id_ma_san_pham = ?
-    """;
-    String paymentInfoSql = """
-    SELECT 
-        SUM(ctdh.so_luong * ctdh.gia_ban) AS tong_tien, 
-        SUM(ctdh.so_luong * ctdh.gia_ban * (ctdh.thue / 100)) AS tong_thue, 
-        COALESCE(SUM(v.gia_tri), 0) AS tong_giam_gia
-    FROM ChiTietDonHang ctdh
-    LEFT JOIN Voucher v ON ctdh.ma_voucher = v.id_voucher
-    WHERE ctdh.ma_don_hang = ?
-    """;
-    try (Connection con = ketnoi.getConnection()) {
-        con.setAutoCommit(false);
-        try (PreparedStatement psInsert = con.prepareStatement(insertSql); 
-             PreparedStatement psUpdate = con.prepareStatement(updateSql); 
-             PreparedStatement psPaymentInfo = con.prepareStatement(paymentInfoSql)) {
-            psInsert.setInt(1, maDonHang); 
-            psInsert.setInt(2, maSanPham); 
-            psInsert.setInt(3, soLuong);    
-            psInsert.setFloat(4, giaBan); 
-            psInsert.setFloat(5, tongTien); 
-            psInsert.setObject(6, null, Types.INTEGER);
-            psInsert.setDouble(7, 10.00); 
-            int rowsAffected = psInsert.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Sản phẩm đã được thêm vào đơn hàng chi tiết.");
-                psUpdate.setInt(1, soLuong); 
-                psUpdate.setInt(2, maSanPham);
-                int updateRows = psUpdate.executeUpdate();
-                if (updateRows > 0) {
-                    System.out.println("Số lượng sản phẩm đã được cập nhật trong bảng SanPham.");
-                } else {
-                    System.out.println("Lỗi khi cập nhật số lượng sản phẩm.");
-                }
-                psPaymentInfo.setInt(1, maDonHang);
-                ResultSet rs = psPaymentInfo.executeQuery();
-                if (rs.next()) {
-                    float totalAmount = rs.getFloat("tong_tien");
-                    float totalTax = rs.getFloat("tong_thue");
-                    float discount = rs.getFloat("tong_giam_gia");
-                    double finalAmount = totalAmount - discount + totalTax;
-                    DecimalFormat formatter = new DecimalFormat("#,###.##");
-                    txttongSoTien.setText("Tổng Tiền: " + formatter.format(totalAmount));
-                    txtthue.setText("Thuế: " + formatter.format(totalTax));
-                    txtGiamGia.setText("Giảm Giá: " + formatter.format(discount));
-                    txtthanhtien.setText("Thành Tiền: " + formatter.format(finalAmount));
-                    txt_tienKhachDua.getDocument().addDocumentListener(new DocumentListener() {
-                        @Override
-                        public void insertUpdate(DocumentEvent e) {
-                            capNhatTienThua();
-                        }
-                        @Override
-                        public void removeUpdate(DocumentEvent e) {
-                            capNhatTienThua();
-                        }
-                        @Override
-                        public void changedUpdate(DocumentEvent e) {
-                            capNhatTienThua();
-                        }
+//     private void kiemTraTongTien() {
+//        try {
+//            // Lấy giá trị từ txtTongTien
+//            String tongTienText = txttongSoTien.getText();
+//            if (tongTienText.isEmpty()) {
+//                JOptionPane.showMessageDialog(this, "Vui lòng nhập tổng tiền!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+//                return;
+//            }
+//
+//            // Chuyển đổi sang kiểu số
+//            double tongTien = Double.parseDouble(tongTienText);
+//
+//            // Kiểm tra tổng tiền
+//            if (tongTien > 1000000) {
+//                JOptionPane.showMessageDialog(this, "Áp dụng khuyến mãi!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+//                // Thực hiện logic áp dụng khuyến mãi
+//                apDungKhuyenMai();
+//            } else {
+//                JOptionPane.showMessageDialog(this, "Tổng tiền chưa đủ để áp dụng khuyến mãi!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+//            }
+//        } catch (NumberFormatException ex) {
+//            JOptionPane.showMessageDialog(this, "Vui lòng nhập số hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+//        }
+//    }
+private void apDungKhuyenMai() {
+    try {
+        // Lấy tổng tiền từ txtTongTien
+        double tongTien = Double.parseDouble(txttongSoTien.getText().trim().replace(",", "")); // Loại bỏ dấu phẩy
 
-                        private void capNhatTienThua() {
-                            String inputAmountStr = txt_tienKhachDua.getText();
-                            if (!inputAmountStr.isEmpty()) {
-                                try {
-                                    String cleanedInput = inputAmountStr.replaceAll("[,\\s]", "");
-                                    double inputAmount = Double.parseDouble(cleanedInput);
-                                    double moneyLeft = inputAmount - finalAmount;
-                                    if (moneyLeft < 0) {
-                                        txtTienTraKhac.setText("Số tiền bạn nhập không đủ để thanh toán!");
-                                    } else {
-                                        txtTienTraKhac.setText(formatter.format(moneyLeft));
-                                    }
-                                } catch (NumberFormatException e) {
-                                    txtTienTraKhac.setText("Vui lòng nhập số tiền hợp lệ.");
-                                }
-                            } else {
-                                txtTienTraKhac.setText("");  // Làm sạch kết quả nếu trường nhập tiền trống
-                            }
-                        }
-                    });
-                }
-                con.commit();
+        if (tongTien > 1000000) {
+            // Lấy voucher hợp lệ từ cơ sở dữ liệu
+            String sqlVoucher = """
+                SELECT TOP 1 id_voucher, gia_tri, loai_gia_tri
+                FROM Voucher
+                WHERE trang_thai = N'Chưa bắt đầu'
+                  and ngay_bat_dau >= ngay_ket_thuc
+            """;
+
+            try (Connection con = ketnoi.getConnection(); PreparedStatement psVoucher = con.prepareStatement(sqlVoucher)) {
+                ResultSet rs = psVoucher.executeQuery();
+
+                if (rs.next()) {
+                    double giaTriVoucher = rs.getDouble("gia_tri");  
+                    String loaiGiaTri = rs.getString("loai_gia_tri"); 
+                    double giamGia = 0;
+                    if ("Giảm Theo %".equals(loaiGiaTri)) {
+                        giamGia = tongTien * (giaTriVoucher / 100.0);
+                    } else if ("Giảm Tiền Trực Tiếp".equals(loaiGiaTri)) {
+                        giamGia = giaTriVoucher;
+                    }
+
+                    tongTien -= giamGia;
+                    if (tongTien < 0) {
+                        tongTien = 0;
+                    }
+
+                    double thue = tongTien * 0.10;
+                    tongTien += thue;
+                    DecimalFormat formatter = new DecimalFormat("#,###,###");
+                    txtthanhtien.setText("Thành Tiền: " + formatter.format(tongTien) + " VND");
+                    txtGiamGia.setText("Giảm Giá: " + formatter.format(giamGia) + " VND");
+                    txtthue.setText("Thuế: " + formatter.format(thue) + " VND");
+                    txt_tienKhachDua.getDocument().addDocumentListener(new DocumentListener() {
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+        capNhatTienThua();
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+        capNhatTienThua();
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+        capNhatTienThua();
+    }
+
+    // Cập nhật tiền thừa sau khi người dùng nhập tiền
+    private void capNhatTienThua() {
+        String tienKhachDuaStr = txt_tienKhachDua.getText().trim().replace(",", ""); // Lấy giá trị tiền từ người dùng và bỏ dấu phẩy
+        try {
+            double tienKhachDua = 0;
+            if (!tienKhachDuaStr.isEmpty()) {
+                tienKhachDua = Double.parseDouble(tienKhachDuaStr); // Chuyển đổi số tiền khách đưa vào
+            }
+
+            // Lấy tổng tiền sau khi áp dụng voucher và thuế
+            double tongTien = Double.parseDouble(txtthanhtien.getText().replace("Thành Tiền: ", "").replace(" VND", "").replace(",", "").trim());
+            
+            // Tính tiền thừa (tiền trả lại)
+            double tienThua = tienKhachDua - tongTien;
+            DecimalFormat formatter = new DecimalFormat("#,###,###");
+
+            if (tienThua < 0) {
+                // Nếu tiền khách đưa vào không đủ
+                txtTienTraKhac.setText("Số tiền bạn nhập không đủ để thanh toán!");
             } else {
-                System.out.println("Lỗi khi thêm sản phẩm vào đơn hàng chi tiết.");
-                con.rollback();
+                // Hiển thị số tiền trả lại
+                txtTienTraKhac.setText("Tiền trả lại: " + formatter.format(tienThua) + " VND");
+            }
+        } catch (NumberFormatException e) {
+//            txtTienTraKhac.setText("Vui lòng nhập số tiền hợp lệ.");
+        }
+    }
+});
+
+
+                    // Hiển thị thông báo thành công
+//                    JOptionPane.showMessageDialog(this, "Voucher đã được áp dụng và thuế đã được cộng!");
+                } else {
+//                    JOptionPane.showMessageDialog(this, "Không có voucher hợp lệ để áp dụng.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+//                JOptionPane.showMessageDialog(this, "Lỗi khi áp dụng voucher: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+//            JOptionPane.showMessageDialog(this, "Tổng tiền chưa đủ để áp dụng khuyến mãi!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+        }
+    } catch (NumberFormatException ex) {
+//        JOptionPane.showMessageDialog(this, "Vui lòng nhập số hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+
+
+
+
+private void updateCartAndRecalculateVoucher() {
+    // Lấy mã đơn hàng từ giao diện
+    int maDonHang = Integer.parseInt(txtid.getText());
+    
+    // Câu truy vấn SQL để lấy tổng tiền và thuế từ giỏ hàng
+    String paymentInfoSql = """
+        SELECT 
+            SUM(tong_tien) AS tong_tien, 
+            SUM(tong_tien * thue / 100) AS tong_thue
+        FROM ChiTietDonHang
+        WHERE ma_don_hang = ?
+    """;
+
+    // Câu truy vấn SQL để lấy thông tin voucher
+    String voucherSql = """
+        SELECT TOP 1 id_voucher, gia_tri, loai_gia_tri
+        FROM Voucher
+        WHERE trang_thai = N'Chưa bắt đầu'
+          AND GETDATE() BETWEEN ngay_bat_dau AND ngay_ket_thuc
+    """;
+
+    // Kết nối cơ sở dữ liệu và thực thi các câu truy vấn
+    try (Connection con = ketnoi.getConnection()) {
+        // Chuẩn bị các câu lệnh truy vấn
+        try (PreparedStatement psPaymentInfo = con.prepareStatement(paymentInfoSql); 
+             PreparedStatement psVoucher = con.prepareStatement(voucherSql)) {
+
+            // Lấy tổng tiền và thuế từ giỏ hàng
+            psPaymentInfo.setInt(1, maDonHang);
+            ResultSet rs = psPaymentInfo.executeQuery();
+            
+            // Kiểm tra kết quả từ câu truy vấn giỏ hàng
+            if (rs.next()) {
+                float totalAmount = rs.getFloat("tong_tien");
+                float totalTax = rs.getFloat("tong_thue");
+
+                // Kiểm tra nếu tổng tiền > 1 triệu thì mới áp dụng giảm giá 5%
+                float giamGia = 0;
+//                if (totalAmount > 1000000) {
+//                    giamGia = totalAmount * 0.05f; // Áp dụng giảm giá 5%
+//                }
+
+                // Lấy thông tin voucher và áp dụng giảm giá từ voucher
+                ResultSet rsVoucher = psVoucher.executeQuery();
+                if (rsVoucher.next()) {
+                    String loaiGiaTri = rsVoucher.getString("loai_gia_tri");
+                    float giaTriVoucher = rsVoucher.getFloat("gia_tri");
+                    if ("Giảm Theo %".equals(loaiGiaTri)) {
+                        // Giảm giá theo phần trăm
+                        giamGia += totalAmount * (giaTriVoucher / 100);
+                    } else if ("Giảm Tiền Trực Tiếp".equals(loaiGiaTri)) {
+                        // Giảm giá theo số tiền
+                        giamGia += giaTriVoucher;
+                    }
+                }
+                float finalAmount = totalAmount - giamGia + totalTax;
+                DecimalFormat formatter = new DecimalFormat("#,###.##");
+                txttongSoTien.setText("Tổng Tiền: " + formatter.format(totalAmount));
+                txtGiamGia.setText("Giảm Giá: " + formatter.format(giamGia) + " VND");
+                txtthue.setText("Thuế: " + formatter.format(totalTax));
+                txtthanhtien.setText("Thành Tiền: " + formatter.format(finalAmount));
+            }
+
+        } catch (SQLException e) {
+            // Xử lý lỗi nếu có khi thực thi câu truy vấn
+            e.printStackTrace();
+        }
+    } catch (SQLException e) {
+        // Xử lý lỗi kết nối cơ sở dữ liệu
+        e.printStackTrace();
+    }
+}
+
+
+
+    private void removeProductFromCart(int maSanPham, int soLuong) {
+        int maDonHang = Integer.parseInt(txtid.getText());
+        String deleteSql = """
+    DELETE FROM ChiTietDonHang
+    WHERE ma_don_hang = ? AND ma_san_pham = ?
+    """;
+
+        try (Connection con = ketnoi.getConnection()) {
+            try (PreparedStatement psDelete = con.prepareStatement(deleteSql)) {
+                // Xóa sản phẩm khỏi giỏ hàng
+                psDelete.setInt(1, maDonHang);
+                psDelete.setInt(2, maSanPham);
+                int rowsAffected = psDelete.executeUpdate();
+                if (rowsAffected > 0) {
+                    System.out.println("Sản phẩm đã được xóa khỏi giỏ hàng.");
+                    updateCartAndRecalculateVoucher(); // Tự động tính lại voucher khi xóa sản phẩm
+                } else {
+                    System.out.println("Lỗi khi xóa sản phẩm khỏi giỏ hàng.");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            con.rollback();
+        }
+    }
+private void addProductToOrderDetailAndUpdatePayment(int maSanPham, String tenSanPham, float giaBan, int soLuong) {
+    int maDonHang = Integer.parseInt(txtid.getText());
+    int maVoucher = 17;  // Assuming a static voucher for now
+    float tongTien = giaBan * soLuong;
+
+    String insertSql = """
+        INSERT INTO ChiTietDonHang (ma_don_hang, ma_san_pham, so_luong, gia_ban, tong_tien, thue, ma_voucher)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """;
+    String updateSql = """
+        UPDATE SanPham
+        SET so_luong_ton = so_luong_ton - ?
+        WHERE id_ma_san_pham = ?
+    """;
+    String paymentInfoSql = """
+        SELECT 
+            SUM(tong_tien) AS tong_tien, 
+            SUM(tong_tien * thue / 100) AS tong_thue
+        FROM ChiTietDonHang
+        WHERE ma_don_hang = ?
+    """;
+    String voucherSql = """
+        SELECT TOP 1 id_voucher, gia_tri 
+        FROM Voucher
+        WHERE trang_thai = N'Chưa bắt đầu'
+          AND ngay_bat_dau <= GETDATE()
+          AND ngay_ket_thuc >= GETDATE()
+        ORDER BY gia_tri DESC
+    """;
+
+    try (Connection con = ketnoi.getConnection()) {
+        con.setAutoCommit(false);
+
+        try (PreparedStatement psInsert = con.prepareStatement(insertSql);
+             PreparedStatement psUpdate = con.prepareStatement(updateSql);
+             PreparedStatement psPaymentInfo = con.prepareStatement(paymentInfoSql);
+             PreparedStatement psVoucher = con.prepareStatement(voucherSql)) {
+
+            // Inserting the product into the order details
+            psInsert.setInt(1, maDonHang);
+            psInsert.setInt(2, maSanPham);
+            psInsert.setInt(3, soLuong);
+            psInsert.setFloat(4, giaBan);
+            psInsert.setFloat(5, tongTien);
+            psInsert.setDouble(6, 10.00);  // Assuming tax is 10%
+            psInsert.setInt(7, maVoucher);
+            int rowsAffected = psInsert.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("Sản phẩm đã được thêm vào đơn hàng chi tiết.");
+
+                // Updating the stock quantity in the product table
+                psUpdate.setInt(1, soLuong);
+                psUpdate.setInt(2, maSanPham);
+                int updateRows = psUpdate.executeUpdate();
+                
+                if (updateRows > 0) {
+                    System.out.println("Số lượng sản phẩm đã được cập nhật trong bảng SanPham.");
+
+                    // Retrieve the total price and tax of the order
+                    psPaymentInfo.setInt(1, maDonHang);
+                    ResultSet rs = psPaymentInfo.executeQuery();
+                    
+                    if (rs.next()) {
+                        float totalAmount = rs.getFloat("tong_tien");
+                        float totalTax = rs.getFloat("tong_thue");
+                      
+                        float finalAmount = totalAmount + totalTax;
+
+                        DecimalFormat formatter = new DecimalFormat("#,###.##");
+                        txttongSoTien.setText("Tổng Tiền: " + formatter.format(totalAmount));
+                        txtthue.setText("Thuế: " + formatter.format(totalTax));
+                        txtthanhtien.setText("Thành Tiền: " + formatter.format(finalAmount));
+                        apDungKhuyenMai();
+                       
+//                         txt_tienKhachDua.getDocument().addDocumentListener(new DocumentListener() {
+//                    @Override
+//                    public void insertUpdate(DocumentEvent e) {
+//                        capNhatTienThua();
+//                    }
+//
+//                    @Override
+//                    public void removeUpdate(DocumentEvent e) {
+//                        capNhatTienThua();
+//                    }
+//
+//                    @Override
+//                    public void changedUpdate(DocumentEvent e) {
+//                        capNhatTienThua();
+//                    }
+//
+//                    private void capNhatTienThua() {
+//                        String inputAmountStr = txt_tienKhachDua.getText();
+//                        if (!inputAmountStr.isEmpty()) {
+//                            try {
+//                                String cleanedInput = inputAmountStr.replaceAll("[,\\s]", "");
+//                                double inputAmount = Double.parseDouble(cleanedInput);
+//                                double moneyLeft = inputAmount - finalAmount;
+//                                if (moneyLeft < 0) {
+//                                    txtTienTraKhac.setText("Số tiền bạn nhập không đủ để thanh toán!");
+//                                } else {
+//                                    txtTienTraKhac.setText(formatter.format(moneyLeft));
+//                                }
+//                            } catch (NumberFormatException e) {
+//                                txtTienTraKhac.setText("Vui lòng nhập số tiền hợp lệ.");
+//                            }
+//                        } else {
+//                            txtTienTraKhac.setText("");
+//                        }
+//                    }
+//                });
+                    }
+                    con.commit(); // Commit the transaction
+                } else {
+                    System.out.println("Lỗi khi cập nhật số lượng sản phẩm.");
+                    con.rollback(); // Rollback if update fails
+                }
+            } else {
+                System.out.println("Lỗi khi thêm sản phẩm vào đơn hàng chi tiết.");
+                con.rollback(); // Rollback if insert fails
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            con.rollback(); // Rollback in case of error during the transaction
         }
     } catch (SQLException e) {
         e.printStackTrace();
     }
 }
+
+
+
+
+
+
 
     private void txtdonhangAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_txtdonhangAncestorAdded
         // TODO add your handling code here:
@@ -1987,28 +2484,6 @@ private void thuocTinhThuongHieu() {
             txtid.setText("NULL");
         }
     }//GEN-LAST:event_txtidAncestorAdded
-    private void layMaHoaDOn() {
-        ArrayList<LayMaHoaDon> hdList = ls.hoaDon();
-        if (!hdList.isEmpty()) {
-            LayMaHoaDon firstOrder = hdList.get(0); // Lấy hóa đơn đầu tiên từ danh sách
-            txtmahoadon.setText(firstOrder.getMaHoaDonnn());
-            // Hiển thị mã hóa đơn đầu tiên lên JTextField
-        } else {
-            txtmahoadon.setText("NULL");
-        }
-    }
-    private void txtmahoadonAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_txtmahoadonAncestorAdded
-        // TODO add your handling code here:
-
-        ArrayList<LayMaHoaDon> hdList = ls.hoaDon();
-        if (!hdList.isEmpty()) {
-            LayMaHoaDon firstOrder = hdList.get(0); // Lấy hóa đơn đầu tiên từ danh sách
-            txtmahoadon.setText(firstOrder.getMaHoaDonnn());
-            // Hiển thị mã hóa đơn đầu tiên lên JTextField
-        } else {
-            txtmahoadon.setText("NULL");
-        }
-    }//GEN-LAST:event_txtmahoadonAncestorAdded
 
     private void txtTenKhachHangAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_txtTenKhachHangAncestorAdded
         // TODO add your handling code here:
@@ -2016,7 +2491,6 @@ private void thuocTinhThuongHieu() {
         if (!hdList.isEmpty()) {
             HoaDonEntity firstOrder = hdList.get(0);
             txtTenKhachHang.setText(firstOrder.getTenKhachHang());
-            // Hiển thị mã hóa đơn đầu tiên lên JTextField
         } else {
             txtTenKhachHang.setText("NULL");
         }
@@ -2043,7 +2517,6 @@ private void thuocTinhThuongHieu() {
             txtdonhang.setText(firstOrder.getMaHoaDon());
             Date ngayLap = (Date) firstOrder.getNgayLap();
             txtngaytao.setText(dateFormat.format(ngayLap));
-            txtmahoadon.setText(firstOrder.getMaHoaDonnn());
         } else {
             txtTenNhanVien.setText("NULL");
         }
@@ -2056,7 +2529,6 @@ private void thuocTinhThuongHieu() {
         txtTenKhachHang.setText("");
         txtdonhang.setText("");
         txtngaytao.setText("");
-        txtmahoadon.setText("");
 
     }
     private void txtngaytaoAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_txtngaytaoAncestorAdded
@@ -2080,19 +2552,11 @@ private void thuocTinhThuongHieu() {
         float tienKhachDua = 0;
         float tienTraKhach = 0;
         String phuongThuc = (String) cbo_hinhThucThanhToan.getSelectedItem();
-
         String sqlDonHang = """
         update DonHang 
         set ngay_dat = Getdate(), ma_nhan_vien = ?, ma_khach_hang = ?, trang_thai = ?
         where id_ma_don_hang = ?
         """;
-
-        String sqlHoaDon = """
-        update HoaDon 
-        set ngay_lap = GetDate(), tien_khach_dua = ?, tien_tra_khach = ?, phuong_thuc = ?, trang_thai = ?, ma_don_hang = ?
-        where ma_hoa_don = ?
-        """;
-
         String donHangChiTiet = """
         update chitietdonhang 
         set ngay_lap = GetDate(), tien_khach_dua = ?, tien_tra_khach = ?, phuong_thuc = ?, trang_thai = ?, ma_don_hang = ?
@@ -2107,29 +2571,10 @@ private void thuocTinhThuongHieu() {
                 psDonHang.setObject(4, txtid.getText());
                 int rowsAffectedDonHang = psDonHang.executeUpdate();
                 if (rowsAffectedDonHang > 0) {
-                    try (PreparedStatement psHoaDon = con.prepareStatement(sqlHoaDon)) {
-                        psHoaDon.setFloat(1, tienKhachDua);
-                        psHoaDon.setFloat(2, tienTraKhach);
-                        psHoaDon.setString(3, phuongThuc);
-                        psHoaDon.setString(4, trangThaiHoaDon);
-                        psHoaDon.setObject(5, txtid.getText());
-                        psHoaDon.setString(6, txtmahoadon.getText());
-                        int rowsAffectedHoaDon = psHoaDon.executeUpdate();
-                        if (rowsAffectedHoaDon > 0) {
-                            con.commit();
-                            System.out.println("Đã hủy đơn hàng và hóa đơn thành công.");
-                            loadDuLieuHuyDonHang();
-                            JOptionPane.showMessageDialog(panel, "Hủy đơn hàng Thành Công");
-                        } else {
-                            con.rollback();
-                            System.out.println("Không thể hủy hóa đơn.");
-                        }
-                    } catch (SQLException e) {
-                        con.rollback();
-                        System.out.println("Lỗi khi thực thi SQL cho hóa đơn: " + e.getMessage());
-                    }
+                    con.commit();
+                    loadDuLieuHuyDonHang();
                 } else {
-                    con.rollback(); // Hoàn tác nếu không cập nhật được đơn hàng
+                    con.rollback();
                     System.out.println("Không thể hủy đơn hàng.");
                 }
             } catch (SQLException e) {
@@ -2143,10 +2588,6 @@ private void thuocTinhThuongHieu() {
 
     }//GEN-LAST:event_jButton12ActionPerformed
 
-    private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton13ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton13ActionPerformed
-
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
 //        previousPage(ls.getSanPhamChhiTiet());
@@ -2158,35 +2599,100 @@ private void thuocTinhThuongHieu() {
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void tbl_sanPham1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbl_sanPham1MouseClicked
+//        int selectedRow = tbl_sanPham1.getSelectedRow();
+//        if (selectedRow != -1) {
+//            int maSanPham = (int) tbl_sanPham1.getValueAt(selectedRow, 0);
+//            String tenSanPham = (String) tbl_sanPham1.getValueAt(selectedRow, 2);
+//            float giaBan = (float) tbl_sanPham1.getValueAt(selectedRow, 4);
+//            int soLuongTon = (int) tbl_sanPham1.getValueAt(selectedRow, 3);
+//            String input = javax.swing.JOptionPane.showInputDialog(this, "Nhập số lượng sản phẩm để thêm vào hóa đơn:");
+//
+//            if (input != null) {
+//                input = input.trim(); // Loại bỏ khoảng trắng thừa ở đầu và cuối chuỗi
+//
+//                if (input.isEmpty()) {
+//                    // Nếu người dùng không nhập gì
+//                    JOptionPane.showMessageDialog(this, "Vui lòng nhập số lượng.");
+//                } else {
+//                    try {
+//                        int soLuong = Integer.parseInt(input); // Chuyển chuỗi thành số nguyên
+//                        // Xử lý logic thêm sản phẩm vào hóa đơn ở đây
+//                        JOptionPane.showMessageDialog(this, "Số lượng sản phẩm đã được thêm: " + soLuong);
+//                    } catch (NumberFormatException e) {
+//                        // Nếu người dùng nhập không phải là số hợp lệ
+//                        JOptionPane.showMessageDialog(this, "Vui lòng nhập một số hợp lệ.");
+//                    }
+//                }
+//            } else {
+//                // Người dùng nhấn Cancel hoặc đóng cửa sổ
+//                System.out.println("Người dùng đã nhấn Cancel hoặc đóng cửa sổ.");
+//            }
+//
+//            try {
+//                int soLuong = Integer.parseInt(input);
+//                if (soLuong > 0) {
+//                    if (soLuongTon < soLuong) {
+//                        JOptionPane.showMessageDialog(panel, "Số Lượng Tồn Nhỏ Hơn ");
+//                    } else {
+//                        addProductToOrderDetailAndUpdatePayment(maSanPham, tenSanPham, giaBan, soLuong);
+//                        hienThiDuLieuuu(ls.getSanPhamChhiTiet());
+//                        hienThiDuLieuGioHangg();
+//                        int selectedRowHoaDon = tbldanhsachdonhagcho.getSelectedRow(); // Kiểm tra xem có hàng nào được chọn không
+//                        if (selectedRowHoaDon != -1) {
+//                            int maGioHangHienTai = Integer.parseInt(tbldanhsachdonhagcho.getValueAt(selectedRowHoaDon, 0).toString());
+//                            hienThiDuLieuGioHang(maGioHangHienTai);
+//                        }
+//                    }
+//                } else {
+//                    JOptionPane.showMessageDialog(null, "Số lượng phải lớn hơn 0.");
+//                }
+//            } catch (NumberFormatException ex) {
+//                JOptionPane.showMessageDialog(null, "Vui lòng nhập một số hợp lệ.");
+//            }
+//        }
         int selectedRow = tbl_sanPham1.getSelectedRow();
         if (selectedRow != -1) {
             int maSanPham = (int) tbl_sanPham1.getValueAt(selectedRow, 0);
             String tenSanPham = (String) tbl_sanPham1.getValueAt(selectedRow, 2);
             float giaBan = (float) tbl_sanPham1.getValueAt(selectedRow, 4);
             int soLuongTon = (int) tbl_sanPham1.getValueAt(selectedRow, 3);
+
             String input = javax.swing.JOptionPane.showInputDialog(this, "Nhập số lượng sản phẩm để thêm vào hóa đơn:");
-            try {
-                int soLuong = Integer.parseInt(input);
-                if (soLuong > 0) {
-                    if (soLuongTon < soLuong) {
-                        JOptionPane.showMessageDialog(panel, "Số Lượng Tồn Nhỏ Hơn ");
-                    } else {
-                        addProductToOrderDetailAndUpdatePayment(maSanPham, tenSanPham, giaBan, soLuong);
-                        hienThiDuLieuuu(ls.getSanPhamChhiTiet());
-                        hienThiDuLieuGioHangg();
-                        int selectedRowHoaDon = tbldanhsachdonhagcho.getSelectedRow(); // Kiểm tra xem có hàng nào được chọn không
-                        if (selectedRowHoaDon != -1) {
-                            int maGioHangHienTai = Integer.parseInt(tbldanhsachdonhagcho.getValueAt(selectedRowHoaDon, 0).toString());
-                            hienThiDuLieuGioHang(maGioHangHienTai);
-                        }
-                    }
+
+            if (input != null) {
+                input = input.trim();
+
+                if (input.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Vui lòng nhập số lượng.");
                 } else {
-                    JOptionPane.showMessageDialog(null, "Số lượng phải lớn hơn 0.");
+                    try {
+                        int soLuong = Integer.parseInt(input);
+
+                        if (soLuong <= 0) {
+                            JOptionPane.showMessageDialog(this, "Số lượng phải lớn hơn 0.");
+                        } else if (soLuong > soLuongTon) {
+                            JOptionPane.showMessageDialog(this, "Số lượng tồn kho không đủ.");
+                        } else {
+                            addProductToOrderDetailAndUpdatePayment(maSanPham, tenSanPham, giaBan, soLuong);
+                            hienThiDuLieuuu(ls.getSanPhamChhiTiet());
+                            hienThiDuLieuGioHangg();
+                            int selectedRowHoaDon = tbldanhsachdonhagcho.getSelectedRow();
+                            if (selectedRowHoaDon != -1) {
+                                int maGioHangHienTai = Integer.parseInt(tbldanhsachdonhagcho.getValueAt(selectedRowHoaDon, 0).toString());
+                                hienThiDuLieuGioHangg(maGioHangHienTai);
+                            }
+                        }
+                    } catch (NumberFormatException ex) {
+                        // Nếu người dùng nhập không phải là số hợp lệ
+//                        JOptionPane.showMessageDialog(this, "Vui lòng nhập một số hợp lệ.");
+                    }
                 }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(null, "Vui lòng nhập một số hợp lệ.");
+            } else {
+                // Người dùng nhấn Cancel hoặc đóng cửa sổ
+                System.out.println("Người dùng đã nhấn Cancel hoặc đóng cửa sổ.");
             }
         }
+
     }//GEN-LAST:event_tbl_sanPham1MouseClicked
 
     private void btn_taomaMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btn_taomaMouseEntered
@@ -2201,41 +2707,46 @@ private void thuocTinhThuongHieu() {
         // TODO add your handling code here:
         locSanPham();
     }//GEN-LAST:event_thuonghieuActionPerformed
-    private void hienThiDuLieuGioHang(int maGioHang) {
-        try {
-            ArrayList<DonHangChiTietEntity> ls = hd.layGioHangSanPham(maGioHang);
-            if (ls.isEmpty()) {
-                DefaultTableModel model = (DefaultTableModel) hienthigiohang.getModel();
-                model.setRowCount(0);
-            } else {
-                hienThiDuLieuGioHang(ls);
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi hiển thị dữ liệu: " + ex.getMessage());
-            ex.printStackTrace();
-        }
-    }
+//    private void hienThiDuLieuGioHang(int maGioHang) {
+//        try {
+//            ArrayList<DonHangChiTietEntity> ls = hd.layGioHangSanPham(maGioHang);
+//            if (ls.isEmpty()) {
+//                DefaultTableModel model = (DefaultTableModel) hienthigiohang.getModel();
+//                model.setRowCount(0);
+//            } else {
+//                hienThiDuLieuGioHang(ls);
+//            }
+//        } catch (Exception ex) {
+//            JOptionPane.showMessageDialog(this, "Lỗi khi hiển thị dữ liệu: " + ex.getMessage());
+//            ex.printStackTrace();
+//        }
+//    }
     private void tbldanhsachdonhagchoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbldanhsachdonhagchoMouseClicked
         // TODO add your handling code here:
         int selectedRowHoaDon = tbldanhsachdonhagcho.getSelectedRow();
         if (selectedRowHoaDon != -1) {
             int maGioHangHienTai = Integer.parseInt(tbldanhsachdonhagcho.getValueAt(selectedRowHoaDon, 0).toString());
-            hienThiDuLieuGioHang(maGioHangHienTai);
+            hienThiDuLieuGioHangg(maGioHangHienTai);
             int index = tbldanhsachdonhagcho.getSelectedRow();
             HienThiDuLieuDonHangCho(index);
         }
     }//GEN-LAST:event_tbldanhsachdonhagchoMouseClicked
-private void HienThiDuLieuDonHangCho(int index) {
+    private void HienThiDuLieuDonHangCho(int index) {
         HoaDonEntity sc = ls.getAll().get(index);
         txtTenNhanVien.setText(sc.getTenNhanVien());
         txtid.setText(String.valueOf(sc.getIdHoaDon()));
         txtdonhang.setText(sc.getMaHoaDon());
         Date ngayLap = (Date) sc.getNgayLap();
         txtngaytao.setText(dateFormat.format(ngayLap));
-        txtmahoadon.setText(sc.getMaHoaDonnn());
-}
+    }
     private void hienthigiohangMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_hienthigiohangMouseClicked
-        // TODO add your handling code here:
+        // TODO add your handling code here
+//    int selectedRowHoaDon = tbldanhsachdonhagcho.getSelectedRow();
+//    if (selectedRowHoaDon != -1) {
+//        int maGioHangHienTai = Integer.parseInt(tbldanhsachdonhagcho.getValueAt(selectedRowHoaDon, 0).toString());
+//        hienThiDuLieuGioHang(maGioHangHienTai);
+//    }            
+
     }//GEN-LAST:event_hienthigiohangMouseClicked
     private void xoaSanPhamKhoiGioHang(int soLuongTrongGioHang) {
         Connection conn = null;
@@ -2254,11 +2765,10 @@ private void HienThiDuLieuDonHangCho(int index) {
                 String sqlUpdate = "UPDATE SanPham SET so_luong_ton = so_luong_ton + ? "
                         + "WHERE id_ma_san_pham IN (SELECT ma_san_pham FROM chitietdonhang WHERE ma_don_hang = ?)";
                 psUpdate = conn.prepareStatement(sqlUpdate);
-                psUpdate.setInt(1, soLuongCanXoa);  // Cộng lại số lượng vào tồn kho
-                psUpdate.setInt(2, duyem);  // Lọc theo mã đơn hàng
+                psUpdate.setInt(1, soLuongCanXoa);
+                psUpdate.setInt(2, duyem);
                 int rowsUpdated = psUpdate.executeUpdate();
                 if (rowsUpdated > 0) {
-                    // Sau khi cập nhật tồn kho, xóa sản phẩm khỏi giỏ hàng
                     String sqlDelete = "DELETE FROM chitietdonhang WHERE ma_don_hang = ?";
                     psDelete = conn.prepareStatement(sqlDelete);
                     psDelete.setInt(1, duyem);
@@ -2298,23 +2808,122 @@ private void HienThiDuLieuDonHangCho(int index) {
             }
         }
     }
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+
+    private void xoaSanPhamKhoiGioHangChiTiet(int idChiTietDonHang) {
+        Connection conn = null;
+        PreparedStatement psDelete = null;
+        PreparedStatement psUpdate = null;
+        PreparedStatement psGetQuantity = null;
+
+        // Lấy dòng được chọn trong bảng
         int selectedRow = hienthigiohang.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm để xóa!");
             return;
         }
+
+        // Lấy id_ma_chi_tiet_don_hang từ cột đầu tiên (cột 0)
+        int duyem = Integer.parseInt(hienthigiohang.getValueAt(selectedRow, 0).toString());
+
         try {
-            int soLuongTrongGioHang = Integer.parseInt(hienthigiohang.getValueAt(selectedRow, 3).toString());
-            int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn xóa sản phẩm này?", "Xác nhận", JOptionPane.YES_NO_OPTION);
-            if (confirm == JOptionPane.YES_OPTION) {
-                xoaSanPhamKhoiGioHang(soLuongTrongGioHang);
-                hienThiDuLieuuu(ls.getSanPhamChhiTiet());
+            conn = ketnoi.getConnection();
+
+            // Lấy số lượng sản phẩm từ bảng chitietdonhang
+            String sqlGetQuantity = "SELECT so_luong FROM chitietdonhang WHERE id_ma_chi_tiet_don_hang = ?";
+            psGetQuantity = conn.prepareStatement(sqlGetQuantity);
+            psGetQuantity.setInt(1, duyem);
+            ResultSet rs = psGetQuantity.executeQuery();
+
+            if (rs.next()) {
+                int soLuongCanXoa = rs.getInt("so_luong");
+
+                // Cập nhật số lượng tồn kho trong bảng SanPham
+                String sqlUpdate = "UPDATE SanPham SET so_luong_ton = so_luong_ton + ? "
+                        + "WHERE id_ma_san_pham IN (SELECT ma_san_pham FROM chitietdonhang WHERE id_ma_chi_tiet_don_hang = ?)";
+                psUpdate = conn.prepareStatement(sqlUpdate);
+                psUpdate.setInt(1, soLuongCanXoa);
+                psUpdate.setInt(2, duyem);
+
+                int rowsUpdated = psUpdate.executeUpdate();
+                if (rowsUpdated > 0) {
+                    // Xóa sản phẩm khỏi bảng chitietdonhang
+                    String sqlDelete = "DELETE FROM chitietdonhang WHERE id_ma_chi_tiet_don_hang = ?";
+                    psDelete = conn.prepareStatement(sqlDelete);
+                    psDelete.setInt(1, duyem);
+
+                    int rowsDeleted = psDelete.executeUpdate();
+                    if (rowsDeleted > 0) {
+                        JOptionPane.showMessageDialog(this, "Xóa sản phẩm thành công và cập nhật tồn kho!");
+                        hienThiDuLieuGioHangg(); // Cập nhật lại giao diện
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Không thể xóa sản phẩm khỏi giỏ hàng!");
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "Không thể cập nhật số lượng tồn kho!");
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy sản phẩm trong giỏ hàng!");
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi khi xóa sản phẩm: " + ex.getMessage());
             ex.printStackTrace();
+        } finally {
+            try {
+                if (psDelete != null) {
+                    psDelete.close();
+                }
+                if (psUpdate != null) {
+                    psUpdate.close();
+                }
+                if (psGetQuantity != null) {
+                    psGetQuantity.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
+    }
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+
+        int id = Integer.parseInt(txtid.getText().trim());
+
+        // Kiểm tra trạng thái checkbox
+        if (xoaTatCa.isSelected()) {
+            // Nếu checkbox được chọn, xóa tất cả sản phẩm
+            int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn xóa tất cả sản phẩm trong giỏ hàng?", "Xác nhận", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                xoaSanPhamKhoiGioHang(id);
+                hienThiDuLieuGioHang(hd.layGioHangSanPham(id));
+                hienThiDuLieuuu(ls.getSanPhamChhiTiet());
+                JOptionPane.showMessageDialog(this, "Đã xóa tất cả sản phẩm trong giỏ hàng!");
+            }
+        } else {
+            // Nếu checkbox không được chọn, yêu cầu chọn sản phẩm cụ thể
+            int selectedRow = hienthigiohang.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm để xóa!");
+                return;
+            }
+
+            try {
+                int soLuongTrongGioHang = Integer.parseInt(hienthigiohang.getValueAt(selectedRow, 0).toString());
+                int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn xóa sản phẩm này?", "Xác nhận", JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    xoaSanPhamKhoiGioHangChiTiet(soLuongTrongGioHang);
+                    hienThiDuLieuGioHang(hd.layGioHangSanPham(id));
+                    hienThiDuLieuuu(ls.getSanPhamChhiTiet());
+                    updateCartAndRecalculateVoucher();
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Lỗi khi xóa sản phẩm: " + ex.getMessage());
+                ex.printStackTrace();
+            }
+        }
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void txtLocMauSacActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtLocMauSacActionPerformed
@@ -2329,40 +2938,195 @@ private void HienThiDuLieuDonHangCho(int index) {
 
     private void txtlockichco1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtlockichco1ActionPerformed
         // TODO add your handling code here:
-       locSanPham();
+        locSanPham();
     }//GEN-LAST:event_txtlockichco1ActionPerformed
 
-    private void txtgiaminActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtgiaminActionPerformed
-        // TODO add your handling code here:
-        locSanPham();
-    }//GEN-LAST:event_txtgiaminActionPerformed
+    private void txtLocTenSanPham2KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtLocTenSanPham2KeyReleased
+        
+    }//GEN-LAST:event_txtLocTenSanPham2KeyReleased
 
-    private void txtgiamaxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtgiamaxActionPerformed
+    private void txtLocTenSanPham3KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtLocTenSanPham3KeyReleased
+        
+    }//GEN-LAST:event_txtLocTenSanPham3KeyReleased
+
+    private void txtLocTenSanPham3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtLocTenSanPham3ActionPerformed
+        
+    }//GEN-LAST:event_txtLocTenSanPham3ActionPerformed
+
+    private void txtLocTenSanPham2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtLocTenSanPham2ActionPerformed
+        
+    }//GEN-LAST:event_txtLocTenSanPham2ActionPerformed
+
+    private void txtsodienthoaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtsodienthoaiActionPerformed
+        timKimMaKhachHang();
+    }//GEN-LAST:event_txtsodienthoaiActionPerformed
+    private void capNhapSoLuongTru(){
+        int selectRow = hienthigiohang.getSelectedRow();
+        if(selectRow == -1){
+            JOptionPane.showMessageDialog(hienthigiohang, "Vui lòng chọn sản phẩm trong giỏ hàng muốn cập nhập");
+            return;
+        }
+        int idChiTietDonHang = Integer.parseInt(hienthigiohang.getValueAt(selectRow,0).toString());
+        int soLuongHienTai = Integer.parseInt(hienthigiohang.getValueAt(selectRow, 4).toString());
+        String loLuongMoi = JOptionPane.showInputDialog(this, "Mời Nhập Số Lượng");
+        if(loLuongMoi == null || loLuongMoi.trim().isEmpty()){
+            JOptionPane.showMessageDialog(hienthigiohang, "Số Lượng Không Hợp Lệ");
+            return;
+        }
+        try {
+//            int soLuongMoi = Integer.parseInt()
+            Connection con = ketnoi.getConnection();
+        } catch (Exception e) {
+        }
+    }
+    private void capNhatSoLuongGioHang() {
+        int selectedRow = hienthigiohang.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm trong giỏ hàng để cập nhật!");
+            return;
+        }
+        int idChiTietDonHang = Integer.parseInt(hienthigiohang.getValueAt(selectedRow, 0).toString());
+        int soLuongHienTai = Integer.parseInt(hienthigiohang.getValueAt(selectedRow, 4).toString());
+        String soLuongMoiStr = JOptionPane.showInputDialog(this, "Nhập số lượng mới:");
+        if (soLuongMoiStr == null || soLuongMoiStr.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Số lượng không hợp lệ!");
+            return;
+        }
+        try {
+            int soLuongMoi = Integer.parseInt(soLuongMoiStr);
+            int thayDoiSoLuong = soLuongMoi - soLuongHienTai;
+            Connection conn = ketnoi.getConnection();
+            PreparedStatement psCheckStock = null;
+            ResultSet rsStock = null;
+            try {
+                String sqlCheckStock = "SELECT so_luong_ton FROM SanPham WHERE id_ma_san_pham IN "
+                        + "(SELECT ma_san_pham FROM chitietdonhang WHERE id_ma_chi_tiet_don_hang = ?)";
+                psCheckStock = conn.prepareStatement(sqlCheckStock);
+                psCheckStock.setInt(1, idChiTietDonHang);
+                rsStock = psCheckStock.executeQuery();
+
+                if (rsStock.next()) {
+                    int soLuongTon = rsStock.getInt("so_luong_ton");
+                    if (thayDoiSoLuong > 0 && soLuongMoi > soLuongTon) {
+                        JOptionPane.showMessageDialog(this, "Số lượng sản phẩm không đủ trong kho!");
+                        return;
+                    }
+                }
+                PreparedStatement psUpdateSanPham = null;
+                PreparedStatement psUpdateChiTietDonHang = null;
+                if (thayDoiSoLuong < 0) {
+                    String sqlUpdateSanPham = "UPDATE SanPham SET so_luong_ton = so_luong_ton + ? "
+                            + "WHERE id_ma_san_pham IN (SELECT ma_san_pham FROM chitietdonhang WHERE id_ma_chi_tiet_don_hang = ?)";
+                    psUpdateSanPham = conn.prepareStatement(sqlUpdateSanPham);
+                    psUpdateSanPham.setInt(1, Math.abs(thayDoiSoLuong)); // Cộng số lượng bị giảm vào tồn kho
+                    psUpdateSanPham.setInt(2, idChiTietDonHang);
+                    int rowsUpdatedSanPham = psUpdateSanPham.executeUpdate();
+                    if (rowsUpdatedSanPham > 0) {
+                        System.out.println("Cập nhật tồn kho thành công!");
+                    } else {
+                        System.out.println("Không cập nhật được bảng Sản Phẩm!");
+                    }
+                }
+                else if (thayDoiSoLuong > 0) {
+                    String sqlUpdateSanPham = "UPDATE SanPham SET so_luong_ton = so_luong_ton - ? "
+                            + "WHERE id_ma_san_pham IN (SELECT ma_san_pham FROM chitietdonhang WHERE id_ma_chi_tiet_don_hang = ?)";
+                    psUpdateSanPham = conn.prepareStatement(sqlUpdateSanPham);
+                    psUpdateSanPham.setInt(1, Math.abs(thayDoiSoLuong)); // Trừ số lượng vào tồn kho
+                    psUpdateSanPham.setInt(2, idChiTietDonHang);
+                    int rowsUpdatedSanPham = psUpdateSanPham.executeUpdate();
+                    if (rowsUpdatedSanPham > 0) {
+                        System.out.println("Cập nhật tồn kho thành công!");
+                    } else {
+                        System.out.println("Không cập nhật được bảng SanPham!");
+                    }
+                }
+                String sqlUpdateChiTiet = "UPDATE chitietdonhang SET so_luong = ? WHERE id_ma_chi_tiet_don_hang = ?";
+                psUpdateChiTietDonHang = conn.prepareStatement(sqlUpdateChiTiet);
+                psUpdateChiTietDonHang.setInt(1, soLuongMoi);
+                psUpdateChiTietDonHang.setInt(2, idChiTietDonHang);
+                int rowsUpdatedChiTiet = psUpdateChiTietDonHang.executeUpdate();
+
+                if (rowsUpdatedChiTiet > 0) {
+                    hienThiDuLieuGioHangg(); // Refresh lại dữ liệu giỏ hàng
+                    hienThiDuLieuuu(ls.getSanPhamChhiTiet());
+                } else {
+                    JOptionPane.showMessageDialog(this, "Không thể cập nhật số lượng!");
+                }
+            } finally {
+                if (psCheckStock != null) {
+                    psCheckStock.close();
+                }
+                if (rsStock != null) {
+                    rsStock.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Số lượng không hợp lệ!");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật số lượng: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         // TODO add your handling code here:
-        locSanPham();
-    }//GEN-LAST:event_txtgiamaxActionPerformed
+        capNhatSoLuongGioHang();
+    }//GEN-LAST:event_jButton5ActionPerformed
+public void resetFields() {
+        txttongSoTien.setText(""); // Reset ô txtid
+        txtthanhtien.setText(""); // Reset ô txtthanhtien
+    }
+    private void txtidkhachhangAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_txtidkhachhangAncestorAdded
+        // TODO add your handling code here:
+          ArrayList<HoaDonEntity> hdList = ls.getAll();
+        if (!hdList.isEmpty()) {
+            HoaDonEntity firstOrder = hdList.get(0);
+            txtidkhachhang.setText(String.valueOf(firstOrder.getIdMaKhachHang()));
+        } else {
+            txtTenKhachHang.setText("NULL");
+        }
+    }//GEN-LAST:event_txtidkhachhangAncestorAdded
+
+    private void cbo_hinhThucThanhToanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbo_hinhThucThanhToanActionPerformed
+        // TODO add your handling code here:
+       if (cbo_hinhThucThanhToan.getSelectedItem().equals("Tiền Mặt")) {
+        // Khi thanh toán bằng tiền mặt, kiểm tra tiền khách đưa
+        txt_tienKhachDua.setEnabled(true);
+        txtTienTraKhac.setEnabled(true);
+        chuyenkhoan.setEnabled(false);  // Ẩn trường chuyển khoản
+        chuyenkhoan.setText("");  
+    } else {
+        // Khi thanh toán bằng chuyển khoản, dùng giá trị thanh tiền làm tiền chuyển khoản
+        txt_tienKhachDua.setEnabled(false);  // Ẩn trường tiền mặt
+        txtTienTraKhac.setEnabled(false);    // Ẩn trường tiền thừa
+        chuyenkhoan.setEnabled(true);     // Hiển thị trường chuyển khoản
+        chuyenkhoan.setText(txtthanhtien.getText());  // Đặt giá trị chuyển khoản bằng thanh tiền
+    }
+    }//GEN-LAST:event_cbo_hinhThucThanhToanActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btn_chon1;
     private javax.swing.JButton btn_taoma;
     private javax.swing.JComboBox<String> cbo_hinhThucThanhToan;
+    private javax.swing.JLabel chuyenkhoan;
     private javax.swing.JPanel dd;
     private javax.swing.JPanel duyemWebcam;
     private javax.swing.JTable hienthigiohang;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton12;
-    private javax.swing.JButton jButton13;
     private javax.swing.JButton jButton14;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
-    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
@@ -2377,13 +3141,14 @@ private void HienThiDuLieuDonHangCho(int index) {
     private javax.swing.JLabel jLabel24;
     private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel27;
+    private javax.swing.JLabel jLabel28;
+    private javax.swing.JLabel jLabel29;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel_DonHang1;
@@ -2400,20 +3165,27 @@ private void HienThiDuLieuDonHangCho(int index) {
     private javax.swing.JLabel txtGiamGia;
     private javax.swing.JComboBox<String> txtLocMauSac;
     private javax.swing.JTextField txtLocTenSanPham1;
+    private javax.swing.JTextField txtLocTenSanPham2;
+    private javax.swing.JTextField txtLocTenSanPham3;
     private javax.swing.JLabel txtTenKhachHang;
     private javax.swing.JLabel txtTenNhanVien;
     private javax.swing.JLabel txtTienTraKhac;
     private javax.swing.JTextField txt_tienKhachDua;
     private javax.swing.JLabel txtdonhang;
-    private javax.swing.JTextField txtgiamax;
-    private javax.swing.JTextField txtgiamin;
     private javax.swing.JLabel txtid;
+    private javax.swing.JLabel txtidkhachhang;
     private javax.swing.JComboBox<String> txtlockichco1;
-    private javax.swing.JLabel txtmahoadon;
     private javax.swing.JLabel txtngaytao;
+    private javax.swing.JTextField txtsodienthoai;
     private javax.swing.JLabel txtthanhtien;
     private javax.swing.JLabel txtthue;
     private javax.swing.JLabel txttongSoTien;
     private javax.swing.JLabel txttranng;
+    private javax.swing.JCheckBox xoaTatCa;
     // End of variables declaration//GEN-END:variables
+
+    void resetFieldsInNewJPanel() {
+        hienThiDuLieuGioHangg();
+        hienThiDuLieu(dh.layHhoaDon());// Đặt lại giá trị cho ô txtthanhtien
+    }
 }

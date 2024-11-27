@@ -4,6 +4,7 @@
  */
 package Entity.HoaDon;
 
+import GiaoDien.NewJPanel;
 import java.util.Date;
 
 /**
@@ -28,11 +29,12 @@ public class XuatHoaDon {
     private int soLuong;
     private float giaBan;
     private int idHoaDon;
+    private float chuyenKhoan;
 
     public XuatHoaDon() {
     }
 
-    public XuatHoaDon(String tenNhanVien, String tenKhachHang, Date ngayDat, String email, String soDienThoai, float tienKhachDua, float tienTraKhach, String phuongThuc, float thanhTien, float giaTri, float thue, String maHoaDon, String tenSanPham, int soLuong, float giaBan, int idHoaDon) {
+    public XuatHoaDon(String tenNhanVien, String tenKhachHang, Date ngayDat, String email, String soDienThoai, float tienKhachDua, float tienTraKhach, String phuongThuc, float thanhTien, float giaTri, float thue, String maHoaDon, String tenSanPham, int soLuong, float giaBan, int idHoaDon, float chuyenKhoan) {
         this.tenNhanVien = tenNhanVien;
         this.tenKhachHang = tenKhachHang;
         this.ngayDat = ngayDat;
@@ -49,6 +51,7 @@ public class XuatHoaDon {
         this.soLuong = soLuong;
         this.giaBan = giaBan;
         this.idHoaDon = idHoaDon;
+        this.chuyenKhoan = chuyenKhoan;
     }
 
     public String getTenNhanVien() {
@@ -178,5 +181,14 @@ public class XuatHoaDon {
     public void setIdHoaDon(int idHoaDon) {
         this.idHoaDon = idHoaDon;
     }
+
+    public float getChuyenKhoan() {
+        return chuyenKhoan;
+    }
+
+    public void setChuyenKhoan(float chuyenKhoan) {
+        this.chuyenKhoan = chuyenKhoan;
+    }
+   
 
 }

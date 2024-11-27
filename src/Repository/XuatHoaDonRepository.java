@@ -16,43 +16,41 @@ public class XuatHoaDonRepository {
     public ArrayList<XuatHoaDon> getAll(){
         ArrayList<XuatHoaDon> ls = new ArrayList<>();
         String sql = """
-             			SELECT TOP 1 
-                                    hd.ma_hoa_don, 
-                                    nv.ten_nhan_vien,
-                                    kh.ten_khach_hang,
-                                    dh.ngay_dat,
-                                    nv.email,
-                                    kh.so_dien_thoai,
-                                    hd.tien_khach_dua,
-                                    hd.tien_tra_khach,
-                                    ctdh.tong_tien,
-                                    hd.phuong_thuc,
-                                    vc.gia_tri,
-                                    ctdh.thue,
-                                    sp.ten_san_pham,
-                                    ctdh.so_luong,
-                                    ctdh.gia_ban,
-                                    kh.so_dien_thoai,
-                                    dh.id_ma_don_hang, 
-                                    hd.ma_hoa_don    
-                                FROM 
-                                    DonHang dh
-                                JOIN HoaDon hd 
-                                    ON hd.ma_don_hang = dh.id_ma_don_hang
-                                JOIN NhanVien nv 
-                                    ON dh.ma_nhan_vien = nv.id_ma_nhan_vien
-                                JOIN KhachHang kh 
-                                    ON dh.ma_khach_hang = kh.id_ma_khach_hang
-                                JOIN ChiTietDonHang ctdh 
-                                    ON ctdh.ma_don_hang = dh.id_ma_don_hang
-                                LEFT JOIN Voucher vc 
-                                    ON ctdh.ma_voucher = vc.id_voucher
-                                LEFT JOIN SanPham sp 
-                                    ON ctdh.ma_san_pham = sp.id_ma_san_pham
-                                WHERE 
-                                    hd.trang_thai = N'Thanh Toán Thành Công' 
-                                    AND dh.trang_thai = N'Thanh Toán Thành Công'
-                                ORDER BY dh.id_ma_don_hang DESC;
+             				SELECT
+                                                                    hd.ma_hoa_don, 
+                                                                    nv.ten_nhan_vien,
+                                                                    kh.ten_khach_hang,
+                                                                    dh.ngay_dat,
+                                                                    nv.email,
+                                                                    kh.so_dien_thoai,
+                                                                    hd.tien_khach_dua,
+                                                                    hd.tien_tra_khach,
+                                                                    ctdh.tong_tien,
+                                                                    hd.phuong_thuc,
+                                                                    ctdh.thue,
+                                                                    sp.ten_san_pham,
+                                                                    ctdh.so_luong,
+                                                                    ctdh.gia_ban,
+                                                                    kh.so_dien_thoai,
+                                                                    dh.id_ma_don_hang, 
+                                                                    hd.ma_hoa_don,
+                                                                    hd.tien_chuyen_khoan
+                                                                FROM 
+                                                                    DonHang dh
+                                                                JOIN HoaDon hd 
+                                                                    ON hd.ma_don_hang = dh.id_ma_don_hang
+                                                                JOIN NhanVien nv 
+                                                                    ON dh.ma_nhan_vien = nv.id_ma_nhan_vien
+                                                                JOIN KhachHang kh 
+                                                                    ON dh.ma_khach_hang = kh.id_ma_khach_hang
+                                                                JOIN ChiTietDonHang ctdh 
+                                                                    ON ctdh.ma_don_hang = dh.id_ma_don_hang
+                                                                LEFT JOIN SanPham sp 
+                                                                    ON ctdh.ma_san_pham = sp.id_ma_san_pham
+                                                                WHERE 
+                                                                    hd.trang_thai = N'Đang Chờ Thanh Toán' 
+                                                                    AND dh.trang_thai = N'đang chờ thanh toán'
+                                                                ORDER BY dh.id_ma_don_hang DESC;
                      """;
         try {
             Connection con = ketnoi.getConnection();
@@ -70,13 +68,14 @@ public class XuatHoaDonRepository {
               hd.setTienTraKhach(rs.getFloat("tien_tra_khacH"));
               hd.setPhuongThuc(rs.getString("phuong_thuc"));
               hd.setThanhTien(rs.getFloat("tong_tien"));
-              hd.setGiaTri(rs.getFloat("gia_tri"));
               hd.setThue(rs.getFloat("thue"));
               hd.setTenSanPham(rs.getString("ten_san_pham"));
               hd.setSoLuong(rs.getInt("so_luong"));
               hd.setGiaBan(rs.getFloat("gia_ban"));
               hd.setSoDienThoai(rs.getString("so_dien_thoai"));
               hd.setIdHoaDon(rs.getInt("id_ma_don_hang"));
+             hd.setChuyenKhoan(rs.getFloat("tien_chuyen_khoan"));
+              
               ls.add(hd);
             }
         } catch (Exception e) {

@@ -1,52 +1,56 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
+ */
 package GiaoDien;
-import Repository.TaiKhoanRepository;
+import KetNoiSQL.ketnoi;
+import java.sql.*;
 import javax.swing.JOptionPane;
-public class DangNhapChinh extends javax.swing.JFrame {
-private TaiKhoanRepository ls = new TaiKhoanRepository();
-private boolean jcbShowPass;
-    public DangNhapChinh() {
+/**
+ *
+ * @author SingPC
+ */
+public class MatKhauMoi extends javax.swing.JFrame {
+    public MatKhauMoi() {
         initComponents();
     }
-    private void DangNhap() {
-    String taiKhoan = txttaikhoan.getText();
-    String matKhau = txtmatkhau.getText();
-    if (ls.dangNhap(taiKhoan, matKhau)) {
-        String vaiTro = ls.layVaiTro(taiKhoan);
-        LuuThongTinDangNhap.setTaiKhoan(taiKhoan);
-        LuuThongTinDangNhap.setVaiTro(vaiTro);
-         int idNhanVien = ls.layIDNhaanVien(taiKhoan); 
-        LuuThongTinDangNhap.setInNhanVien(idNhanVien); 
-        if (ls.kiemTraQuyen(vaiTro, "Quản trị viên")) {
-            JOptionPane.showMessageDialog(rootPane, "Đăng nhập thành công với quyền Admin");
-            TrangChu dg = new TrangChu();
-            dg.setVisible(true);
-        } else {
-            JOptionPane.showMessageDialog(rootPane, "Đăng nhập thành công nhưng không có quyền Admin");
-            TrangChu dg = new TrangChu();
-            dg.setVisible(true);
-            dispose();
+    private boolean update(){
+        int check =0;
+        String sql ="""
+                    update nhanVien
+                    set mat_khau =?
+                    where mat_khau = ?
+                    """;
+        try {
+            Connection con = ketnoi.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setObject(1, txtmatkhaumoi.getText());
+            ps.setObject(2, txtmatkhaucu.getText());
+            check = ps.executeUpdate();
+                   } catch (Exception e) {
+            e.printStackTrace();
         }
-    } else {
-        JOptionPane.showMessageDialog(rootPane, "Tên tài khoản hoặc mật khẩu sai");
+        return check >0;
     }
-}
+    
+        
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        txttaikhoan = new javax.swing.JTextField();
+        txtmatkhaucu = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
-        duyem = new javax.swing.JCheckBox();
-        jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
-        txtmatkhau = new javax.swing.JPasswordField();
+        txtnhaplaimatkhau = new javax.swing.JPasswordField();
+        txtmatkhaumoi = new javax.swing.JPasswordField();
+        jLabel13 = new javax.swing.JLabel();
         nen = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -64,7 +68,7 @@ private boolean jcbShowPass;
             }
         });
         getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 350, 260, 40));
-        getContentPane().add(txttaikhoan, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 190, 320, 40));
+        getContentPane().add(txtmatkhaucu, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 150, 320, 40));
 
         jLabel3.setText("HOẶC");
         getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 430, -1, -1));
@@ -78,38 +82,32 @@ private boolean jcbShowPass;
         jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Bạn chưa có tài khoản _ Đăng ký.png"))); // NOI18N
         getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 450, 200, -1));
 
-        duyem.setText("Hiển thị password");
-        duyem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                duyemActionPerformed(evt);
-            }
-        });
-        getContentPane().add(duyem, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 400, -1, -1));
-
-        jLabel9.setText("Quên mật khẩu ?");
-        jLabel9.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel9MouseClicked(evt);
-            }
-        });
-        getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 400, 90, -1));
-
         jLabel10.setFont(new java.awt.Font("Source Sans Pro Black", 1, 24)); // NOI18N
-        jLabel10.setText("ĐĂNG NHẬP");
-        getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 50, 140, 60));
+        jLabel10.setText("ĐỔI MẬT KHẨU");
+        getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 50, 170, 60));
 
-        jLabel11.setText("MẬT KHẨU");
+        jLabel11.setText("NHẬP LẠI MẬT KHẨU");
         getContentPane().add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 270, -1, -1));
 
-        jLabel12.setText("TÀI KHOẢN");
-        getContentPane().add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 170, -1, -1));
+        jLabel12.setText("MẬT KHẨU CŨ");
+        getContentPane().add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 130, -1, -1));
 
-        txtmatkhau.addActionListener(new java.awt.event.ActionListener() {
+        txtnhaplaimatkhau.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtmatkhauActionPerformed(evt);
+                txtnhaplaimatkhauActionPerformed(evt);
             }
         });
-        getContentPane().add(txtmatkhau, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 290, 320, 40));
+        getContentPane().add(txtnhaplaimatkhau, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 290, 320, 40));
+
+        txtmatkhaumoi.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtmatkhaumoiActionPerformed(evt);
+            }
+        });
+        getContentPane().add(txtmatkhaumoi, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 220, 320, 40));
+
+        jLabel13.setText("MẬT KHẨU MỚI");
+        getContentPane().add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 200, -1, -1));
 
         nen.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Group 1 (3).png"))); // NOI18N
         getContentPane().add(nen, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
@@ -118,31 +116,25 @@ private boolean jcbShowPass;
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void duyemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_duyemActionPerformed
-        // TODO add your handling code here:
-        if (duyem.isSelected()) {
-            txtmatkhau.setEchoChar((char) 0);
-        } else {
-            txtmatkhau.setEchoChar('*');
-        }
-    }//GEN-LAST:event_duyemActionPerformed
-
     private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
         // TODO add your handling code here:
-        DangNhap();
+        if(txtmatkhaumoi.getText().equals(txtnhaplaimatkhau.getText())) {
+    update();
+    DangNhapChinh duyem = new DangNhapChinh();
+    duyem.setVisible(true);
+} else {
+    JOptionPane.showMessageDialog(this, "Mật khẩu không khớp, vui lòng nhập lại!");
+}
+
     }//GEN-LAST:event_jLabel2MouseClicked
 
-    private void txtmatkhauActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtmatkhauActionPerformed
-        
-    }//GEN-LAST:event_txtmatkhauActionPerformed
+    private void txtnhaplaimatkhauActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtnhaplaimatkhauActionPerformed
 
-    private void jLabel9MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel9MouseClicked
+    }//GEN-LAST:event_txtnhaplaimatkhauActionPerformed
+
+    private void txtmatkhaumoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtmatkhaumoiActionPerformed
         // TODO add your handling code here:
-        dispose();
-        QuenMatKhau quenmatkhau = new QuenMatKhau();
-        quenmatkhau.setVisible(true);
-        
-    }//GEN-LAST:event_jLabel9MouseClicked
+    }//GEN-LAST:event_txtmatkhaumoiActionPerformed
 
     /**
      * @param args the command line arguments
@@ -161,38 +153,38 @@ private boolean jcbShowPass;
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(DangNhapChinh.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MatKhauMoi.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(DangNhapChinh.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MatKhauMoi.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(DangNhapChinh.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MatKhauMoi.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(DangNhapChinh.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MatKhauMoi.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new DangNhapChinh().setVisible(true);
+                new MatKhauMoi().setVisible(true);
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JCheckBox duyem;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JLabel nen;
-    private javax.swing.JPasswordField txtmatkhau;
-    private javax.swing.JTextField txttaikhoan;
+    private javax.swing.JTextField txtmatkhaucu;
+    private javax.swing.JPasswordField txtmatkhaumoi;
+    private javax.swing.JPasswordField txtnhaplaimatkhau;
     // End of variables declaration//GEN-END:variables
 }

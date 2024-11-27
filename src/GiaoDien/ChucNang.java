@@ -5,6 +5,7 @@
 package GiaoDien;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 /**
@@ -14,12 +15,12 @@ import javax.swing.JPanel;
 public class ChucNang {
     private String kind;
     private JPanel jpn;
-    private JButton lpb;
+    private JLabel lpb;
 
     public ChucNang() {
     }
 
-    public ChucNang(String kind, JPanel jpn, JButton lpb) {
+    public ChucNang(String kind, JPanel jpn, JLabel lpb) {
         this.kind = kind;
         this.jpn = jpn;
         this.lpb = lpb;
@@ -41,11 +42,11 @@ public class ChucNang {
         this.jpn = jpn;
     }
 
-    public JButton getLpb() {
+    public JLabel getLpb() {
         return lpb;
     }
 
-    public void setLpb(JButton lpb) {
+    public void setLpb(JLabel lpb) {
         this.lpb = lpb;
     }
     

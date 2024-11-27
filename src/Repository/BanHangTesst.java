@@ -59,16 +59,20 @@ public class BanHangTesst {
         }
         return lsss;
     }
-
+    public  ArrayList<HoaDonEntity> layThongTinKhachHanng(){
+        ArrayList<HoaDonEntity> ls = new ArrayList<>();
+        String sql ="""
+                    """;
+        return ls;
+    }
     public ArrayList<HoaDonEntity> getAll() {
         ArrayList<HoaDonEntity> ls = new ArrayList<>();
         String sql = """
-                    SELECT hd.id_ma_don_hang, hd.ma_don_hang, hd.ngay_dat, nv.ten_nhan_vien, kh.ten_khach_hang, hdd.ma_hoa_don
+                    SELECT hd.id_ma_don_hang, hd.ma_don_hang, hd.ngay_dat, nv.ten_nhan_vien, kh.ten_khach_hang, kh.id_ma_khach_hang
                                                             FROM DonHang hd
                                                             JOIN NhanVien nv ON nv.id_ma_nhan_vien = hd.ma_nhan_vien
                                                             JOIN KhachHang kh ON kh.id_ma_khach_hang = hd.ma_khach_hang
-                                         JOIN hoadon hdd on hd.id_ma_don_hang = hdd.ma_don_hang
-                                                            WHERE hd.trang_thai = N'Đang Chờ Thanh Toán' or hd.trang_thai = N'Đang Chờ Xác Nhận'
+                                                            WHERE hd.trang_thai = N'Đang Chờ Thanh Toán'
                      """;
         try (Connection con = ketnoi.getConnection()) {
             PreparedStatement ps = con.prepareStatement(sql);
@@ -77,10 +81,10 @@ public class BanHangTesst {
                 HoaDonEntity dh = new HoaDonEntity();
                 dh.setIdHoaDon(rs.getInt("id_ma_don_hang"));
                 dh.setMaHoaDon(rs.getString("ma_don_hang"));
-                dh.setMaHoaDonnn(rs.getString("ma_hoa_don"));
                 dh.setNgayLap(rs.getDate("ngay_dat"));
                 dh.setTenNhanVien(rs.getString("ten_nhan_vien"));
                 dh.setTenKhachHang(rs.getString("ten_khach_hang"));
+                dh.setIdMaKhachHang(rs.getInt("id_ma_khach_hang"));
                 ls.add(dh);
             }
 
@@ -93,11 +97,10 @@ public class BanHangTesst {
     public ArrayList<HoaDonEntity> getAllLL() {
         ArrayList<HoaDonEntity> ls = new ArrayList<>();
         String sql = """
-                    SELECT hd.id_ma_don_hang, hd.ma_don_hang, hd.ngay_dat, nv.ten_nhan_vien, kh.ten_khach_hang, hdd.ma_hoa_don
+                    SELECT hd.id_ma_don_hang, hd.ma_don_hang, hd.ngay_dat, nv.ten_nhan_vien, kh.ten_khach_hang
                                         FROM DonHang hd
                                         JOIN NhanVien nv ON nv.id_ma_nhan_vien = hd.ma_nhan_vien
                                         JOIN KhachHang kh ON kh.id_ma_khach_hang = hd.ma_khach_hang
-                     JOIN hoadon hdd on hd.id_ma_don_hang = hdd.ma_don_hang
                                         WHERE hd.trang_thai = N'Đang Chờ Thanh Toán';
                      """;
         try (Connection con = ketnoi.getConnection()) {
@@ -107,7 +110,6 @@ public class BanHangTesst {
                 HoaDonEntity dh = new HoaDonEntity();
                 dh.setIdHoaDon(rs.getInt("id_ma_don_hang"));
                 dh.setMaHoaDon(rs.getString("ma_don_hang"));
-                dh.setMaHoaDonnn(rs.getString("ma_hoa_don"));
                 dh.setNgayLap(rs.getDate("ngay_dat"));
                 dh.setTenNhanVien(rs.getString("ten_nhan_vien"));
                 dh.setTenKhachHang(rs.getString("ten_khach_hang"));
@@ -173,7 +175,7 @@ public class BanHangTesst {
     public ArrayList<LayMaHoaDon> hoaDon() {
         ArrayList<LayMaHoaDon> ls = new ArrayList<>();
         String sql = """
-                     select ma_hoa_don
+                     select id_ma_hoa_don, ma_hoa_don
                     from HoaDon
                     where trang_thai =N'Đang Chờ Thanh Toán' or trang_thai =N'Đang Chờ Xác Nhận'
                      """;
@@ -182,7 +184,8 @@ public class BanHangTesst {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 LayMaHoaDon dh = new LayMaHoaDon();
-                dh.setMaHoaDonnnn(rs.getString("ma_hoa_don"));
+                dh.setIdMaHoaDon(rs.getInt("id_ma_hoa_don"));
+                dh.setMaHoaDonnn(rs.getString("ma_hoa_don"));
                 ls.add(dh);
             }
 

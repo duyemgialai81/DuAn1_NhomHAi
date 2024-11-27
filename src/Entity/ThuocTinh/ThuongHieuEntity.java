@@ -9,16 +9,35 @@ package Entity.ThuocTinh;
  * @author SingPC
  */
 public class ThuongHieuEntity {
+    private int idThuongHieu;
+    private String maThuogHieu;
     private String tenThuongHieu;
-
     private String moTa;
 
     public ThuongHieuEntity() {
     }
 
-    public ThuongHieuEntity(String tenThuongHieu, String moTa) {
+    public ThuongHieuEntity(int idThuongHieu, String maThuogHieu, String tenThuongHieu, String moTa) {
+        this.idThuongHieu = idThuongHieu;
+        this.maThuogHieu = maThuogHieu;
         this.tenThuongHieu = tenThuongHieu;
         this.moTa = moTa;
+    }
+
+    public int getIdThuongHieu() {
+        return idThuongHieu;
+    }
+
+    public void setIdThuongHieu(int idThuongHieu) {
+        this.idThuongHieu = idThuongHieu;
+    }
+
+    public String getMaThuogHieu() {
+        return maThuogHieu;
+    }
+
+    public void setMaThuogHieu(String maThuogHieu) {
+        this.maThuogHieu = maThuogHieu;
     }
 
     public String getTenThuongHieu() {
@@ -36,6 +55,8 @@ public class ThuongHieuEntity {
     public void setMoTa(String moTa) {
         this.moTa = moTa;
     }
+    
+
     
     
 }
