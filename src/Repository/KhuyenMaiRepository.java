@@ -123,7 +123,7 @@ public boolean updateKhuyenMai(KhuyenMaiEntity km,int maKhuyenMai){
         PreparedStatement ps = con.prepareStatement(sql);
         ps.setObject(1, km.getTenVouCher());
         ps.setObject(2, km.getGiaTri());
-        ps.setObject(3, km.getNgayKetThuc());
+        ps.setObject(3, km.getNgayBatDau());
         ps.setObject(4, km.getNgayKetThuc());
         ps.setObject(5, km.getMoTa());
         ps.setObject(6, km.getLoaiTriGia());

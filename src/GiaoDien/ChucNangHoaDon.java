@@ -47,17 +47,11 @@ private DonHangChiTietRepository ct = new DonHangChiTietRepository();
                 donHangChiTietEntity.getMaSanPham(), donHangChiTietEntity.getTenSanPham(), donHangChiTietEntity.getSoLuong(), donHangChiTietEntity.getGiaBan(),donHangChiTietEntity.getTongTien(), donHangChiTietEntity.getTrangThai()
             });
         }
-        
     }
    private void timkiem() {
-    // Lấy giá trị từ trường tìm kiếm
-    String timKiem = txt_timKiemHoaDon.getText().trim();  // Trường tìm kiếm chung
-    String trangThai = (String) cbo_trangThaiThanhToan.getSelectedItem();  // Trạng thái từ combobox
-
-    // Gọi phương thức tìm kiếm và lọc dữ liệu
+    String timKiem = txt_timKiemHoaDon.getText().trim(); 
+    String trangThai = (String) cbo_trangThaiThanhToan.getSelectedItem(); 
     ArrayList<DonHangChiTietEntity> chitiet = ct.LocvaTiemKiemHoaDon(timKiem, timKiem, trangThai);
-
-    // Hiển thị kết quả tìm kiếm
     hienThiDonHangChiTiet(chitiet);
 }
 
@@ -161,7 +155,7 @@ private DonHangChiTietRepository ct = new DonHangChiTietRepository();
         ));
         jScrollPane1.setViewportView(tbl_hoaDon);
 
-        jPanel_HoaDon.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 290, 1080, 148));
+        jPanel_HoaDon.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 290, 1090, 148));
 
         jPanel_TrangThaiThanhToan.setBackground(new java.awt.Color(255, 255, 255));
         jPanel_TrangThaiThanhToan.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
@@ -245,7 +239,7 @@ private DonHangChiTietRepository ct = new DonHangChiTietRepository();
             .addComponent(jPanel_HoaDon, javax.swing.GroupLayout.DEFAULT_SIZE, 1114, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 1084, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 1091, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(

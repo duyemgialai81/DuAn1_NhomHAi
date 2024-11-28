@@ -93,7 +93,7 @@ public class ChuyenChucNang {
                 case "ChucNangThongKe":
                     node = new ChucNangThongKe();
                     break;
-                case "ChucNangVouvher":
+                case "ChucNangDoiHang":
                     node = new ChucNangKhuyenMai();
                     break;
                     case "ChucNangkhachHang":

@@ -17,11 +17,12 @@ private boolean jcbShowPass;
          int idNhanVien = ls.layIDNhaanVien(taiKhoan); 
         LuuThongTinDangNhap.setInNhanVien(idNhanVien); 
         if (ls.kiemTraQuyen(vaiTro, "Quản trị viên")) {
-            JOptionPane.showMessageDialog(rootPane, "Đăng nhập thành công với quyền Admin");
-            TrangChu dg = new TrangChu();
+            
+            dispose();
+            loandings dg = new loandings();
             dg.setVisible(true);
         } else {
-            JOptionPane.showMessageDialog(rootPane, "Đăng nhập thành công nhưng không có quyền Admin");
+            
             TrangChu dg = new TrangChu();
             dg.setVisible(true);
             dispose();

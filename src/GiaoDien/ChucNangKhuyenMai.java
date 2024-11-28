@@ -41,10 +41,10 @@ private KhuyenMaiEntity getFomat() {
     String loaiKhuyenMai = (String) cboloaigiatri.getSelectedItem();
     float giaTri = Float.parseFloat(txt_giaTri.getText());
     if (loaiKhuyenMai.equalsIgnoreCase("Giảm Theo %")) {
-        if (giaTri > 0 && giaTri <= 100) {
+        if (giaTri > 0 && giaTri <= 10) {
             km.setGiaTri(giaTri);
         } else {
-            throw new IllegalArgumentException("Phần trăm phải từ 0 đến 100.");
+           JOptionPane.showMessageDialog(jPanel_Nen, "ivent chỉ giảm tới 10% ");
         }
     } else if (loaiKhuyenMai.equalsIgnoreCase("Giảm Tiền Trực Tiếp")) {
         if (giaTri > 0) {
@@ -58,7 +58,17 @@ private KhuyenMaiEntity getFomat() {
 
     return km;
 }
-
+private void update(){
+    KhuyenMaiEntity kmm = getFomat();
+    kmm.setIdVoucher(Integer.parseInt(txtid.getText()));
+    boolean ketQua = km.updateKhuyenMai(kmm, kmm.getIdVoucher());
+    if(ketQua){
+        hienThiDuLieu(km.hienThiDuLieuKhuyenMai());
+    }else{
+        JOptionPane.showMessageDialog(jPanel_Nen, "Update thất bại");
+    }
+    
+}
 private void add(){
     km.themKhuyenMai(getFomat());
 }
@@ -82,17 +92,7 @@ public void hienThiDuLieuLenTextFile(int index){
     cboloaigiatri.setSelectedItem(kmm.getLoaiTriGia());
    txttruongtrinhkhuyenmai.setText(kmm.getTruongTrinhKhuyenMai());
 }
-private void update(){
-    KhuyenMaiEntity kmm = getFomat();
-    kmm.setIdVoucher(Integer.parseInt(txtid.getText()));
-    boolean ketQua = km.updateKhuyenMai(kmm, kmm.getIdVoucher());
-    if(ketQua){
-        hienThiDuLieu(km.hienThiDuLieuKhuyenMai());
-    }else{
-        JOptionPane.showMessageDialog(jPanel_Nen, "Update thất bại");
-    }
-    
-}
+
     
 
     /**

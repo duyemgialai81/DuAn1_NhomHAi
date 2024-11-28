@@ -49,16 +49,13 @@ public class QuenMatKhau extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(null, "Vui lòng nhập email người nhận!");
         return;
     }
-
     String senderEmail = "quysamset2@gmail.com";
     String senderPassword = "cwcbgrqbimkglhmy";
-
     Properties properties = new Properties();
     properties.put("mail.smtp.auth", "true");
     properties.put("mail.smtp.starttls.enable", "true");
     properties.put("mail.smtp.host", "smtp.gmail.com");
     properties.put("mail.smtp.port", "587");
-
     Session session = Session.getInstance(properties, new Authenticator() {
         @Override
         protected PasswordAuthentication getPasswordAuthentication() {
@@ -165,14 +162,12 @@ private String generateVerificationCode() {
 sendVerificationCode(txtemail, verificationCode); 
         int attempts = 0;
         boolean isCodeCorrect = false;
-
         while (attempts < 3) {
             String inputCode = JOptionPane.showInputDialog(this, "Nhập mã xác nhận đã gửi qua email:");
             if (inputCode == null || inputCode.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Mã xác nhận không được để trống!");
                 continue; 
             }
-
             if (inputCode.equals(verificationCode)) {
                 isCodeCorrect = true;
                 break; 

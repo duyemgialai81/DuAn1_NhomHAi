@@ -24,7 +24,7 @@
           <Component id="jPanel_HoaDon" pref="1114" max="32767" attributes="0"/>
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jScrollPane3" min="-2" pref="1084" max="-2" attributes="0"/>
+              <Component id="jScrollPane3" min="-2" pref="1091" max="-2" attributes="0"/>
               <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
@@ -174,7 +174,7 @@
           </AuxValues>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-              <AbsoluteConstraints x="10" y="290" width="1080" height="148"/>
+              <AbsoluteConstraints x="10" y="290" width="1090" height="148"/>
             </Constraint>
           </Constraints>
 
