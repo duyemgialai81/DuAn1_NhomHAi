@@ -117,7 +117,6 @@ public class NewJPanel extends javax.swing.JPanel implements Runnable, ThreadFac
         thuocTinhThuongHieu();
         thuocTinhMauSac();
         thuocTinhKichCo();
-        
     }
 
     public void hienThiDuLieuGioHangg() {
@@ -159,8 +158,8 @@ public class NewJPanel extends javax.swing.JPanel implements Runnable, ThreadFac
     try (Connection con = ketnoi.getConnection()) {
         String sqlChiTiet = """
                SELECT	
-                ctdh.id_ma_chi_tiet_don_hang,
-                sp.ma_san_pham, 
+                ctdh.ma_san_pham,
+                sp.ma_san_pham as maSanPham, 
                 sp.ten_san_pham, 
                 sp.gia_ban, 
                 ctdh.so_luong
@@ -185,8 +184,8 @@ public class NewJPanel extends javax.swing.JPanel implements Runnable, ThreadFac
             ResultSet rsChiTiet = psChiTiet.executeQuery();
             Map<String, Object[]> productMap = new HashMap<>();
             while (rsChiTiet.next()) {
-                int idMaDonHang = rsChiTiet.getInt("id_ma_chi_tiet_don_hang");
-                String maSanPham = rsChiTiet.getString("ma_san_pham");
+                int idMaDonHang = rsChiTiet.getInt("ma_san_pham");
+                String maSanPham = rsChiTiet.getString("maSanPham");
                 String tenSanPham = rsChiTiet.getString("ten_san_pham");
                 float giaBan = rsChiTiet.getFloat("gia_ban");
                 int soLuong = rsChiTiet.getInt("so_luong");
@@ -203,26 +202,18 @@ public class NewJPanel extends javax.swing.JPanel implements Runnable, ThreadFac
                     });
                 }
             }
-            
-            // Hiển thị dữ liệu vào bảng
             DefaultTableModel model = (DefaultTableModel) hienthigiohang.getModel();
             model.setRowCount(0);
             for (Object[] product : productMap.values()) {
                 model.addRow(product);
             }
-            
-            // Tính tổng tiền và thuế
             psTongTienThue.setInt(1, maGioHang);
             ResultSet rsTongTienThue = psTongTienThue.executeQuery();
             if (rsTongTienThue.next()) {
                 float tongTien = rsTongTienThue.getFloat("tongTien");
                 float tongThue = rsTongTienThue.getFloat("tongThue");
-                // Tính tổng thành tiền
                 float giamGia = 0;
                 float thanhTien = tongTien + tongThue; 
-//                if (tongTien > 1000000) {
-//                    giamGia = thanhTien * 0.02f;
-//                }
                 DecimalFormat formatter = new DecimalFormat("#,###.##");
                 txttongSoTien.setText(formatter.format(tongTien));
                 txtthue.setText(formatter.format(tongThue));
@@ -451,7 +442,7 @@ public class NewJPanel extends javax.swing.JPanel implements Runnable, ThreadFac
         md.setRowCount(0);
         for (DonHangChiTietEntity donHangChiTietEntity : chitiet) {
             md.addRow(new Object[]{
-                donHangChiTietEntity.getIdDonHangChiTiet(), donHangChiTietEntity.getMaSanPham(), donHangChiTietEntity.getTenSanPham(), donHangChiTietEntity.getGiaBan(), donHangChiTietEntity.getSoLuong()
+                donHangChiTietEntity.getIdMaSanPham(), donHangChiTietEntity.getMaSanPham(), donHangChiTietEntity.getTenSanPham(), donHangChiTietEntity.getGiaBan(), donHangChiTietEntity.getSoLuong()
 
             });
         }
@@ -679,7 +670,8 @@ public class NewJPanel extends javax.swing.JPanel implements Runnable, ThreadFac
 //        model.addRow(rowData);
 //    }
 //}
-    private void initWebcam() {
+ 
+private void initWebcam() {
         Dimension size = WebcamResolution.QVGA.getSize();
         webcam = Webcam.getWebcams().get(0);
         if (webcam.isOpen()) {
@@ -703,7 +695,6 @@ public class NewJPanel extends javax.swing.JPanel implements Runnable, ThreadFac
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
             Result result = null;
             BufferedImage image = null;
 
@@ -713,7 +704,6 @@ public class NewJPanel extends javax.swing.JPanel implements Runnable, ThreadFac
                     continue;
                 }
             }
-
             try {
                 LuminanceSource source = new BufferedImageLuminanceSource(image);
                 BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
@@ -727,93 +717,94 @@ public class NewJPanel extends javax.swing.JPanel implements Runnable, ThreadFac
             }
         } while (true);
     }
-
-// Lấy mã sản phẩm từ QR code và hiển thị sản phẩm
   private void handleQRCodeScan(String maSanPhamHoaDon) {
-    ArrayList<SanPhamEntity> productList = new ArrayList<>();
-    String sql = "SELECT ma_san_pham, ten_san_pham, so_luong_ton, gia_ban FROM SanPham WHERE ma_san_pham = ?";
-
+    String sql = "SELECT id_ma_san_pham, ten_san_pham, so_luong_ton, gia_ban FROM SanPham WHERE id_ma_san_pham = ?";
     try (Connection con = ketnoi.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
-        stmt.setObject(1, maSanPhamHoaDon);
-
+        stmt.setString(1, maSanPhamHoaDon);
         try (ResultSet rs = stmt.executeQuery()) {
             if (rs.next()) {
-                SanPhamEntity product = new SanPhamEntity();
-                product.setMaSanPham(rs.getString("ma_san_pham"));
-                product.setTenSanPham(rs.getString("ten_san_pham"));
-                product.setSoLuong(rs.getInt("so_luong_ton"));
-                product.setGiaBan(rs.getFloat("gia_ban"));
-                productList.add(product);
+                int maSanPham = rs.getInt("id_ma_san_pham");
+                String tenSanPham = rs.getString("ten_san_pham");
+                int soLuongTon = rs.getInt("so_luong_ton");
+                float giaBan = rs.getFloat("gia_ban");
+
+                System.out.println("Sản phẩm: " + tenSanPham + ", Tồn kho: " + soLuongTon + ", Giá bán: " + giaBan);
+
+                if (soLuongTon > 0) {
+                    String input = JOptionPane.showInputDialog(
+                            null,
+                            "Nhập số lượng muốn thêm vào giỏ hàng (Tối đa " + soLuongTon + " sản phẩm):",
+                            "Nhập số lượng",
+                            JOptionPane.QUESTION_MESSAGE);
+                    
+                    if (input != null && !input.isEmpty()) {
+                        System.out.println("Số lượng nhập vào: " + input); // Debugging value
+                        try {
+                            // Kiểm tra xem input có phải là số nguyên dương hay không
+                            if (!input.matches("\\d+")) {
+                                JOptionPane.showMessageDialog(null, "Vui lòng nhập số lượng hợp lệ.");
+                                return;
+                            }
+
+                            int soLuong = Integer.parseInt(input);
+                            System.out.println("Số lượng: " + soLuong); // Debugging value
+
+                            if (soLuong > 0 && soLuong <= soLuongTon) {
+                                int maDonHang = Integer.parseInt(txtid.getText());
+                                addProductToOrderDetailAndUpdatePaymentDuyem(maSanPham, soLuong, giaBan,maDonHang);
+                               
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Số lượng không hợp lệ! Tối đa: " + soLuongTon);
+                            }
+                        } catch (Exception e) {
+                            JOptionPane.showMessageDialog(null, "Lỗi khi nhập số lượng.");
+                            e.printStackTrace();
+                        }
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "Sản phẩm hiện không còn tồn kho!");
+                }
             } else {
                 JOptionPane.showMessageDialog(null, "Không tìm thấy sản phẩm với mã: " + maSanPhamHoaDon);
-                return;
             }
         }
     } catch (SQLException e) {
         JOptionPane.showMessageDialog(null, "Lỗi khi kết nối cơ sở dữ liệu: " + e.getMessage());
         e.printStackTrace();
     }
-
-    if (!productList.isEmpty()) {
-        SanPhamEntity product = productList.get(0); // Chỉ lấy sản phẩm đầu tiên
-        int quantity = promptQuantity(product);
-        if (quantity > 0) {
-            addProductToOrder(product, quantity);
-        }
-    }
 }
+  private void addProductToOrderDetailAndUpdatePaymentDuyem(int maSanPham, int soLuong, float giaBan, int maDonHang) {
+    int idDonHang = Integer.parseInt(txtid.getText());
+    int maGiamGia = 1; // Mã giảm giá mặc định
+    float tongTien = soLuong * giaBan; // Tính tổng tiền
+    String insertSQL = "INSERT INTO ChiTietDonHang (ma_san_pham, so_luong, gia_ban, tong_tien, ma_don_hang, ma_voucher) VALUES (?, ?, ?, ?, ?, ?)";
+    String updateSQL = "UPDATE SanPham SET so_luong_ton = so_luong_ton - ? WHERE id_ma_san_pham = ?";
 
-private int promptQuantity(SanPhamEntity product) {
-    while (true) {
-        String input = JOptionPane.showInputDialog(null, 
-                "Nhập số lượng cho sản phẩm " + product.getTenSanPham() + " (Tồn kho: " + product.getSoLuong() + "):");
-        if (input == null || input.isEmpty()) {
-            return -1; // Hủy bỏ
+    try (Connection con = ketnoi.getConnection()) {
+        con.setAutoCommit(false); // Bắt đầu giao dịch
+        try (PreparedStatement insertStmt = con.prepareStatement(insertSQL)) {
+            insertStmt.setInt(1, maSanPham);
+            insertStmt.setInt(2, soLuong);
+            insertStmt.setFloat(3, giaBan);
+            insertStmt.setFloat(4, tongTien);
+            insertStmt.setInt(5, idDonHang);
+            insertStmt.setInt(6, maGiamGia);
+            insertStmt.executeUpdate();
         }
-
-        try {
-            int quantity = Integer.parseInt(input);
-            if (quantity > 0 && quantity <= product.getSoLuong()) {
-                return quantity;
-            } else {
-                JOptionPane.showMessageDialog(null, "Số lượng không hợp lệ, vui lòng nhập lại.");
-            }
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "Vui lòng nhập số lượng hợp lệ.");
+        try (PreparedStatement updateStmt = con.prepareStatement(updateSQL)) {
+            updateStmt.setInt(1, soLuong);
+            updateStmt.setInt(2, maSanPham);
+            updateStmt.executeUpdate();
         }
-    }
-}
-
-private void addProductToOrder(SanPhamEntity product, int quantity) {
-    int maSanPham = Integer.parseInt(product.getMaSanPham().replace("SP", ""));
-    float giaBan = product.getGiaBan();
-
-    if (quantity > 0 && quantity <= product.getSoLuong()) {
-        addProductToOrderDetailAndUpdatePayment(maSanPham, product.getTenSanPham(), giaBan, quantity);
-        updateProductQuantity(maSanPham, quantity);
-        hienThiDuLieuGioHangg();
-    } else {
-        JOptionPane.showMessageDialog(null, "Không đủ số lượng trong kho. Tồn kho hiện tại: " + product.getSoLuong());
-    }
-}
-
-private void updateProductQuantity(int maSanPham, int quantity) {
-    String sql = "UPDATE SanPham SET so_luong_ton = so_luong_ton - ? WHERE id_ma_san_pham = ?";
-    try (Connection con = ketnoi.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
-        stmt.setInt(1, quantity);
-        stmt.setInt(2, maSanPham);
-        int rowsAffected = stmt.executeUpdate();
-        if (rowsAffected > 0) {
-            System.out.println("Cập nhật số lượng tồn kho thành công.");
-        } else {
-            System.out.println("Không thể cập nhật số lượng tồn kho.");
-        }
+        con.commit(); // Hoàn thành giao dịch
+        hienThiDuLieuGioHangg(idDonHang);
+        hienThiDuLieuuu(ls.getSanPhamChhiTiet());
+        apDungKhuyenMai();
     } catch (SQLException e) {
-        JOptionPane.showMessageDialog(null, "Lỗi khi cập nhật số lượng tồn kho: " + e.getMessage());
         e.printStackTrace();
+        JOptionPane.showMessageDialog(null, "Lỗi khi thêm sản phẩm hoặc cập nhật tồn kho: " + e.getMessage());
     }
 }
-
 
     @Override
     public Thread newThread(Runnable r) {
@@ -1162,7 +1153,7 @@ private void updateProductQuantity(int maSanPham, int quantity) {
                 {null, null, null, null, null, null, null}
             },
             new String [] {
-                "ID Sản Phẩm", "Tến Sản Phẩm", "Số Lượng", "Giá Sản Phẩm", "Kích Thước", "Máu Sắc", "Thương Hiệu"
+                "ID Sản Phẩm", "Tên Sản Phẩm", "Số Lượng", "Giá Sản Phẩm", "Kích Thước", "Máu Sắc", "Thương Hiệu"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -1475,7 +1466,7 @@ private void updateProductQuantity(int maSanPham, int quantity) {
         jPanel_DonHang1.add(jLabel24, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 620, 100, 30));
         jPanel_DonHang1.add(chuyenkhoan, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 620, 150, 20));
 
-        jPanel2.add(jPanel_DonHang1, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 0, 380, 730));
+        jPanel2.add(jPanel_DonHang1, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 0, 390, 730));
 
         jLabel26.setFont(new java.awt.Font("Source Sans Pro Black", 1, 14)); // NOI18N
         jLabel26.setText("Tên Sản Phẩm");
@@ -1558,13 +1549,14 @@ private void updateProductQuantity(int maSanPham, int quantity) {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 1122, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 735, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 735, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         jPanel2.getAccessibleContext().setAccessibleName("Sản Phẩm");
@@ -1576,10 +1568,10 @@ private void updateProductQuantity(int maSanPham, int quantity) {
 
     private void btn_taomaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btn_taomaMouseClicked
         int idNhanVien = LuuThongTinDangNhap.getInNhanVien();
-        int maKhachHangg = 10;
-       String tenKhachHang = "NULL";
+        int maKhachHangg = 6;
+       String tenKhachHang = "Bán Tại Quầy";
         if(txtTenKhachHang.getText().equals(tenKhachHang)||txtTenKhachHang.getText().equals("Khách Bán Lẻ")){
-            String trangThaiDonHnag = "đang chờ thanh toán";
+            String trangThaiDonHnag = "Đang chờ";
         String sqlDonHang = """
         INSERT INTO DonHang (ngay_dat, ma_nhan_vien, ma_khach_hang,trang_thai)
         VALUES (GETDATE(), ?, ?,?)
@@ -1604,7 +1596,7 @@ private void updateProductQuantity(int maSanPham, int quantity) {
 //            JOptionPane.showMessageDialog(hienthigiohang, "hhgffduhb");
         }else{
              int maKhachHang = Integer.parseInt(txtidkhachhang.getText());
-        String trangThaiDonHnag = "đang chờ thanh toán";
+        String trangThaiDonHnag = "Đang chờ";
         String sqlDonHang = """
         INSERT INTO DonHang (ngay_dat, ma_nhan_vien, ma_khach_hang,trang_thai)
         VALUES (GETDATE(), ?, ?,?)
@@ -1994,11 +1986,13 @@ private void updateProductQuantity(int maSanPham, int quantity) {
         String rawValueee = chuyenkhoan.getText().trim();
         String numericValueee = rawValueee.replaceAll("[^\\d.]", "");
         double chuyenKhoan = Double.parseDouble(numericValuee);
+        String giamGia = txtGiamGia.getText().trim();
+        String chuyenGiamGia = giamGia.replaceAll("[^\\d.]", "");
+        double giamGiatxt = Double.parseDouble(chuyenGiamGia);
         String sql = """
-    insert into hoadon (ngay_lap, tien_khach_dua , tien_tra_khach , phuong_thuc , trang_thai, thanh_tien, ma_don_hang, tien_chuyen_khoan)
-    values(getdate(),?,?,?,?,?,?,?)
+    insert into hoadon (ngay_lap, tien_khach_dua , tien_tra_khach , phuong_thuc , trang_thai, thanh_tien, ma_don_hang, tien_chuyen_khoan, giam_gia)
+    values(getdate(),?,?,?,?,?,?,?,?)
     """;
-
         try {
             Connection con = ketnoi.getConnection();
             PreparedStatement psHoaDon = con.prepareStatement(sql);
@@ -2006,14 +2000,14 @@ private void updateProductQuantity(int maSanPham, int quantity) {
             psHoaDon.setObject(2, tienTraKhach);
             psHoaDon.setObject(3, phuongThuc);
             psHoaDon.setObject(4, trangThaiHoaDon);
-            psHoaDon.setFloat(5, thanhTien);
+            psHoaDon.setObject(5, thanhTien);
             psHoaDon.setObject(6, idmaDonHnag);
             psHoaDon.setObject(7, chuyenKhoan);
+            psHoaDon.setObject(8,chuyenGiamGia);
             int checkHoaDon = psHoaDon.executeUpdate();
-            if (checkHoaDon > 0) {
-             XuatHoaDonnn duyem = new XuatHoaDonnn();
-              duyem.setVisible(true);
-              
+            if (checkHoaDon > 0) {  
+            XuatHoaDonnn duyem = new XuatHoaDonnn();
+                duyem.setVisible(true);
                 hienThiDuLieu(dh.layHhoaDon());
             } else {
                 JOptionPane.showMessageDialog(this, "Thanh Toán Thất Bại");
@@ -2021,7 +2015,8 @@ private void updateProductQuantity(int maSanPham, int quantity) {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+       
+ 
 
     }//GEN-LAST:event_jButton14ActionPerformed
 
@@ -2114,7 +2109,7 @@ private void apDungKhuyenMai() {
         if (tongTien > 1000000) {
             String sqlVoucher = """
                SELECT TOP 1 id_voucher, gia_tri, loai_gia_tri
-                            FROM Voucher
+                            FROM event
                             WHERE trang_thai = N'Đang hoạt động'
                               AND ngay_bat_dau <= GETDATE()
                               AND ngay_ket_thuc >= GETDATE()
@@ -2131,12 +2126,12 @@ private void apDungKhuyenMai() {
                     } else if ("Giảm Tiền Trực Tiếp".equals(loaiGiaTri)) {
                         giamGia = giaTriVoucher;
                     }
+                    double thue =tongTien * 0.1;
+                        tongTien += thue;
                     tongTien -= giamGia;
                         if (tongTien < 0) {
                             tongTien = 0;
                         }
-                        double thue = tongTien * 0.10;
-                        tongTien += thue;
                         DecimalFormat formatter = new DecimalFormat("#,###,###");
                         txtthanhtien.setText("Thành Tiền: " + formatter.format(tongTien) + " VND");
                         txtGiamGia.setText("Giảm Giá: " + formatter.format(giamGia) + " VND");
@@ -2202,7 +2197,7 @@ private void apDungKhuyenMai() {
     """;
         String voucherSql = """
         SELECT TOP 1 id_voucher, gia_tri, loai_gia_tri
-        FROM Voucher
+        FROM event
         WHERE trang_thai = N'Chưa bắt đầu'
           AND GETDATE() BETWEEN ngay_bat_dau AND ngay_ket_thuc
     """;
@@ -2272,133 +2267,131 @@ private void apDungKhuyenMai() {
         }
     }
 private void addProductToOrderDetailAndUpdatePayment(int maSanPham, String tenSanPham, float giaBan, int soLuong) {
-    int maDonHang = Integer.parseInt(txtid.getText());
-    int maVoucher = 17;  // Assuming a static voucher for now
-    float tongTien = giaBan * soLuong;
-    
-    String insertSql = """
-        INSERT INTO ChiTietDonHang (ma_don_hang, ma_san_pham, so_luong, gia_ban, tong_tien, thue, ma_voucher)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    """;
-    String updateSql = """
-        UPDATE SanPham
-        SET so_luong_ton = so_luong_ton - ?
-        WHERE id_ma_san_pham = ?
-    """;
-    String paymentInfoSql = """
-        SELECT 
-            SUM(tong_tien) AS tong_tien, 
-            SUM(tong_tien * thue / 100) AS tong_thue
-        FROM ChiTietDonHang
-        WHERE ma_don_hang = ?
-    """;
-    String voucherSql = """
-        SELECT TOP 1 id_voucher, gia_tri 
-        FROM Voucher
-        WHERE trang_thai = N'Chưa bắt đầu'
-          AND ngay_bat_dau <= GETDATE()
-          AND ngay_ket_thuc >= GETDATE()
-        ORDER BY gia_tri DESC
-    """;
+int maDonHang = Integer.parseInt(txtid.getText());
+float tongTien = giaBan * soLuong;
+int maVoucher = -1; // Khởi tạo giá trị mặc định nếu không có voucher
 
-    try (Connection con = ketnoi.getConnection()) {
-        con.setAutoCommit(false);
+// SQL statements
+String insertSql = """
+    INSERT INTO ChiTietDonHang (ma_don_hang, ma_san_pham, so_luong, gia_ban, tong_tien, thue, ma_voucher)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+""";
+String updateSql = """
+    UPDATE SanPham
+    SET so_luong_ton = so_luong_ton - ?
+    WHERE id_ma_san_pham = ?
+""";
+String paymentInfoSql = """
+    SELECT 
+        SUM(tong_tien) AS tong_tien, 
+        SUM(tong_tien * thue / 100) AS tong_thue
+    FROM ChiTietDonHang
+    WHERE ma_don_hang = ?
+""";
+String voucherSql = """
+    SELECT TOP 1 id_voucher 
+    FROM event
+    WHERE trang_thai = N'Đang hoạt động'
+      AND ngay_bat_dau <= GETDATE()
+      AND ngay_ket_thuc >= GETDATE()
+    ORDER BY gia_tri DESC
+""";
 
-        try (PreparedStatement psInsert = con.prepareStatement(insertSql);
-             PreparedStatement psUpdate = con.prepareStatement(updateSql);
-             PreparedStatement psPaymentInfo = con.prepareStatement(paymentInfoSql);
-             PreparedStatement psVoucher = con.prepareStatement(voucherSql)) {
+try (Connection con = ketnoi.getConnection()) {
+    con.setAutoCommit(false);
 
-            // Inserting the product into the order details
-            psInsert.setInt(1, maDonHang);
-            psInsert.setInt(2, maSanPham);
-            psInsert.setInt(3, soLuong);
-            psInsert.setFloat(4, giaBan);
-            psInsert.setFloat(5, tongTien);
-            psInsert.setDouble(6, 10.00);  // Assuming tax is 10%
-            psInsert.setInt(7, maVoucher);
-            int rowsAffected = psInsert.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Sản phẩm đã được thêm vào đơn hàng chi tiết.");
-                psUpdate.setInt(1, soLuong);
-                psUpdate.setInt(2, maSanPham);
-                int updateRows = psUpdate.executeUpdate();
-                if (updateRows > 0) {
-                    System.out.println("Số lượng sản phẩm đã được cập nhật trong bảng SanPham.");
-                    psPaymentInfo.setInt(1, maDonHang);
-                    ResultSet rs = psPaymentInfo.executeQuery();
-                    if (rs.next()) {
-                        float totalAmount = rs.getFloat("tong_tien");
-                        float totalTax = rs.getFloat("tong_thue");
-                      
+    try (PreparedStatement psVoucher = con.prepareStatement(voucherSql);
+         PreparedStatement psInsert = con.prepareStatement(insertSql);
+         PreparedStatement psUpdate = con.prepareStatement(updateSql);
+         PreparedStatement psPaymentInfo = con.prepareStatement(paymentInfoSql)) {
+        try (ResultSet rsVoucher = psVoucher.executeQuery()) {
+            if (rsVoucher.next()) {
+                maVoucher = rsVoucher.getInt("id_voucher");
+            }
+        }
+
+        psInsert.setInt(1, maDonHang);
+        psInsert.setInt(2, maSanPham); // maSanPham được truyền từ bên ngoài
+        psInsert.setInt(3, soLuong);
+        psInsert.setFloat(4, giaBan);
+        psInsert.setFloat(5, tongTien);
+        psInsert.setDouble(6, 10.0); // Thuế giả định là 10%
+        psInsert.setObject(7, maVoucher == -1 ? null : maVoucher); // Nếu không có voucher, dùng null
+
+        if (psInsert.executeUpdate() > 0) {
+            // Cập nhật số lượng tồn kho
+            psUpdate.setInt(1, soLuong);
+            psUpdate.setInt(2, maSanPham);
+
+            if (psUpdate.executeUpdate() > 0) {
+                // Lấy thông tin thanh toán
+                psPaymentInfo.setInt(1, maDonHang);
+                try (ResultSet rsPayment = psPaymentInfo.executeQuery()) {
+                    if (rsPayment.next()) {
+                        float totalAmount = rsPayment.getFloat("tong_tien");
+                        float totalTax = rsPayment.getFloat("tong_thue");
                         float finalAmount = totalAmount + totalTax;
-
                         DecimalFormat formatter = new DecimalFormat("#,###.##");
                         txttongSoTien.setText("Tổng Tiền: " + formatter.format(totalAmount));
                         txtthue.setText("Thuế: " + formatter.format(totalTax));
                         txtthanhtien.setText("Thành Tiền: " + formatter.format(finalAmount));
                         apDungKhuyenMai();
-                       
                          txt_tienKhachDua.getDocument().addDocumentListener(new DocumentListener() {
-                    @Override
-                    public void insertUpdate(DocumentEvent e) {
-                        capNhatTienThua();
-                    }
-
-                    @Override
-                    public void removeUpdate(DocumentEvent e) {
-                        capNhatTienThua();
-                    }
-
-                    @Override
-                    public void changedUpdate(DocumentEvent e) {
-                        capNhatTienThua();
-                    }
-
-                    private void capNhatTienThua() {
-                        String inputAmountStr = txt_tienKhachDua.getText();
-                        if (!inputAmountStr.isEmpty()) {
-                            try {
-                                String cleanedInput = inputAmountStr.replaceAll("[,\\s]", "");
-                                double inputAmount = Double.parseDouble(cleanedInput);
-                                double moneyLeft = inputAmount - finalAmount;
-                                if (moneyLeft < 0) {
-                                    txtTienTraKhac.setText("Số tiền bạn nhập không đủ để thanh toán!");
-                                } else {
-                                    txtTienTraKhac.setText(formatter.format(moneyLeft));
-                                }
-                            } catch (NumberFormatException e) {
-                                txtTienTraKhac.setText("Vui lòng nhập số tiền hợp lệ.");
+                            @Override
+                            public void insertUpdate(DocumentEvent e) {
+                                capNhatTienThua();
                             }
-                        } else {
-                            txtTienTraKhac.setText("");
-                        }
+
+                            @Override
+                            public void removeUpdate(DocumentEvent e) {
+                                capNhatTienThua();
+                            }
+
+                            @Override
+                            public void changedUpdate(DocumentEvent e) {
+                                capNhatTienThua();
+                            }
+
+                            private void capNhatTienThua() {
+                                String tienKhachDuaStr = txt_tienKhachDua.getText().trim().replace(",", "");
+                                try {
+                                    double tienKhachDua = 0;
+                                    if (!tienKhachDuaStr.isEmpty()) {
+                                        tienKhachDua = Double.parseDouble(tienKhachDuaStr);
+                                    }
+                                    double tongTien = Double.parseDouble(txtthanhtien.getText().replace("Thành Tiền: ", "").replace(" VND", "").replace(",", "").trim());
+                                    double tienThua = tienKhachDua - tongTien;
+                                    DecimalFormat formatter = new DecimalFormat("#,###,###");
+
+                                    if (tienThua < 0) {
+                                        txtTienTraKhac.setText("Tiền trả lại: " + formatter.format(tienThua) + " VND");
+                                    } else {
+                                        txtTienTraKhac.setText("Tiền trả lại: " + formatter.format(tienThua) + " VND");
+                                    }
+                                } catch (NumberFormatException e) {
+                                }
+                            }
+                        });
                     }
-                });
-                    }
-                    con.commit(); // Commit the transaction
-                } else {
-                    System.out.println("Lỗi khi cập nhật số lượng sản phẩm.");
-                    con.rollback(); // Rollback if update fails
                 }
+                con.commit();
             } else {
-                System.out.println("Lỗi khi thêm sản phẩm vào đơn hàng chi tiết.");
-                con.rollback(); // Rollback if insert fails
+                con.rollback();
+                System.out.println("Lỗi khi cập nhật số lượng sản phẩm.");
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            con.rollback(); // Rollback in case of error during the transaction
+        } else {
+            con.rollback();
+            System.out.println("Lỗi khi thêm sản phẩm vào đơn hàng chi tiết.");
         }
     } catch (SQLException e) {
+        con.rollback();
         e.printStackTrace();
     }
+} catch (SQLException e) {
+    e.printStackTrace();
 }
 
-
-
-
-
-
+}
 
     private void txtdonhangAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_txtdonhangAncestorAdded
         // TODO add your handling code here:
@@ -2568,58 +2561,7 @@ try (Connection con = ketnoi.getConnection()) {
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void tbl_sanPham1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbl_sanPham1MouseClicked
-//        int selectedRow = tbl_sanPham1.getSelectedRow();
-//        if (selectedRow != -1) {
-//            int maSanPham = (int) tbl_sanPham1.getValueAt(selectedRow, 0);
-//            String tenSanPham = (String) tbl_sanPham1.getValueAt(selectedRow, 2);
-//            float giaBan = (float) tbl_sanPham1.getValueAt(selectedRow, 4);
-//            int soLuongTon = (int) tbl_sanPham1.getValueAt(selectedRow, 3);
-//            String input = javax.swing.JOptionPane.showInputDialog(this, "Nhập số lượng sản phẩm để thêm vào hóa đơn:");
-//
-//            if (input != null) {
-//                input = input.trim(); // Loại bỏ khoảng trắng thừa ở đầu và cuối chuỗi
-//
-//                if (input.isEmpty()) {
-//                    // Nếu người dùng không nhập gì
-//                    JOptionPane.showMessageDialog(this, "Vui lòng nhập số lượng.");
-//                } else {
-//                    try {
-//                        int soLuong = Integer.parseInt(input); // Chuyển chuỗi thành số nguyên
-//                        // Xử lý logic thêm sản phẩm vào hóa đơn ở đây
-//                        JOptionPane.showMessageDialog(this, "Số lượng sản phẩm đã được thêm: " + soLuong);
-//                    } catch (NumberFormatException e) {
-//                        // Nếu người dùng nhập không phải là số hợp lệ
-//                        JOptionPane.showMessageDialog(this, "Vui lòng nhập một số hợp lệ.");
-//                    }
-//                }
-//            } else {
-//                // Người dùng nhấn Cancel hoặc đóng cửa sổ
-//                System.out.println("Người dùng đã nhấn Cancel hoặc đóng cửa sổ.");
-//            }
-//
-//            try {
-//                int soLuong = Integer.parseInt(input);
-//                if (soLuong > 0) {
-//                    if (soLuongTon < soLuong) {
-//                        JOptionPane.showMessageDialog(panel, "Số Lượng Tồn Nhỏ Hơn ");
-//                    } else {
-//                        addProductToOrderDetailAndUpdatePayment(maSanPham, tenSanPham, giaBan, soLuong);
-//                        hienThiDuLieuuu(ls.getSanPhamChhiTiet());
-//                        hienThiDuLieuGioHangg();
-//                        int selectedRowHoaDon = tbldanhsachdonhagcho.getSelectedRow(); // Kiểm tra xem có hàng nào được chọn không
-//                        if (selectedRowHoaDon != -1) {
-//                            int maGioHangHienTai = Integer.parseInt(tbldanhsachdonhagcho.getValueAt(selectedRowHoaDon, 0).toString());
-//                            hienThiDuLieuGioHang(maGioHangHienTai);
-//                        }
-//                    }
-//                } else {
-//                    JOptionPane.showMessageDialog(null, "Số lượng phải lớn hơn 0.");
-//                }
-//            } catch (NumberFormatException ex) {
-//                JOptionPane.showMessageDialog(null, "Vui lòng nhập một số hợp lệ.");
-//            }
-//        }
-        int selectedRow = tbl_sanPham1.getSelectedRow();
+    int selectedRow = tbl_sanPham1.getSelectedRow();
         if (selectedRow != -1) {
             int maSanPham = (int) tbl_sanPham1.getValueAt(selectedRow, 0);
             String tenSanPham = (String) tbl_sanPham1.getValueAt(selectedRow, 1);
@@ -2630,7 +2572,6 @@ try (Connection con = ketnoi.getConnection()) {
 
             if (input != null) {
                 input = input.trim();
-
                 if (input.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "Vui lòng nhập số lượng.");
                 } else {
@@ -2644,20 +2585,19 @@ try (Connection con = ketnoi.getConnection()) {
                         } else {
                             addProductToOrderDetailAndUpdatePayment(maSanPham, tenSanPham, giaBan, soLuong);
                             hienThiDuLieuuu(ls.getSanPhamChhiTiet());
-                            hienThiDuLieuGioHangg();
+//                            hienThiDuLieuGioHangg();
                             int selectedRowHoaDon = tbldanhsachdonhagcho.getSelectedRow();
                             if (selectedRowHoaDon != -1) {
                                 int maGioHangHienTai = Integer.parseInt(tbldanhsachdonhagcho.getValueAt(selectedRowHoaDon, 0).toString());
-                                hienThiDuLieuGioHangg(maGioHangHienTai);
+                                int idHoaDon = Integer.parseInt(txtid.getText());
+                                hienThiDuLieuGioHangg(idHoaDon);
                             }
                         }
                     } catch (NumberFormatException ex) {
-                        // Nếu người dùng nhập không phải là số hợp lệ
-//                        JOptionPane.showMessageDialog(this, "Vui lòng nhập một số hợp lệ.");
+                        
                     }
                 }
             } else {
-                // Người dùng nhấn Cancel hoặc đóng cửa sổ
                 System.out.println("Người dùng đã nhấn Cancel hoặc đóng cửa sổ.");
             }
         }
@@ -2719,187 +2659,125 @@ try (Connection con = ketnoi.getConnection()) {
     }
     private void hienthigiohangMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_hienthigiohangMouseClicked
         // TODO add your handling code here
-//    int selectedRowHoaDon = tbldanhsachdonhagcho.getSelectedRow();
-//    if (selectedRowHoaDon != -1) {
-//        int maGioHangHienTai = Integer.parseInt(tbldanhsachdonhagcho.getValueAt(selectedRowHoaDon, 0).toString());
-//        hienThiDuLieuGioHang(maGioHangHienTai);
-//    }            
-
+    int selectedRowHoaDon = tbldanhsachdonhagcho.getSelectedRow();
+    if (selectedRowHoaDon != -1) {
+        int maGioHangHienTai = Integer.parseInt(tbldanhsachdonhagcho.getValueAt(selectedRowHoaDon, 0).toString());
+    }            
     }//GEN-LAST:event_hienthigiohangMouseClicked
-    private void xoaSanPhamKhoiGioHang(int soLuongTrongGioHang) {
-        Connection conn = null;
-        PreparedStatement psDelete = null;
-        PreparedStatement psUpdate = null;
-        PreparedStatement psGetQuantity = null;
-        int duyem = Integer.parseInt(txtid.getText());
-        try {
-            conn = ketnoi.getConnection();
-            String sqlGetQuantity = "SELECT so_luong FROM chitietdonhang WHERE ma_don_hang = ?";
-            psGetQuantity = conn.prepareStatement(sqlGetQuantity);
-            psGetQuantity.setInt(1, duyem);
-            ResultSet rs = psGetQuantity.executeQuery();
-            if (rs.next()) {
-                int soLuongCanXoa = rs.getInt("so_luong");
-                String sqlUpdate = "UPDATE SanPham SET so_luong_ton = so_luong_ton + ? "
-                        + "WHERE id_ma_san_pham IN (SELECT ma_san_pham FROM chitietdonhang WHERE ma_don_hang = ?)";
-                psUpdate = conn.prepareStatement(sqlUpdate);
-                psUpdate.setInt(1, soLuongCanXoa);
-                psUpdate.setInt(2, duyem);
-                int rowsUpdated = psUpdate.executeUpdate();
-                if (rowsUpdated > 0) {
-                    String sqlDelete = "DELETE FROM chitietdonhang WHERE ma_don_hang = ?";
-                    psDelete = conn.prepareStatement(sqlDelete);
-                    psDelete.setInt(1, duyem);
-                    int rowsDeleted = psDelete.executeUpdate();
-                    if (rowsDeleted > 0) {
-                        JOptionPane.showMessageDialog(this, "Xóa sản phẩm thành công và cập nhật tồn kho!");
-                        hienThiDuLieuGioHangg();
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Không thể xóa sản phẩm khỏi giỏ hàng!");
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(this, "Không thể cập nhật số lượng tồn kho!");
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "Không tìm thấy sản phẩm trong giỏ hàng!");
-            }
+private void xoa1SanPham(){
+    int chonDong = hienthigiohang.getSelectedRow();
+if (chonDong != -1) {
+    try {
+        int idMaChiTietDonHang = Integer.parseInt(hienthigiohang.getValueAt(chonDong, 0).toString());
+        String maSanPham = hienthigiohang.getValueAt(chonDong, 1).toString();
+        int soLuongXoa = Integer.parseInt(hienthigiohang.getValueAt(chonDong, 4).toString());
+        String sqlXoa = """
+                    DELETE FROM chitietdonhang
+                    WHERE ma_san_pham = ?
+                    """;
+        String sqlCapNhat = """
+                    UPDATE sanpham
+                    SET so_luong_ton = so_luong_ton + ?
+                    WHERE ma_san_pham = ?
+                    """;
+        Connection con = ketnoi.getConnection();
+        con.setAutoCommit(false); // Bắt đầu transaction
 
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi xóa sản phẩm: " + ex.getMessage());
-            ex.printStackTrace();
-        } finally {
-            try {
-                if (psDelete != null) {
-                    psDelete.close();
-                }
-                if (psUpdate != null) {
-                    psUpdate.close();
-                }
-                if (psGetQuantity != null) {
-                    psGetQuantity.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
+        // Thực hiện xóa
+        PreparedStatement psXoa = con.prepareStatement(sqlXoa);
+        psXoa.setInt(1, idMaChiTietDonHang);
+        int rowsDeleted = psXoa.executeUpdate();
+
+        if (rowsDeleted > 0) {
+            PreparedStatement psCapNhat = con.prepareStatement(sqlCapNhat);
+            psCapNhat.setInt(1, soLuongXoa);
+            psCapNhat.setString(2, maSanPham);
+            int rowsUpdated = psCapNhat.executeUpdate();
+
+            if (rowsUpdated > 0) {
+                con.commit();
+                DefaultTableModel model = (DefaultTableModel) hienthigiohang.getModel();
+                model.removeRow(chonDong);
+                hienThiDuLieuuu(ls.getSanPhamChhiTiet());
+                int id = Integer.parseInt(txtid.getText());
+                hienThiDuLieuGioHangg(id);
+            } else {
+                con.rollback();
+                JOptionPane.showMessageDialog(null, "Cập nhật số lượng sản phẩm thất bại!");
             }
+            psCapNhat.close();
+        } else {
+            con.rollback();
+            JOptionPane.showMessageDialog(null, "Xóa dòng thất bại!");
+        }
+        psXoa.close();
+        con.close();
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, "Có lỗi xảy ra: " + e.getMessage());
+    }
+} else {
+    JOptionPane.showMessageDialog(null, "Vui lòng chọn dòng để xóa!");
+}
+}
+private void xoaHetSanPham() {
+    int idDonHang = Integer.parseInt(txtid.getText());
+    try {
+        String sqlXoa = """
+                DELETE FROM chitietdonhang
+                WHERE ma_don_hang = ?
+                """;
+        String sqlCapNhat = """
+                UPDATE sanpham
+                SET so_luong_ton = so_luong_ton + ?
+                WHERE ma_san_pham = ?
+                """;
+        Connection con = ketnoi.getConnection();
+        con.setAutoCommit(false);
+        DefaultTableModel model = (DefaultTableModel) hienthigiohang.getModel();
+        int rowCount = model.getRowCount();
+        for (int i = 0; i < rowCount; i++) {
+            int idMaChiTietDonHang = Integer.parseInt(model.getValueAt(i, 0).toString());
+            String maSanPham = model.getValueAt(i, 1).toString();
+            int soLuongXoa = Integer.parseInt(model.getValueAt(i, 4).toString());
+            PreparedStatement psXoa = con.prepareStatement(sqlXoa);
+            psXoa.setInt(1, idDonHang);
+            psXoa.executeUpdate();
+            psXoa.close();
+            PreparedStatement psCapNhat = con.prepareStatement(sqlCapNhat);
+            psCapNhat.setInt(1, soLuongXoa);
+            psCapNhat.setString(2, maSanPham);
+            psCapNhat.executeUpdate();
+            psCapNhat.close();
+        }
+        con.commit();
+        model.setRowCount(0);
+        hienThiDuLieuuu(ls.getSanPhamChhiTiet());
+        con.close();
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, "Có lỗi xảy ra: " + e.getMessage());
+        try {
+            Connection con = ketnoi.getConnection();
+            con.rollback();
+            con.close();
+        } catch (Exception rollbackEx) {
+            rollbackEx.printStackTrace();
         }
     }
-
-    private void xoaSanPhamKhoiGioHangChiTiet(int idChiTietDonHang) {
-        Connection conn = null;
-        PreparedStatement psDelete = null;
-        PreparedStatement psUpdate = null;
-        PreparedStatement psGetQuantity = null;
-
-        // Lấy dòng được chọn trong bảng
-        int selectedRow = hienthigiohang.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm để xóa!");
-            return;
-        }
-
-        // Lấy id_ma_chi_tiet_don_hang từ cột đầu tiên (cột 0)
-        int duyem = Integer.parseInt(hienthigiohang.getValueAt(selectedRow, 0).toString());
-
-        try {
-            conn = ketnoi.getConnection();
-
-            // Lấy số lượng sản phẩm từ bảng chitietdonhang
-            String sqlGetQuantity = "SELECT so_luong FROM chitietdonhang WHERE id_ma_chi_tiet_don_hang = ?";
-            psGetQuantity = conn.prepareStatement(sqlGetQuantity);
-            psGetQuantity.setInt(1, duyem);
-            ResultSet rs = psGetQuantity.executeQuery();
-
-            if (rs.next()) {
-                int soLuongCanXoa = rs.getInt("so_luong");
-
-                // Cập nhật số lượng tồn kho trong bảng SanPham
-                String sqlUpdate = "UPDATE SanPham SET so_luong_ton = so_luong_ton + ? "
-                        + "WHERE id_ma_san_pham IN (SELECT ma_san_pham FROM chitietdonhang WHERE id_ma_chi_tiet_don_hang = ?)";
-                psUpdate = conn.prepareStatement(sqlUpdate);
-                psUpdate.setInt(1, soLuongCanXoa);
-                psUpdate.setInt(2, duyem);
-
-                int rowsUpdated = psUpdate.executeUpdate();
-                if (rowsUpdated > 0) {
-                    // Xóa sản phẩm khỏi bảng chitietdonhang
-                    String sqlDelete = "DELETE FROM chitietdonhang WHERE id_ma_chi_tiet_don_hang = ?";
-                    psDelete = conn.prepareStatement(sqlDelete);
-                    psDelete.setInt(1, duyem);
-
-                    int rowsDeleted = psDelete.executeUpdate();
-                    if (rowsDeleted > 0) {
-                        JOptionPane.showMessageDialog(this, "Xóa sản phẩm thành công và cập nhật tồn kho!");
-                        hienThiDuLieuGioHangg(); // Cập nhật lại giao diện
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Không thể xóa sản phẩm khỏi giỏ hàng!");
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(this, "Không thể cập nhật số lượng tồn kho!");
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "Không tìm thấy sản phẩm trong giỏ hàng!");
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi xóa sản phẩm: " + ex.getMessage());
-            ex.printStackTrace();
-        } finally {
-            try {
-                if (psDelete != null) {
-                    psDelete.close();
-                }
-                if (psUpdate != null) {
-                    psUpdate.close();
-                }
-                if (psGetQuantity != null) {
-                    psGetQuantity.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-    }
+}
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        if(xoaTatCa.isSelected()){
+            xoaHetSanPham();
+            txttongSoTien.setText("0");
+            txtthanhtien.setText("0");
+            txtGiamGia.setText("0");
+            txtthue.setText("");
+        }else{
+            xoa1SanPham();
 
-        int id = Integer.parseInt(txtid.getText().trim());
-
-        // Kiểm tra trạng thái checkbox
-        if (xoaTatCa.isSelected()) {
-            // Nếu checkbox được chọn, xóa tất cả sản phẩm
-            int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn xóa tất cả sản phẩm trong giỏ hàng?", "Xác nhận", JOptionPane.YES_NO_OPTION);
-            if (confirm == JOptionPane.YES_OPTION) {
-                xoaSanPhamKhoiGioHang(id);
-                hienThiDuLieuGioHang(hd.layGioHangSanPham(id));
-                hienThiDuLieuuu(ls.getSanPhamChhiTiet());
-            }
-        } else {
-            // Nếu checkbox không được chọn, yêu cầu chọn sản phẩm cụ thể
-            int selectedRow = hienthigiohang.getSelectedRow();
-            if (selectedRow == -1) {
-                return;
-            }
-
-            try {
-                int soLuongTrongGioHang = Integer.parseInt(hienthigiohang.getValueAt(selectedRow, 0).toString());
-                int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn xóa sản phẩm này?", "Xác nhận", JOptionPane.YES_NO_OPTION);
-                if (confirm == JOptionPane.YES_OPTION) {
-                    xoaSanPhamKhoiGioHangChiTiet(soLuongTrongGioHang);
-                    hienThiDuLieuGioHang(hd.layGioHangSanPham(id));
-                    hienThiDuLieuuu(ls.getSanPhamChhiTiet());
-                    updateCartAndRecalculateVoucher();
-                }
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Lỗi khi xóa sản phẩm: " + ex.getMessage());
-                ex.printStackTrace();
-            }
         }
-
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void txtLocMauSacActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtLocMauSacActionPerformed
@@ -2920,121 +2798,129 @@ try (Connection con = ketnoi.getConnection()) {
     private void txtsodienthoaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtsodienthoaiActionPerformed
         timKimMaKhachHang();
     }//GEN-LAST:event_txtsodienthoaiActionPerformed
-    private void capNhapSoLuongTru(){
-        int selectRow = hienthigiohang.getSelectedRow();
-        if(selectRow == -1){
-            JOptionPane.showMessageDialog(hienthigiohang, "Vui lòng chọn sản phẩm trong giỏ hàng muốn cập nhập");
-            return;
-        }
-        int idChiTietDonHang = Integer.parseInt(hienthigiohang.getValueAt(selectRow,0).toString());
-        int soLuongHienTai = Integer.parseInt(hienthigiohang.getValueAt(selectRow, 4).toString());
-        String loLuongMoi = JOptionPane.showInputDialog(this, "Mời Nhập Số Lượng");
-        if(loLuongMoi == null || loLuongMoi.trim().isEmpty()){
-            JOptionPane.showMessageDialog(hienthigiohang, "Số Lượng Không Hợp Lệ");
-            return;
-        }
-        try {
-//            int soLuongMoi = Integer.parseInt()
-            Connection con = ketnoi.getConnection();
-        } catch (Exception e) {
-        }
+private void capNhatSoLuongGioHang() {
+    int selectedRow = hienthigiohang.getSelectedRow();
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm trong giỏ hàng để cập nhật!");
+        return;
     }
-    private void capNhatSoLuongGioHang() {
-        int selectedRow = hienthigiohang.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm trong giỏ hàng để cập nhật!");
-            return;
-        }
-        int idChiTietDonHang = Integer.parseInt(hienthigiohang.getValueAt(selectedRow, 0).toString());
-        int soLuongHienTai = Integer.parseInt(hienthigiohang.getValueAt(selectedRow, 4).toString());
-        String soLuongMoiStr = JOptionPane.showInputDialog(this, "Nhập số lượng mới:");
-        if (soLuongMoiStr == null || soLuongMoiStr.trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Số lượng không hợp lệ!");
-            return;
-        }
+    int idChiTietDonHang = Integer.parseInt(hienthigiohang.getValueAt(selectedRow, 0).toString());
+    int soLuongHienTai = Integer.parseInt(hienthigiohang.getValueAt(selectedRow, 4).toString());
+    String soLuongMoiStr = JOptionPane.showInputDialog(this, "Nhập số lượng mới:");
+    if (soLuongMoiStr == null || soLuongMoiStr.trim().isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Số lượng không hợp lệ!");
+        return;
+    }
+    try {
+        int soLuongMoi = Integer.parseInt(soLuongMoiStr);
+        int thayDoiSoLuong = soLuongMoi - soLuongHienTai;
+        Connection conn = ketnoi.getConnection();
+        PreparedStatement psCheckStock = null;
+        ResultSet rsStock = null;
         try {
-            int soLuongMoi = Integer.parseInt(soLuongMoiStr);
-            int thayDoiSoLuong = soLuongMoi - soLuongHienTai;
-            Connection conn = ketnoi.getConnection();
-            PreparedStatement psCheckStock = null;
-            ResultSet rsStock = null;
-            try {
-                String sqlCheckStock = "SELECT so_luong_ton FROM SanPham WHERE id_ma_san_pham IN "
-                        + "(SELECT ma_san_pham FROM chitietdonhang WHERE id_ma_chi_tiet_don_hang = ?)";
-                psCheckStock = conn.prepareStatement(sqlCheckStock);
-                psCheckStock.setInt(1, idChiTietDonHang);
-                rsStock = psCheckStock.executeQuery();
+            String sqlCheckStock = "SELECT so_luong_ton FROM SanPham WHERE id_ma_san_pham IN "
+                    + "(SELECT ma_san_pham FROM chitietdonhang WHERE ma_san_pham = ?)";
+            psCheckStock = conn.prepareStatement(sqlCheckStock);
+            psCheckStock.setInt(1, idChiTietDonHang);
+            rsStock = psCheckStock.executeQuery();
 
-                if (rsStock.next()) {
-                    int soLuongTon = rsStock.getInt("so_luong_ton");
-                    if (thayDoiSoLuong > 0 && soLuongMoi > soLuongTon) {
-                        JOptionPane.showMessageDialog(this, "Số lượng sản phẩm không đủ trong kho!");
-                        return;
-                    }
-                }
-                PreparedStatement psUpdateSanPham = null;
-                PreparedStatement psUpdateChiTietDonHang = null;
-                if (thayDoiSoLuong < 0) {
-                    String sqlUpdateSanPham = "UPDATE SanPham SET so_luong_ton = so_luong_ton + ? "
-                            + "WHERE id_ma_san_pham IN (SELECT ma_san_pham FROM chitietdonhang WHERE id_ma_chi_tiet_don_hang = ?)";
-                    psUpdateSanPham = conn.prepareStatement(sqlUpdateSanPham);
-                    psUpdateSanPham.setInt(1, Math.abs(thayDoiSoLuong)); // Cộng số lượng bị giảm vào tồn kho
-                    psUpdateSanPham.setInt(2, idChiTietDonHang);
-                    int rowsUpdatedSanPham = psUpdateSanPham.executeUpdate();
-                    if (rowsUpdatedSanPham > 0) {
-                        
-                    } else {
-                        System.out.println("Không cập nhật được bảng Sản Phẩm!");
-                    }
-                }
-                else if (thayDoiSoLuong > 0) {
-                    String sqlUpdateSanPham = "UPDATE SanPham SET so_luong_ton = so_luong_ton - ? "
-                            + "WHERE id_ma_san_pham IN (SELECT ma_san_pham FROM chitietdonhang WHERE id_ma_chi_tiet_don_hang = ?)";
-                    psUpdateSanPham = conn.prepareStatement(sqlUpdateSanPham);
-                    psUpdateSanPham.setInt(1, Math.abs(thayDoiSoLuong)); // Trừ số lượng vào tồn kho
-                    psUpdateSanPham.setInt(2, idChiTietDonHang);
-                    int rowsUpdatedSanPham = psUpdateSanPham.executeUpdate();
-                    if (rowsUpdatedSanPham > 0) {
-               
-                    } else {
-                        System.out.println("Không cập nhật được bảng SanPham!");
-                    }
-                }
-                String sqlUpdateChiTiet = "UPDATE chitietdonhang SET so_luong = ? WHERE id_ma_chi_tiet_don_hang = ?";
-                psUpdateChiTietDonHang = conn.prepareStatement(sqlUpdateChiTiet);
-                psUpdateChiTietDonHang.setInt(1, soLuongMoi);
-                psUpdateChiTietDonHang.setInt(2, idChiTietDonHang);
-                int rowsUpdatedChiTiet = psUpdateChiTietDonHang.executeUpdate();
-
-                if (rowsUpdatedChiTiet > 0) {
-                    hienThiDuLieuGioHangg(); // Refresh lại dữ liệu giỏ hàng
-                    hienThiDuLieuuu(ls.getSanPhamChhiTiet());
-                } else {
-                    JOptionPane.showMessageDialog(this, "Không thể cập nhật số lượng!");
-                }
-            } finally {
-                if (psCheckStock != null) {
-                    psCheckStock.close();
-                }
-                if (rsStock != null) {
-                    rsStock.close();
-                }
-                if (conn != null) {
-                    conn.close();
+            if (rsStock.next()) {
+                int soLuongTon = rsStock.getInt("so_luong_ton");
+                if (thayDoiSoLuong > 0 && soLuongMoi > soLuongTon) {
+                    JOptionPane.showMessageDialog(this, "Số lượng sản phẩm không đủ trong kho!");
+                    return;
                 }
             }
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Số lượng không hợp lệ!");
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật số lượng: " + ex.getMessage());
-            ex.printStackTrace();
-        }
-    }
+            PreparedStatement psUpdateSanPham = null;
+            PreparedStatement psUpdateChiTietDonHang = null;
+            if (thayDoiSoLuong < 0) {
+                String sqlUpdateSanPham = "UPDATE SanPham SET so_luong_ton = so_luong_ton + ? "
+                        + "WHERE id_ma_san_pham IN (SELECT ma_san_pham FROM chitietdonhang WHERE ma_san_pham = ?)";
+                psUpdateSanPham = conn.prepareStatement(sqlUpdateSanPham);
+                psUpdateSanPham.setInt(1, Math.abs(thayDoiSoLuong)); // Cộng số lượng bị giảm vào tồn kho
+                psUpdateSanPham.setInt(2, idChiTietDonHang);
+                int rowsUpdatedSanPham = psUpdateSanPham.executeUpdate();
+                if (rowsUpdatedSanPham <= 0) {
+                    System.out.println("Không cập nhật được bảng Sản Phẩm!");
+                }
+            }
+            else if (thayDoiSoLuong > 0) {
+                String sqlUpdateSanPham = "UPDATE SanPham SET so_luong_ton = so_luong_ton - ? "
+                        + "WHERE id_ma_san_pham IN (SELECT ma_san_pham FROM chitietdonhang WHERE ma_san_pham = ?)";
+                psUpdateSanPham = conn.prepareStatement(sqlUpdateSanPham);
+                psUpdateSanPham.setInt(1, Math.abs(thayDoiSoLuong)); // Trừ số lượng vào tồn kho
+                psUpdateSanPham.setInt(2, idChiTietDonHang);
+                int rowsUpdatedSanPham = psUpdateSanPham.executeUpdate();
+                if (rowsUpdatedSanPham <= 0) {
+                    System.out.println("Không cập nhật được bảng SanPham!");
+                }
+            }
 
+            // Cập nhật số lượng trong giỏ hàng
+            String sqlUpdateChiTiet = "UPDATE chitietdonhang SET so_luong = ? WHERE ma_san_pham = ?";
+            psUpdateChiTietDonHang = conn.prepareStatement(sqlUpdateChiTiet);
+            psUpdateChiTietDonHang.setInt(1, soLuongMoi);
+            psUpdateChiTietDonHang.setInt(2, idChiTietDonHang);
+            int rowsUpdatedChiTiet = psUpdateChiTietDonHang.executeUpdate();
+
+            if (rowsUpdatedChiTiet > 0) {
+                hienThiDuLieuGioHangg(); // Refresh lại dữ liệu giỏ hàng
+
+                // Cập nhật lại tổng tiền cho chi tiết đơn hàng
+                double giaBan = Double.parseDouble(hienthigiohang.getValueAt(selectedRow, 3).toString());
+                double tongTienChiTiet = giaBan * soLuongMoi;
+                
+                // Cập nhật tổng tiền vào chi tiết đơn hàng
+                String sqlUpdateTongTien = "UPDATE chitietdonhang SET tong_tien = ? WHERE ma_san_pham = ?";
+                PreparedStatement psUpdateTongTien = conn.prepareStatement(sqlUpdateTongTien);
+                psUpdateTongTien.setDouble(1, tongTienChiTiet);
+                psUpdateTongTien.setInt(2, idChiTietDonHang);
+                psUpdateTongTien.executeUpdate();
+                
+                // Cập nhật lại tổng tiền và thuế cho giỏ hàng
+                double tongTien = 0.0;
+                double thue = 0.1; // Thuế 10%
+
+                // Duyệt qua tất cả các sản phẩm trong giỏ hàng để tính tổng tiền
+                for (int i = 0; i < hienthigiohang.getRowCount(); i++) {
+                    int soLuong = Integer.parseInt(hienthigiohang.getValueAt(i, 4).toString());
+                    double giaBanSP = Double.parseDouble(hienthigiohang.getValueAt(i, 3).toString());
+                    tongTien += soLuong * giaBanSP;
+                }
+
+                // Cộng thuế vào tổng tiền
+                double tongTienVoiThue = tongTien * (1 + thue);
+                txttongSoTien.setText("" + String.format("%.2f", tongTienVoiThue));
+                apDungKhuyenMai();
+                int idDonHang = Integer.parseInt(txtid.getText());
+                hienThiDuLieuGioHangg(idDonHang);
+                hienThiDuLieuuu(ls.getSanPhamChhiTiet());
+            } else {
+                JOptionPane.showMessageDialog(this, "Không thể cập nhật số lượng!");
+            }
+        } finally {
+            if (psCheckStock != null) {
+                psCheckStock.close();
+            }
+            if (rsStock != null) {
+                rsStock.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+    } catch (NumberFormatException ex) {
+        JOptionPane.showMessageDialog(this, "Số lượng không hợp lệ!");
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật số lượng: " + ex.getMessage());
+        ex.printStackTrace();
+    }
+}
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         // TODO add your handling code here:
-        capNhatSoLuongGioHang();
+      capNhatSoLuongGioHang();
+     
     }//GEN-LAST:event_jButton5ActionPerformed
 public void resetFields() {
         txttongSoTien.setText(""); // Reset ô txtid
@@ -3078,6 +2964,7 @@ public void resetFields() {
                 cleanedInput = cleanedInput.replaceAll(",", "");
                 float thanhTien = Float.parseFloat(cleanedInput);
                 DecimalFormat formatter = new DecimalFormat("#,###.##");
+                apDungKhuyenMai();
                 txt_tienKhachDua.getDocument().addDocumentListener(new DocumentListener() {
                     @Override
                     public void insertUpdate(DocumentEvent e) {
@@ -3096,20 +2983,13 @@ public void resetFields() {
                     private void capNhatTienThua() {
                         String inputAmountStr = txt_tienKhachDua.getText();
                         if (!inputAmountStr.isEmpty()) {
-                            try {
-                                // Làm sạch đầu vào, loại bỏ dấu phẩy và khoảng trắng
-                                String cleanedInput = inputAmountStr.replaceAll("[,\\s]", "");
+                            try {                                String cleanedInput = inputAmountStr.replaceAll("[,\\s]", "");
                                 double inputAmount = Double.parseDouble(cleanedInput);
-
-                                // Tính số tiền còn thiếu sau khi thanh toán tiền mặt
                                 double moneyLeft = thanhTien - inputAmount;
-
-                                // Nếu số tiền khách đã thanh toán đủ (hoặc vượt), hiển thị 0
                                 if (moneyLeft <= 0) {
                                 chuyenkhoan.setText(formatter.format(Math.abs(moneyLeft)) + " VND"); // Lấy giá trị tuyệt đối để không có dấu "-"
                             } else {
-                                // Nếu số tiền còn thiếu, hiển thị số tiền cần chuyển khoản
-                                chuyenkhoan.setText(formatter.format(moneyLeft) + " VND");
+                                    chuyenkhoan.setText(formatter.format(moneyLeft) + " VND");
                             }
                         } catch (NumberFormatException e) {
                             chuyenkhoan.setText("Vui lòng nhập số tiền hợp lệ.");
@@ -3121,10 +3001,8 @@ public void resetFields() {
 
             });
         } catch (NumberFormatException e) {
-            // Handle the case when the cleaned input still cannot be parsed
             System.out.println("Invalid input format for thanhTien.");
         }
-
         }
     }//GEN-LAST:event_cbo_hinhThucThanhToanActionPerformed
 

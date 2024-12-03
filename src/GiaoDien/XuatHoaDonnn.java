@@ -71,6 +71,8 @@ import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Section;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import org.apache.poi.ss.usermodel.Cell;
@@ -100,14 +102,15 @@ public class XuatHoaDonnn extends JFrame {
         txthotenkhachhang.setText(firstOrder.getTenKhachHang());
         // giamgia.setText(formatterr.format(firstOrder.getGiaTri()));  
         tongtien.setText(formatterr.format(firstOrder.getThanhTien())); 
-        thue.setText(formatterr.format(firstOrder.getThue()));        
+        thue.setText(formatterr.format(firstOrder.getThue())+"%");        
         txtsodienthoaikhachhang.setText(firstOrder.getSoDienThoai());
         txtid.setText(String.valueOf(firstOrder.getIdHoaDon()));     
         phuongthucthanhtoan.setText(firstOrder.getPhuongThuc());
         Date ngayLap = (Date) firstOrder.getNgayDat();
         ngaytao.setText(dateFormat.format(ngayLap));
         tienkhachdua.setText(formatterr.format(firstOrder.getTienKhachDua())); 
-            tientrakhac.setText(formatterr.format(firstOrder.getTienTraKhach()));  
+        tientrakhac.setText(formatterr.format(firstOrder.getTienTraKhach()));
+        giamgia.setText(formatterr.format(firstOrder.getGiamGia()));
 //        if (firstOrder.getPhuongThuc().equalsIgnoreCase("Chuyển khoản")) {
 //            // Hiển thị các trường tiền khách đưa và tiền trả khách khi phương thức thanh toán là Chuyển khoản
 //            tienkhachdua.setVisible(true);
@@ -679,14 +682,142 @@ public class XuatHoaDonnn extends JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+//        try {
+//    String filePath = "D:\\" + txtmahoadon.getText() + ".pdf";
+//    File file = new File(filePath);
+//
+//    if (file.exists()) {
+//        file.delete();
+//    }
+//
+//    PdfWriter writer = new PdfWriter(file);
+//    PdfDocument pdf = new PdfDocument(writer);
+//    com.itextpdf.layout.Document document = new com.itextpdf.layout.Document(pdf);
+//    PdfFont font = PdfFontFactory.createFont("D:\\spring_boot\\ARIALUNI.TTF", PdfEncodings.IDENTITY_H);
+//
+//    // Thêm ảnh tiêu đề
+//    ImageData data = ImageDataFactory.create("D:\\anh\\duyem.png");
+//    com.itextpdf.layout.element.Image image = new com.itextpdf.layout.element.Image(data);
+//    image.setHeight(150f);
+//    image.setWidth(150f);
+//    document.add(image);
+//
+//    // Thông tin khách hàng
+//    float margin = 40f;
+//    float customerInfoX = margin;
+//    float invoiceInfoX = customerInfoX + 350f;
+//    float headerY = 650f;
+//    float detailsY = 600f;
+//
+//    Paragraph customerHeader = new Paragraph("THÔNG TIN KHÁCH HÀNG")
+//            .setFont(font)
+//            .setFontSize(16)
+//            .setBold();
+//    document.add(customerHeader.setFixedPosition(customerInfoX, headerY, 200f));
+//
+//    Paragraph customerDetails = new Paragraph("Họ và tên: " + txthotenkhachhang.getText() +
+//            "\nSố điện thoại: " + txtemail.getText() +
+//            "\nĐịa Chỉ Shop: " + diachi.getText() +
+//            "\nEmail: " + txtemail.getText())
+//            .setFont(font)
+//            .setFontSize(12);
+//    document.add(customerDetails.setFixedPosition(customerInfoX, detailsY - 100f, 200f));
+//
+//    Paragraph invoiceHeader = new Paragraph("THÔNG TIN HÓA ĐƠN")
+//            .setFont(font)
+//            .setFontSize(16)
+//            .setBold();
+//    document.add(invoiceHeader.setFixedPosition(invoiceInfoX, headerY, 200f));
+//
+//    Paragraph invoiceDetails = new Paragraph("Mã Hóa Đơn: " + txtmahoadon.getText() +
+//            "\nNgày Tạo: " + ngaytao.getText())
+//            .setFont(font)
+//            .setFontSize(12);
+//    document.add(invoiceDetails.setFixedPosition(invoiceInfoX, detailsY, 200f));
+//
+//    // Bảng sản phẩm
+//    float tableY = detailsY - 220f;
+//    Table table = new Table(4);
+//    table.setWidth(pdf.getDefaultPageSize().getWidth() * 0.9f);
+//
+//    table.addHeaderCell(new Paragraph("Tên Sản Phẩm").setFont(font).setBold().setTextAlignment(TextAlignment.CENTER));
+//    table.addHeaderCell(new Paragraph("Số Lượng").setFont(font).setBold().setTextAlignment(TextAlignment.CENTER));
+//    table.addHeaderCell(new Paragraph("Giá Bán").setFont(font).setBold().setTextAlignment(TextAlignment.CENTER));
+//    table.addHeaderCell(new Paragraph("Thành Tiền").setFont(font).setBold().setTextAlignment(TextAlignment.CENTER));
+//
+//    // Nhóm sản phẩm có cùng mã
+//    Map<String, DonHangChiTietEntity> groupedProducts = new HashMap<>();
+//    ArrayList<DonHangChiTietEntity> danhSachChiTiet = layDuLieuTuBang();
+//
+//    for (DonHangChiTietEntity chiTiet : danhSachChiTiet) {
+//        String maSanPham = chiTiet.getMaSanPham();
+//        if (groupedProducts.containsKey(maSanPham)) {
+//            // Cộng dồn số lượng và tính lại thành tiền
+//            DonHangChiTietEntity existingProduct = groupedProducts.get(maSanPham);
+//            existingProduct.setSoLuong(existingProduct.getSoLuong() + chiTiet.getSoLuong());
+//        } else {
+//            groupedProducts.put(maSanPham, new DonHangChiTietEntity(
+//                    chiTiet.getMaSanPham(),
+//                    chiTiet.getTenSanPham(),
+//                    chiTiet.getSoLuong(),
+//                    chiTiet.getGiaBan()
+//            ));
+//        }
+//    }
+//
+//    // Thêm dữ liệu vào bảng
+//    double totalAmount = 0;
+//    for (DonHangChiTietEntity chiTiet : groupedProducts.values()) {
+//        double thanhTien = chiTiet.getSoLuong() * chiTiet.getGiaBan();
+//        totalAmount += thanhTien;
+//
+//        table.addCell(new Paragraph(chiTiet.getTenSanPham()).setFont(font));
+//        table.addCell(new Paragraph(String.valueOf(chiTiet.getSoLuong())).setFont(font).setTextAlignment(TextAlignment.CENTER));
+//        table.addCell(new Paragraph(String.format("%,.0f", chiTiet.getGiaBan())).setFont(font).setTextAlignment(TextAlignment.CENTER));
+//        table.addCell(new Paragraph(String.format("%,.0f", thanhTien)).setFont(font).setTextAlignment(TextAlignment.CENTER));
+//    }
+//    document.add(table.setFixedPosition(margin, tableY, pdf.getDefaultPageSize().getWidth() - 2 * margin));
+//
+//    // Tính toán tổng tiền, thuế, giảm giá
+//    double tax = totalAmount * 0.1;
+//    double discountt = Double.parseDouble(giamgia.getText().trim().replace(",", ""));
+//    double giamGia = (discountt <= 100) ? (discountt / 100) * totalAmount : discountt;
+//    double totalAmountAfterTax = totalAmount + tax;
+//    double finalAmount = totalAmountAfterTax - giamGia;
+//
+//    double tienChuyenKhoan = Double.parseDouble(chuyenkhoan.getText().trim().replace(",", ""));
+//    double tienKhachDua = Double.parseDouble(tienkhachdua.getText().trim().replace(",", ""));
+//    double tienTraKhach = tienKhachDua - finalAmount;
+//
+//    // Thêm thông tin tổng tiền vào PDF
+//    document.add(new Paragraph("----------------------------------------------------------------------------------------------------------------------------------").setFont(font));
+//    document.add(new Paragraph("TỔNG TIỀN: " + String.format("%,.0f", totalAmount) + " VND").setFont(font).setTextAlignment(TextAlignment.RIGHT));
+//    document.add(new Paragraph("Thuế (10%): " + String.format("%,.0f", tax) + " VND").setFont(font).setTextAlignment(TextAlignment.RIGHT));
+//    document.add(new Paragraph("Giảm Giá: " + String.format("%,.0f", giamGia) + " VND").setFont(font).setTextAlignment(TextAlignment.RIGHT));
+//    document.add(new Paragraph("TỔNG THANH TOÁN: " + String.format("%,.0f", finalAmount) + " VND").setFont(font).setBold().setTextAlignment(TextAlignment.RIGHT));
+//
+//    if (phuongthucthanhtoan.equals("Chuyển khoản")) {
+//        document.add(new Paragraph("TIỀN CHUYỂN KHOẢN: " + String.format("%,.0f", tienChuyenKhoan) + " VND").setFont(font).setTextAlignment(TextAlignment.RIGHT));
+//    } else {
+//        document.add(new Paragraph("TIỀN KHÁCH ĐƯA: " + String.format("%,.0f", tienKhachDua) + " VND").setFont(font).setTextAlignment(TextAlignment.RIGHT));
+//        document.add(new Paragraph("TIỀN TRẢ KHÁCH: " + String.format("%,.0f", tienTraKhach) + " VND").setFont(font).setBold().setTextAlignment(TextAlignment.RIGHT));
+//    }
+//
+//    document.close();
+//    dispose();
+//    TrangChu duyemday = new TrangChu();
+//    duyemday.setVisible(true);
+//} catch (NumberFormatException e) {
+//    System.out.println("Lỗi: Dữ liệu nhập không hợp lệ!");
+//    e.printStackTrace();
+//} catch (IOException e) {
+//    e.printStackTrace();
+//}
 
-try {
-    // Specify the file path for saving the PDF
+        try {
     String filePath = "D:\\" + txtmahoadon.getText() + ".pdf";
     File file = new File(filePath);
 
-    // Delete the file if it already exists
     if (file.exists()) {
         file.delete();
     }
@@ -736,50 +867,81 @@ try {
             .setFontSize(12);
     document.add(invoiceDetails.setFixedPosition(invoiceInfoX, detailsY, 200f));
 
-    // Product Table
     float tableY = detailsY - 220f; 
     Table table = new Table(4);
     table.setWidth(pdf.getDefaultPageSize().getWidth() * 0.9f);
 
-    // Add table headers
     table.addHeaderCell(new Paragraph("Tên Sản Phẩm").setFont(font).setBold().setTextAlignment(TextAlignment.CENTER));
     table.addHeaderCell(new Paragraph("Số Lượng").setFont(font).setBold().setTextAlignment(TextAlignment.CENTER));
     table.addHeaderCell(new Paragraph("Giá Bán").setFont(font).setBold().setTextAlignment(TextAlignment.CENTER));
     table.addHeaderCell(new Paragraph("Thành Tiền").setFont(font).setBold().setTextAlignment(TextAlignment.CENTER));
+Map<String, DonHangChiTietEntity> groupedProducts = new HashMap<>();
+ArrayList<DonHangChiTietEntity> danhSachChiTiet = layDuLieuTuBang();
 
-    // Add table content
-    double totalAmount = 0;
-    ArrayList<DonHangChiTietEntity> danhSachChiTiet = layDuLieuTuBang();
-    for (DonHangChiTietEntity chiTiet : danhSachChiTiet) {
-        double thanhTien = chiTiet.getSoLuong() * chiTiet.getGiaBan();
-        totalAmount += thanhTien; 
-        table.addCell(new Paragraph(chiTiet.getTenSanPham()).setFont(font));
-        table.addCell(new Paragraph(String.valueOf(chiTiet.getSoLuong())).setFont(font).setTextAlignment(TextAlignment.CENTER));
-        table.addCell(new Paragraph(String.format("%,.0f", chiTiet.getGiaBan())).setFont(font).setTextAlignment(TextAlignment.CENTER));
-        table.addCell(new Paragraph(String.format("%,.0f", thanhTien)).setFont(font).setTextAlignment(TextAlignment.CENTER));
+// Nhóm các sản phẩm theo mã
+for (DonHangChiTietEntity chiTiet : danhSachChiTiet) {
+    String maSanPham = chiTiet.getMaSanPham();
+    if (groupedProducts.containsKey(maSanPham)) {
+        // Cộng dồn số lượng và tính lại thành tiền
+        DonHangChiTietEntity existingProduct = groupedProducts.get(maSanPham);
+        existingProduct.setSoLuong(existingProduct.getSoLuong() + chiTiet.getSoLuong());
+    } else {
+        groupedProducts.put(maSanPham, new DonHangChiTietEntity(
+                chiTiet.getMaSanPham(),
+                chiTiet.getTenSanPham(),
+                chiTiet.getSoLuong(),
+                chiTiet.getGiaBan()
+        ));
     }
+}
+
+double totalAmount = 0;
+for (DonHangChiTietEntity chiTiet : groupedProducts.values()) {
+    double thanhTien = chiTiet.getSoLuong() * chiTiet.getGiaBan();
+    totalAmount += thanhTien;
+
+    table.addCell(new Paragraph(chiTiet.getTenSanPham()).setFont(font));
+    table.addCell(new Paragraph(String.valueOf(chiTiet.getSoLuong()))
+            .setFont(font)
+            .setTextAlignment(TextAlignment.CENTER));
+    table.addCell(new Paragraph(String.format("%,.0f", chiTiet.getGiaBan()))
+            .setFont(font)
+            .setTextAlignment(TextAlignment.CENTER));
+    table.addCell(new Paragraph(String.format("%,.0f", thanhTien))
+            .setFont(font)
+            .setTextAlignment(TextAlignment.CENTER));
+}
     document.add(table.setFixedPosition(margin, tableY, pdf.getDefaultPageSize().getWidth() - 2 * margin));
 document.add(new Paragraph("\n").setMarginBottom(300f));
 
     
-    double tax = totalAmount * 0.1; // Thuế 10%
-     // Giảm giá 5%
-      double discount = 0;
+    double tax = totalAmount * 0.1;
+    String discountText = giamgia.getText().trim().replace(",", ""); // Lấy chuỗi nhập liệu và loại bỏ khoảng trắng
+    double discountt = Double.parseDouble(discountText);
     double totalAmountAfterTax = totalAmount + tax;
-    if(totalAmount>=1000000){
-        discount = totalAmount * 0.02;
+    double giamGia = 0;
+    if (discountt >= 0 && discountt <= 100) {
+        giamGia = (discountt / 100) * totalAmount;
+    } else {
+        giamGia = discountt;
     }
-    double finalAmount = totalAmountAfterTax - discount;
+    double finalAmount = totalAmountAfterTax - giamGia;
+   
+
     double tienChuyenKhoan = Double.parseDouble(chuyenkhoan.getText().trim().replace(",", ""));
     double tienKhachDua = Double.parseDouble(tienkhachdua.getText().trim().replace(",", ""));
+    
     double tienTraKhach = tienKhachDua - finalAmount;
 
+    System.out.println("Tổng tiền sau thuế: " + totalAmountAfterTax);
+    System.out.println("Tổng tiền sau giảm giá: " + finalAmount);
+    System.out.println("Tiền trả khách: " + tienTraKhach);
     document.add(new Paragraph("----------------------------------------------------------------------------------------------------------------------------------").setFont(font));
     document.add(new Paragraph("TỔNG TIỀN: " + String.format("%,.0f", totalAmount) + " VND")
             .setFont(font).setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
     document.add(new Paragraph("Thuế (10%): " + String.format("%,.0f", tax) + " VND")
             .setFont(font).setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
-    document.add(new Paragraph("Giảm Giá (5%): " + String.format("%,.0f", discount) + " VND")
+    document.add(new Paragraph("Giảm Giá : " + String.format("%,.0f", discountt) + " VND")
             .setFont(font).setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
     document.add(new Paragraph("TỔNG TIỀN SAU THUẾ: " + String.format("%,.0f", totalAmountAfterTax) + " VND")
             .setFont(font).setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
@@ -805,6 +967,127 @@ document.add(new Paragraph("\n").setMarginBottom(300f));
 } catch (IOException e) {
     e.printStackTrace();
 }
+//    }else{
+//           try {
+//    String filePath = "D:\\" + txtmahoadon.getText() + ".pdf";
+//    File file = new File(filePath);
+//
+//    if (file.exists()) {
+//        file.delete();
+//    }
+//
+//    PdfWriter writer = new PdfWriter(file);
+//    PdfDocument pdf = new PdfDocument(writer);
+//    com.itextpdf.layout.Document document = new com.itextpdf.layout.Document(pdf);
+//    PdfFont font = PdfFontFactory.createFont("D:\\spring_boot\\ARIALUNI.TTF", PdfEncodings.IDENTITY_H);
+//
+//    // Add image header
+//    ImageData data = ImageDataFactory.create("D:\\anh\\duyem.png");
+//    com.itextpdf.layout.element.Image image = new com.itextpdf.layout.element.Image(data);
+//    image.setHeight(150f);
+//    image.setWidth(150f);
+//    document.add(image);
+//
+//    // Customer and Invoice Information
+//    float margin = 40f;
+//    float customerInfoX = margin;
+//    float invoiceInfoX = customerInfoX + 350f;
+//    float headerY = 650f; 
+//    float detailsY = 600f; 
+//
+//    Paragraph customerHeader = new Paragraph("THÔNG TIN KHÁCH HÀNG")
+//            .setFont(font)
+//            .setFontSize(16)
+//            .setBold();
+//    document.add(customerHeader.setFixedPosition(customerInfoX, headerY, 200f));
+//
+//    Paragraph customerDetails = new Paragraph("Họ và tên: " + txthotenkhachhang.getText() + 
+//            "\nSố điện thoại: " + txtemail.getText() + 
+//            "\nĐịa Chỉ Shop: " + diachi.getText() + 
+//            "\nEmail: " + txtemail.getText())
+//            .setFont(font)
+//            .setFontSize(12);
+//    document.add(customerDetails.setFixedPosition(customerInfoX, detailsY - 100f, 200f));
+//
+//    Paragraph invoiceHeader = new Paragraph("THÔNG TIN HÓA ĐƠN")
+//            .setFont(font)
+//            .setFontSize(16)
+//            .setBold();
+//    document.add(invoiceHeader.setFixedPosition(invoiceInfoX, headerY, 200f));
+//
+//    Paragraph invoiceDetails = new Paragraph("Mã Hóa Đơn: " + txtmahoadon.getText() +
+//            "\nNgày Tạo: " + ngaytao.getText())
+//            .setFont(font)
+//            .setFontSize(12);
+//    document.add(invoiceDetails.setFixedPosition(invoiceInfoX, detailsY, 200f));
+//
+//    float tableY = detailsY - 220f; 
+//    Table table = new Table(4);
+//    table.setWidth(pdf.getDefaultPageSize().getWidth() * 0.9f);
+//
+//    table.addHeaderCell(new Paragraph("Tên Sản Phẩm").setFont(font).setBold().setTextAlignment(TextAlignment.CENTER));
+//    table.addHeaderCell(new Paragraph("Số Lượng").setFont(font).setBold().setTextAlignment(TextAlignment.CENTER));
+//    table.addHeaderCell(new Paragraph("Giá Bán").setFont(font).setBold().setTextAlignment(TextAlignment.CENTER));
+//    table.addHeaderCell(new Paragraph("Thành Tiền").setFont(font).setBold().setTextAlignment(TextAlignment.CENTER));
+//
+//    // Add table content
+//    double totalAmount = 0;
+//    ArrayList<DonHangChiTietEntity> danhSachChiTiet = layDuLieuTuBang();
+//    for (DonHangChiTietEntity chiTiet : danhSachChiTiet) {
+//        double thanhTien = chiTiet.getSoLuong() * chiTiet.getGiaBan();
+//        totalAmount += thanhTien; 
+//        table.addCell(new Paragraph(chiTiet.getTenSanPham()).setFont(font));
+//        table.addCell(new Paragraph(String.valueOf(chiTiet.getSoLuong())).setFont(font).setTextAlignment(TextAlignment.CENTER));
+//        table.addCell(new Paragraph(String.format("%,.0f", chiTiet.getGiaBan())).setFont(font).setTextAlignment(TextAlignment.CENTER));
+//        table.addCell(new Paragraph(String.format("%,.0f", thanhTien)).setFont(font).setTextAlignment(TextAlignment.CENTER));
+//    }
+//    document.add(table.setFixedPosition(margin, tableY, pdf.getDefaultPageSize().getWidth() - 2 * margin));
+//document.add(new Paragraph("\n").setMarginBottom(300f));
+//
+//    
+//    double tax = totalAmount * 0.1;
+//   
+//    double totalAmountAfterTax = totalAmount + tax;
+//    if(totalAmount>=1000000){
+//        discount = totalAmount * 0.02;
+//    }
+//    double finalAmount = totalAmountAfterTax - discount;
+//    double tienChuyenKhoan = Double.parseDouble(chuyenkhoan.getText().trim().replace(",", ""));
+//    double tienKhachDua = Double.parseDouble(tienkhachdua.getText().trim().replace(",", ""));
+//    double tienTraKhach = tienKhachDua - finalAmount;
+//
+//    document.add(new Paragraph("----------------------------------------------------------------------------------------------------------------------------------").setFont(font));
+//    document.add(new Paragraph("TỔNG TIỀN: " + String.format("%,.0f", totalAmount) + " VND")
+//            .setFont(font).setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
+//    document.add(new Paragraph("Thuế (10%): " + String.format("%,.0f", tax) + " VND")
+//            .setFont(font).setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
+//    document.add(new Paragraph("Giảm Giá %: " + String.format("%,.0f", discount) + " VND")
+//            .setFont(font).setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
+//    document.add(new Paragraph("TỔNG TIỀN SAU THUẾ: " + String.format("%,.0f", totalAmountAfterTax) + " VND")
+//            .setFont(font).setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
+//    document.add(new Paragraph("TỔNG THANH TOÁN: " + String.format("%,.0f", finalAmount) + " VND")
+//            .setFont(font).setFontSize(12).setBold().setTextAlignment(TextAlignment.RIGHT));
+//    if(phuongthucthanhtoan.equals("Chuyển khoản")){
+//          document.add(new Paragraph("TIỀN CHUYỂN KHOẢN: " + String.format("%,.0f",tienChuyenKhoan ) + " VND")
+//            .setFont(font).setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
+//    }else{
+//        document.add(new Paragraph("TIỀN KHÁCH ĐƯA: " + String.format("%,.0f", tienKhachDua) + " VND")
+//            .setFont(font).setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
+//    document.add(new Paragraph("TIỀN TRẢ KHÁCH: " + String.format("%,.0f", tienTraKhach) + " VND")
+//            .setFont(font).setFontSize(12).setBold().setTextAlignment(TextAlignment.RIGHT));
+//    }
+//    // Closing the document
+//    document.close();
+//    dispose();
+//  TrangChu duyemday = new TrangChu();
+//  duyemday.setVisible(true);
+//} catch (NumberFormatException e) {
+//    System.out.println("Lỗi: Dữ liệu nhập không hợp lệ!");
+//    e.printStackTrace();
+//} catch (IOException e) {
+//    e.printStackTrace();
+//}
+    
            
 
     

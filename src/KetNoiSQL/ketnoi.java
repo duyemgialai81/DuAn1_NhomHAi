@@ -20,7 +20,7 @@ public class ketnoi {
     private static final String PASSWORD = "123";
     private static final String SERVER = "localhost";
     private static final String PORT = "1433";
-    private static final String DATABASE_NAME = "GiaLai1";
+    private static final String DATABASE_NAME = "BanQuanAo_nhom222";
     private static final boolean USING_SSL = true;
 
   private static String CONNECT_STRING;

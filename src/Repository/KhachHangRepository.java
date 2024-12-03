@@ -40,15 +40,16 @@ public class KhachHangRepository {
     }
     
     public int them(KhachHang kh) {
-        sql = "insert into KhachHang(ten_khach_hang,so_dien_thoai,email,dia_chi) values (?,?,?,?)";
+        sql = "insert into KhachHang(ten_khach_hang,so_dien_thoai,email,dia_chi,gioi_tinh,trang_thai) values (?,?,?,?)";
         try {
             con = ketnoi.getConnection();
             ps = con.prepareStatement(sql);
-//            ps.setString(1, kh.getMaKH());
             ps.setString(1, kh.getTenKH());
             ps.setString(2, kh.getSDT());
             ps.setString(3, kh.getEmail());
             ps.setString(4, kh.getDiaChi());
+            ps.setObject(5, kh.isGioiTinh());
+            ps.setObject(6, kh.isTrangThai());
             return ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -57,14 +58,16 @@ public class KhachHangRepository {
     }
     
     public int sua(String ma, KhachHang kh) {
-    String sql = "UPDATE KhachHang SET ten_khach_hang = ?, so_dien_thoai = ?, email = ?, dia_chi = ? WHERE ma_khach_hang = ?";
+    String sql = "UPDATE KhachHang SET ten_khach_hang = ?, so_dien_thoai = ?, email = ?, dia_chi = ?, gioi_tinh =?, trang_thai=? WHERE ma_khach_hang = ?";
     try (Connection con = ketnoi.getConnection();
          PreparedStatement ps = con.prepareStatement(sql)) {
         ps.setString(1, kh.getTenKH());
         ps.setString(2, kh.getSDT());
         ps.setString(3, kh.getEmail());
         ps.setString(4, kh.getDiaChi());
-        ps.setString(5, ma);
+        ps.setObject(5, kh.isGioiTinh());
+        ps.setObject(6, kh.isTrangThai());
+        ps.setString(7, ma);
         return ps.executeUpdate();
     } catch (SQLException e) {
         e.printStackTrace();
@@ -73,7 +76,7 @@ public class KhachHangRepository {
 }
     
     public ArrayList<KhachHang> timkiem(String Sdtcantim) {
-    sql = "SELECT ma_khach_hang, ten_khach_hang, so_dien_thoai, email, dia_chi " +
+    sql = "SELECT ma_khach_hang, ten_khach_hang, so_dien_thoai, email, dia_chi,goi_tinh, trang_thai " +
           "FROM KhachHang " +
           "WHERE so_dien_thoai LIKE ?";
     

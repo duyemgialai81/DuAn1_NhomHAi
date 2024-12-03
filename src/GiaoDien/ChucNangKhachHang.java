@@ -5,6 +5,7 @@
 package GiaoDien;
 
 import Entity.KhachHang.KhachHang;
+import Repository.ChonKhachHangRepository;
 import Repository.KhachHangRepository;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
@@ -17,14 +18,17 @@ import javax.swing.table.DefaultTableModel;
 public class ChucNangKhachHang extends javax.swing.JPanel {
     private KhachHangRepository repo = new KhachHangRepository();
     private DefaultTableModel mol = new DefaultTableModel();
+    private ChonKhachHangRepository kh = new ChonKhachHangRepository();
+private DefaultTableModel md = new DefaultTableModel();
     private int i = -1;
     /**
      * Creates new form ChucNangKhachHang
      */
     public ChucNangKhachHang() {
         initComponents();
-           this.fillTable(repo.getAll());
-        txt_MaKH.setEditable(false);
+//           this.fillTable(repo.getAll());
+//        txt_MaKH.setEditable(false);
+ hienThiLuaChoKhachHangg(kh.layThongTinKhachHang());
     }
  void fillTable(ArrayList<KhachHang> list){
         mol = (DefaultTableModel) tbl_thongTinKH.getModel();
@@ -129,6 +133,58 @@ public class ChucNangKhachHang extends javax.swing.JPanel {
         model.setRowCount(0);
     }
 }
+      private void hienThiLuaChoKhachHangg(ArrayList<KhachHang> khachHang){
+        md = (DefaultTableModel) tbl_thongTinKH.getModel();
+        md.setRowCount(0);
+        for (KhachHang khachHang1 : khachHang) {
+            md.addRow(new Object[]{
+                khachHang1.getMaKH(), khachHang1.getTenKH(), khachHang1.getEmail(),khachHang1.getSDT(),khachHang1.getDiaChi(), khachHang1.isGioiTinh()?"Nam":"Nữ", khachHang1.isTrangThai()?"Đang Hoạt Động":"Ngừng Hoạt Đông"
+            });
+        }
+    }
+    private void add(){
+        kh.addThongTinKhachHang(getFomat());
+        hienThiLuaChoKhachHangg(kh.layThongTinKhachHang());
+    }
+    private KhachHang getFomat(){
+        KhachHang kh = new KhachHang();
+        kh.setMaKH(txt_MaKH.getText());
+        kh.setTenKH(txt_TenKH.getText());
+        kh.setEmail(txt_Email.getText());
+        kh.setSDT(txt_SDT.getText());
+        kh.setDiaChi(txt_DiaChi.getText());
+        boolean gioiTinh = rdo_Nam.isSelected();
+        kh.setGioiTinh(gioiTinh);
+        boolean trangThai = rdo_ConHD.isSelected();
+        kh.setTrangThai(trangThai);
+        return kh;
+    }
+    private void hienThiDuLieuLenTextFile(int index){
+        KhachHang sc = kh.layThongTinKhachHang().get(index);
+        txt_MaKH.setText(sc.getMaKH());
+        txt_TenKH.setText(sc.getTenKH());
+        txt_Email.setText(sc.getEmail());
+        txt_SDT.setText(sc.getSDT());
+        txt_DiaChi.setText(sc.getDiaChi());
+        if(sc.isGioiTinh()){
+            rdo_Nam.setSelected(true);
+        }else{
+            rdo_Nu.setSelected(true);
+        }
+        if(sc.isTrangThai()){
+            rdo_ConHD.setSelected(true);
+        }else{
+            rdo_NgungHD.setSelected(true);
+        }
+    }
+    private void update(){
+        KhachHang sc = getFomat();
+        boolean ketQua = kh.updateThongTinKhachHang(sc, sc.getMaKH());
+        if(ketQua){
+            hienThiLuaChoKhachHangg(kh.layThongTinKhachHang());
+        }else{
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -138,6 +194,8 @@ public class ChucNangKhachHang extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        buttonGroup1 = new javax.swing.ButtonGroup();
+        buttonGroup2 = new javax.swing.ButtonGroup();
         jPanel_Nen = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -201,12 +259,16 @@ public class ChucNangKhachHang extends javax.swing.JPanel {
         jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel7.setText("Địa Chỉ:");
 
+        buttonGroup1.add(rdo_Nam);
         rdo_Nam.setText("Nam");
 
+        buttonGroup1.add(rdo_Nu);
         rdo_Nu.setText("Nữ");
 
+        buttonGroup2.add(rdo_ConHD);
         rdo_ConHD.setText("Còn Hoạt Động");
 
+        buttonGroup2.add(rdo_NgungHD);
         rdo_NgungHD.setText("Ngừng Hoạt Động");
 
         txt_DiaChi.setColumns(20);
@@ -364,13 +426,13 @@ public class ChucNangKhachHang extends javax.swing.JPanel {
 
         tbl_thongTinKH.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
             },
             new String [] {
-                "Mã KH", "Tên KH", "SĐT", "Email", "Địa Chỉ"
+                "Mã KH", "Tên KH", "Email", "Số Điện Thoại", "Địa Chỉ", "Trạng Thái"
             }
         ));
         tbl_thongTinKH.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -542,34 +604,37 @@ public class ChucNangKhachHang extends javax.swing.JPanel {
 
     private void btn_SuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_SuaActionPerformed
         // TODO add your handling code here:
-        int i = tbl_thongTinKH.getSelectedRow();
-        if (i < 0) {
-            JOptionPane.showMessageDialog(this, "Bạn chưa chọn dòng cần sửa.");
-            return;
-        }
-        String ma = tbl_thongTinKH.getValueAt(i, 0).toString();
-
-        int chon = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn sửa không?");
-        if (chon == 0) {
-            KhachHang kh = this.readForm();
-            if (kh != null) {
-                KhachHangRepository repo = new KhachHangRepository();
-                int ketQua = repo.sua(ma, kh);
-                if (ketQua > 0) {
-                    JOptionPane.showMessageDialog(this, "Cập nhật thành công.");
-                    this.fillTable(repo.getAll());
-                } else {
-                    JOptionPane.showMessageDialog(this, "Cập nhật thất bại.");
-                }
-            }
-            }
+//        int i = tbl_thongTinKH.getSelectedRow();
+//        if (i < 0) {
+//            JOptionPane.showMessageDialog(this, "Bạn chưa chọn dòng cần sửa.");
+//            return;
+//        }
+//        String ma = tbl_thongTinKH.getValueAt(i, 0).toString();
+//
+//        int chon = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn sửa không?");
+//        if (chon == 0) {
+//            KhachHang kh = this.readForm();
+//            if (kh != null) {
+//                KhachHangRepository repo = new KhachHangRepository();
+//                int ketQua = repo.sua(ma, kh);
+//                if (ketQua > 0) {
+//                    JOptionPane.showMessageDialog(this, "Cập nhật thành công.");
+//                    this.fillTable(repo.getAll());
+//                } else {
+//                    JOptionPane.showMessageDialog(this, "Cập nhật thất bại.");
+//                }
+//            }
+//            }
+update();
         
     }//GEN-LAST:event_btn_SuaActionPerformed
 
     private void tbl_thongTinKHMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbl_thongTinKHMouseClicked
         // TODO add your handling code here:
-          i = tbl_thongTinKH.getSelectedRow();
-        showData(i);
+//          i = tbl_thongTinKH.getSelectedRow();
+//        showData(i);
+int index = tbl_thongTinKH.getSelectedRow();
+        hienThiDuLieuLenTextFile(index);
     }//GEN-LAST:event_tbl_thongTinKHMouseClicked
 
     private void btn_LamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_LamMoiActionPerformed
@@ -583,16 +648,17 @@ public class ChucNangKhachHang extends javax.swing.JPanel {
 
     private void btn_ThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ThemActionPerformed
         // TODO add your handling code here:
-         if (this.readForm() != null) {
-            int chon = JOptionPane.showConfirmDialog(this, "ban co muon nhap them khong ?");
-            if (chon == 0) {
-                repo.them(this.readForm());
-                JOptionPane.showMessageDialog(this, "them thanh cong");
-                this.fillTable(repo.getAll());
-            } else {
-                JOptionPane.showMessageDialog(this, "chon khong them");
-            }
-        }
+//         if (this.readForm() != null) {
+//            int chon = JOptionPane.showConfirmDialog(this, "ban co muon nhap them khong ?");
+//            if (chon == 0) {
+//                repo.them(this.readForm());
+//                JOptionPane.showMessageDialog(this, "them thanh cong");
+//                this.fillTable(repo.getAll());
+//            } else {
+//                JOptionPane.showMessageDialog(this, "chon khong them");
+//            }
+//        }
+add();
     }//GEN-LAST:event_btn_ThemActionPerformed
 
 
@@ -600,6 +666,8 @@ public class ChucNangKhachHang extends javax.swing.JPanel {
     private javax.swing.JButton btn_LamMoi;
     private javax.swing.JButton btn_Sua;
     private javax.swing.JButton btn_Them;
+    private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.JComboBox<String> cbo_GioiTinh;
     private javax.swing.JComboBox<String> cbo_TrangThai;
     private javax.swing.JLabel jLabel1;

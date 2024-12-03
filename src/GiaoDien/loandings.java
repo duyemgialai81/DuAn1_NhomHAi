@@ -20,7 +20,7 @@ public class loandings extends javax.swing.JFrame implements Runnable{
     public void run() {
         for (int i = 1; i < 101; i++) {
             try {
-                Thread.sleep(50);
+                Thread.sleep(30);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -30,7 +30,6 @@ public class loandings extends javax.swing.JFrame implements Runnable{
         TrangChu lc1 = new TrangChu();
                 lc1.setVisible(true);
                 dispose();
-
     }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -57,7 +56,7 @@ public class loandings extends javax.swing.JFrame implements Runnable{
         getContentPane().add(duyok, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 220, -1, -1));
 
         duyem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/2.gif"))); // NOI18N
-        getContentPane().add(duyem, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 820, 290));
+        getContentPane().add(duyem, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 280));
 
         pack();
         setLocationRelativeTo(null);

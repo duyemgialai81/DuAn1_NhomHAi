@@ -3,9 +3,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package GiaoDien;
+import Entity.SanPham.SanPhamEntity;
 import java.awt.Color;
 import java.awt.Toolkit; 
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
 public class TrangChu extends javax.swing.JFrame {
     public TrangChu() {
         initComponents();
@@ -15,23 +17,23 @@ public class TrangChu extends javax.swing.JFrame {
         ccn.setView(txtbanhang1, txtbanhang);
         ArrayList<ChucNang> ls = new ArrayList<>();
         ls.add(new ChucNang("ChucNangBanHang", txtbanhang1, txtbanhang));
-        ls.add(new ChucNang("ChucNangSanPham", txtsanpham1, txtsanpham));
+//        ls.add(new ChucNang("ChucNangSanPham", txtsanpham1, txtsanpham));
         ls.add(new ChucNang("ChucNangHoaDon", txthoadon1, txthoadon));
         ls.add(new ChucNang("FomtestBanHnag", txtbanhang1, txtbanhang));
         ls.add(new ChucNang("ChucNangThongKe", txtthongke1, txtthongke));
-//        ls.add(new ChucNang("ChucNangVouvher", txtvoucher1, txtvoucher));
-        ls.add(new ChucNang("ChucNangKhachHang", txtkhachhang1, txtkhachhang));
-        ls.add(new ChucNang("ChucNangNhanVien", txtnhanvien1, txtnhanvien));
-        ls.add(new ChucNang("ChucNangDoiHang", txtdoihang1, txtdoihang));
+//                ls.add(new ChucNang("ChucNangSanPham", txtsanpham1, txtsanpham));
+          ls.add(new ChucNang("ChucNangSanPham", txtsanpham1, txtsanpham));
+////        ls.add(new ChucNang("ChucNangVouvher", txtvoucher1, txtvoucher));
+//        ls.add(new ChucNang("ChucNangKhachHang", txtkhachhang1, txtkhachhang));
+//        ls.add(new ChucNang("ChucNangNhanVien", txtnhanvien1, txtnhanvien));
+//        ls.add(new ChucNang("ChucNangDoiHang", txtdoihang1, txtdoihang));
         ccn.DuyEm(ls);
         hirnThiDuLieu();
     }
-
     public void hirnThiDuLieu(){
 //        txtTenNhanvien.setText(luuThongTinDangNhap.getTenNhanVien());
 //        txtidnhanvien.setText(String.valueOf(LuuThongTinDangNhap.getInNhanVien()));
     }
-  
     /**
          * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -108,6 +110,11 @@ public class TrangChu extends javax.swing.JFrame {
         jPanel3.add(sanpham, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 260, -1, 30));
 
         txtsanpham.setForeground(new java.awt.Color(255, 255, 255));
+        txtsanpham.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                txtsanphamMouseClicked(evt);
+            }
+        });
         jPanel3.add(txtsanpham, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 260, 190, 30));
 
         hoadon.setFont(new java.awt.Font("Barlow Condensed", 1, 24)); // NOI18N
@@ -119,17 +126,33 @@ public class TrangChu extends javax.swing.JFrame {
         jPanel3.add(txthoadon, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 320, 190, 30));
 
         txtdoihang.setForeground(new java.awt.Color(255, 255, 255));
+        txtdoihang.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                txtdoihangMouseClicked(evt);
+            }
+        });
         jPanel3.add(txtdoihang, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 370, 190, 30));
 
         doihang.setFont(new java.awt.Font("Barlow Condensed", 1, 24)); // NOI18N
         doihang.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/DoiHang.png"))); // NOI18N
         doihang.setText("Event");
         jPanel3.add(doihang, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 370, 120, 30));
+
+        txtkhachhang.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                txtkhachhangMouseClicked(evt);
+            }
+        });
         jPanel3.add(txtkhachhang, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 490, 190, 30));
 
         khachhang.setFont(new java.awt.Font("Barlow Condensed", 1, 24)); // NOI18N
         khachhang.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/KhachHang.png"))); // NOI18N
         khachhang.setText("khách hàng");
+        khachhang.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                khachhangMouseClicked(evt);
+            }
+        });
         jPanel3.add(khachhang, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 490, -1, 30));
 
         txtthongke.setForeground(new java.awt.Color(255, 255, 255));
@@ -154,6 +177,11 @@ public class TrangChu extends javax.swing.JFrame {
         jPanel3.add(dangxuat, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 610, -1, 30));
 
         txtnhanvien.setForeground(new java.awt.Color(255, 255, 255));
+        txtnhanvien.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                txtnhanvienMouseClicked(evt);
+            }
+        });
         jPanel3.add(txtnhanvien, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 430, 190, 30));
 
         nhanvien.setFont(new java.awt.Font("Barlow Condensed", 1, 24)); // NOI18N
@@ -341,6 +369,77 @@ public class TrangChu extends javax.swing.JFrame {
         duyem.setVisible(true);
     }//GEN-LAST:event_txtdangxuatMouseClicked
 
+    private void txtsanphamMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtsanphamMouseClicked
+        // TODO add your handling code here:
+//             String taiKhoan = LuuThongTinDangNhap.getTaiKhoan();
+//        String vaiTro = LuuThongTinDangNhap.getVaiTro();
+//        ChuyenChucNang ccn = new ChuyenChucNang(manhinh);
+//         ArrayList<ChucNang> ls = new ArrayList<>();
+//         if ("Quản trị viên".equals(vaiTro)) {
+//           
+//             ccn.DuyEm(ls);
+//        } else {
+//            JOptionPane.showMessageDialog(this, "bạn Là nhân viên bạn không có quyền này");
+//        
+//        }
+    }//GEN-LAST:event_txtsanphamMouseClicked
+
+    private void txtnhanvienMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtnhanvienMouseClicked
+        // TODO add your handling code here:
+             String taiKhoan = LuuThongTinDangNhap.getTaiKhoan();
+              ChuyenChucNang ccn = new ChuyenChucNang(manhinh);
+        String vaiTro = LuuThongTinDangNhap.getVaiTro();
+         ArrayList<ChucNang> ls = new ArrayList<>();
+         if ("Quản trị viên".equals(vaiTro)) {
+            ls.add(new ChucNang("ChucNangNhanVien", txtnhanvien1, txtnhanvien));
+           ccn.DuyEm(ls);
+        } else {
+            JOptionPane.showMessageDialog(this, "bạn Là nhân viên bạn không có quyền này");
+        
+        }
+    }//GEN-LAST:event_txtnhanvienMouseClicked
+
+    private void khachhangMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_khachhangMouseClicked
+        // TODO add your handling code here:
+//              String taiKhoan = LuuThongTinDangNhap.getTaiKhoan();
+//              ChuyenChucNang ccn = new ChuyenChucNang(manhinh);
+//        String vaiTro = LuuThongTinDangNhap.getVaiTro();
+//         ArrayList<ChucNang> ls = new ArrayList<>();
+//         if ("Quản trị viên".equals(vaiTro)) {
+//            ls.add(new ChucNang("ChucNangNhanVien", txtkhachhang1, txtkhachhang));
+//           ccn.DuyEm(ls);
+//        } else {
+//            JOptionPane.showMessageDialog(this, "bạn Là nhân viên bạn không có quyền này");
+//        }
+    }//GEN-LAST:event_khachhangMouseClicked
+
+    private void txtkhachhangMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtkhachhangMouseClicked
+        // TODO add your handling code here:
+             String taiKhoan = LuuThongTinDangNhap.getTaiKhoan();
+              ChuyenChucNang ccn = new ChuyenChucNang(manhinh);
+        String vaiTro = LuuThongTinDangNhap.getVaiTro();
+         ArrayList<ChucNang> ls = new ArrayList<>();
+         if ("Quản trị viên".equals(vaiTro)) {
+            ls.add(new ChucNang("ChucNangKhachHang", txtkhachhang1, txtkhachhang));
+           ccn.DuyEm(ls);
+        } else {
+            JOptionPane.showMessageDialog(this, "bạn Là nhân viên bạn không có quyền này");
+        }
+    }//GEN-LAST:event_txtkhachhangMouseClicked
+
+    private void txtdoihangMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtdoihangMouseClicked
+              String taiKhoan = LuuThongTinDangNhap.getTaiKhoan();
+              ChuyenChucNang ccn = new ChuyenChucNang(manhinh);
+        String vaiTro = LuuThongTinDangNhap.getVaiTro();
+         ArrayList<ChucNang> ls = new ArrayList<>();
+         if ("Quản trị viên".equals(vaiTro)) {
+            ls.add(new ChucNang("ChucNangDoiHang", txtdoihang1, txtdoihang));
+           ccn.DuyEm(ls);
+        } else {
+            JOptionPane.showMessageDialog(this, "bạn Là nhân viên bạn không có quyền này");
+        }
+    }//GEN-LAST:event_txtdoihangMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -411,5 +510,4 @@ public class TrangChu extends javax.swing.JFrame {
     private javax.swing.JPanel txtthongke1;
     // End of variables declaration//GEN-END:variables
 
-   
 }

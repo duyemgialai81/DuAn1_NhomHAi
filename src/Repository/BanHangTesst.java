@@ -25,13 +25,13 @@ public class BanHangTesst {
         ArrayList<SanPhamEntity> lsss = new ArrayList<>();
         String sql = """
            	select sp.id_ma_san_pham, sp.ma_san_pham, sp.ten_san_pham, sp.gia_ban, sp.gia_nhap, sp.so_luong_ton, sp.hinh_anh, lsp.ten_loai_san_pham, ms.mau_sac_san_pham,kc.kich_co,th.ten_thuong_hieu, cl.chat_lieu_san_pham, xx.quoc_gia, sp.trang_thai
-                from SanPham sp
-                join LoaiSanPham lsp on lsp.id_ma_loai = sp.ma_loai_san_pham
-                join MauSac ms on ms.id_mau_sac = sp.ma_mau_sac
-                join KichCo kc on kc.id_ma_kich_co = sp.ma_kich_co
-                join ThuongHieu th on th.id_ma_thuong_hieu = sp.ma_thuong_hieu
-                join ChatLieu cl on cl.id_chat_lieu = sp.ma_chat_lieu
-                join XuatXu xx on xx.id_ma_xuat_xu = sp.ma_xuat_xu
+                                from SanPham sp
+                                join LoaiSanPham lsp on lsp.ten_loai_san_pham = sp.ma_loai_san_pham
+                                join MauSac ms on ms.mau_sac_san_pham = sp.ma_mau_sac
+                                join KichCo kc on kc.kich_co = sp.ma_kich_co
+                                join ThuongHieu th on th.ten_thuong_hieu = sp.ma_thuong_hieu
+                                join ChatLieu cl on cl.chat_lieu_san_pham = sp.ma_chat_lieu
+                                join XuatXu xx on xx.quoc_gia = sp.ma_xuat_xu
                      """;
         try (Connection con = ketnoi.getConnection()) {
             PreparedStatement ps = con.prepareStatement(sql);
@@ -72,7 +72,7 @@ public class BanHangTesst {
                                                             FROM DonHang hd
                                                             JOIN NhanVien nv ON nv.id_ma_nhan_vien = hd.ma_nhan_vien
                                                             JOIN KhachHang kh ON kh.id_ma_khach_hang = hd.ma_khach_hang
-                                                            WHERE hd.trang_thai = N'Đang Chờ Thanh Toán'
+                                                            WHERE hd.trang_thai = N'Đang chờ'
                      """;
         try (Connection con = ketnoi.getConnection()) {
             PreparedStatement ps = con.prepareStatement(sql);
@@ -101,7 +101,7 @@ public class BanHangTesst {
                                         FROM DonHang hd
                                         JOIN NhanVien nv ON nv.id_ma_nhan_vien = hd.ma_nhan_vien
                                         JOIN KhachHang kh ON kh.id_ma_khach_hang = hd.ma_khach_hang
-                                        WHERE hd.trang_thai = N'Đang Chờ Thanh Toán';
+                                        WHERE hd.trang_thai = N''Đang chờ';
                      """;
         try (Connection con = ketnoi.getConnection()) {
             PreparedStatement ps = con.prepareStatement(sql);
@@ -226,12 +226,12 @@ public class BanHangTesst {
                lsp.ten_loai_san_pham, ms.mau_sac_san_pham, kc.kich_co, th.ten_thuong_hieu, 
                cl.chat_lieu_san_pham, xx.quoc_gia, sp.trang_thai
         from SanPham sp
-        join LoaiSanPham lsp on lsp.id_ma_loai = sp.ma_loai_san_pham
-        join MauSac ms on ms.id_mau_sac = sp.ma_mau_sac
-        join KichCo kc on kc.id_ma_kich_co = sp.ma_kich_co
-        join ThuongHieu th on th.id_ma_thuong_hieu = sp.ma_thuong_hieu
-        join ChatLieu cl on cl.id_chat_lieu = sp.ma_chat_lieu
-        join XuatXu xx on xx.id_ma_xuat_xu = sp.ma_xuat_xu
+         join LoaiSanPham lsp on lsp.ten_loai_san_pham = sp.ma_loai_san_pham
+                        join MauSac ms on ms.mau_sac_san_pham = sp.ma_mau_sac
+                        join KichCo kc on kc.kich_co = sp.ma_kich_co
+                        join ThuongHieu th on th.ten_thuong_hieu = sp.ma_thuong_hieu
+                        join ChatLieu cl on cl.chat_lieu_san_pham = sp.ma_chat_lieu
+                        join XuatXu xx on xx.quoc_gia = sp.ma_xuat_xu
          WHERE (sp.ten_san_pham LIKE ? OR ? = '') 
          AND (ms.mau_sac_san_pham LIKE ? OR ? = '') 
          AND (kc.kich_co LIKE ? OR ? = '')

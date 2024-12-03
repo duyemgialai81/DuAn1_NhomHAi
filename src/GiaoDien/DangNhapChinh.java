@@ -17,18 +17,16 @@ private boolean jcbShowPass;
          int idNhanVien = ls.layIDNhaanVien(taiKhoan); 
         LuuThongTinDangNhap.setInNhanVien(idNhanVien); 
         if (ls.kiemTraQuyen(vaiTro, "Quản trị viên")) {
-            
             dispose();
             loandings dg = new loandings();
             dg.setVisible(true);
         } else {
-            
             TrangChu dg = new TrangChu();
             dg.setVisible(true);
             dispose();
         }
     } else {
-        JOptionPane.showMessageDialog(rootPane, "Tên tài khoản hoặc mật khẩu sai");
+        JOptionPane.showMessageDialog(rootPane, "Tên tài khoản hoặc mật khẩu sai hoặc tài khoản đã hết hạn");
     }
 }
     @SuppressWarnings("unchecked")

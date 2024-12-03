@@ -15,45 +15,38 @@ import KetNoiSQL.ketnoi;
  * @author SingPC
  */
 public class DonHangChiTietRepository {
-    public ArrayList<DonHangChiTietEntity> getAll(){
-        ArrayList<DonHangChiTietEntity> ls = new ArrayList<>();
-        String sql = """
-                      
-                                                                 	SELECT 
-                                                                                                                             SanPham.ma_san_pham, 
-                                                                                                                             SanPham.ten_san_pham, 
-                                                                                                                             ChiTietDonHang.so_luong AS tong_so_luong,
-                                                                                                                         	ChiTietDonHang.gia_ban,
-                                                                                                                         	ChiTietDonHang.tong_tien,
-                                                                                                                         	DonHang.trang_thai,
-                                                                                                        					DonHang.ngay_dat, 
-                                                                                                        					DonHang.ma_don_hang,
-                                                                                                        		HoaDon.ma_hoa_don
-                                                                                                                         FROM ChiTietDonHang
-                                                                                                                             JOIN SanPham ON SanPham.id_ma_san_pham = ChiTietDonHang.ma_san_pham
-                                                                                                                         	join DonHang on ChiTietDonHang.ma_don_hang = DonHang.id_ma_don_hang
-                                                                                                        				left	join HoaDon on DonHang.id_ma_don_hang = HoaDon.ma_don_hang
-                                                                                                        					order by DonHang.ma_don_hang asc
-                     """;
-        try {
-            Connection con = ketnoi.getConnection();
-            PreparedStatement ps = con.prepareStatement(sql);
-            ResultSet sc = ps.executeQuery();
-            while(sc.next()){
-                DonHangChiTietEntity ct = new DonHangChiTietEntity();
-                ct.setMaSanPham(sc.getString("ma_san_pham"));
-                ct.setTenSanPham(sc.getString("ten_san_pham"));
-                ct.setSoLuong(sc.getInt("tong_so_luong"));
-                ct.setGiaBan(sc.getDouble("gia_ban"));
-                ct.setTongTien(sc.getDouble("tong_tien"));
-                ct.setTrangThai(sc.getString("trang_thai"));
-                ls.add(ct);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+    public ArrayList<DonHangChiTietEntity> getAll(String maHoaDon) {
+    ArrayList<DonHangChiTietEntity> ls = new ArrayList<>();
+    String sql = """
+            select sp.ma_san_pham, sp.ten_san_pham, ctdh.so_luong, sp.gia_ban, 
+                   sum(ctdh.so_luong * sp.gia_ban) as tongTien, dh.trang_thai
+            from HoaDon hd
+            join DonHang dh on hd.ma_don_hang = dh.id_ma_don_hang
+            join chitietDonHang ctdh on dh.id_ma_don_hang = ctdh.ma_don_hang
+            join SanPham sp on ctdh.ma_san_pham = sp.id_ma_san_pham
+            where hd.ma_hoa_don = ?
+            group by sp.ma_san_pham, sp.ten_san_pham, ctdh.so_luong, sp.gia_ban, dh.trang_thai
+            """;
+    try (Connection con = ketnoi.getConnection();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+        ps.setString(1, maHoaDon);
+        ResultSet sc = ps.executeQuery();
+        while (sc.next()) {
+            DonHangChiTietEntity ct = new DonHangChiTietEntity();
+            ct.setMaSanPham(sc.getString("ma_san_pham"));
+            ct.setTenSanPham(sc.getString("ten_san_pham"));
+            ct.setSoLuong(sc.getInt("so_luong")); // Cột chính xác là "so_luong"
+            ct.setGiaBan(sc.getDouble("gia_ban"));
+            ct.setTongTien(sc.getDouble("tongTien"));
+            ct.setTrangThai(sc.getString("trang_thai"));
+            ls.add(ct);
         }
-        return ls;
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+    return ls;
+}
+
   public ArrayList<DonHangChiTietEntity> LocvaTiemKiemHoaDon(String tenSanPham, String maSanPham, String trangThai) {
     ArrayList<DonHangChiTietEntity> ls = new ArrayList<>();
     String sql = """
@@ -115,7 +108,7 @@ public class DonHangChiTietRepository {
                   from DonHang dh
                   join khachhang kh on dh.ma_khach_hang = kh.id_ma_khach_hang
                   join nhanvien nv on dh.ma_nhan_vien = nv.id_ma_nhan_vien
-                  where dh.trang_thai = N'đang chờ thanh toán'
+                  where dh.trang_thai = N'Đang chờ'
                   """;
       try {
           Connection con = ketnoi.getConnection();

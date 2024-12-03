@@ -23,7 +23,7 @@ public class ThuocTinhRepositoty {
     public ArrayList<loaiSanPhamEntity> loaiSanPhaam() {
         ArrayList<loaiSanPhamEntity> ls = new ArrayList<>();
         String sql = """
-                     select id_ma_loai, ma_loai_san_pham,ten_loai_san_pham, mo_ta
+                     select ten_loai_san_pham, mo_ta
                      from loaiSanPham
                      """;
         try {
@@ -32,8 +32,6 @@ public class ThuocTinhRepositoty {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 loaiSanPhamEntity sp = new loaiSanPhamEntity();
-                sp.setIdLoaiSanPham(rs.getInt("id_ma_loai"));
-                sp.setMaLoaiSanPham(rs.getString("ma_loai_san_pham"));
                 sp.setTenLoaiSanPham(rs.getString("ten_loai_san_pham"));
                 sp.setMota(rs.getString("mo_ta"));
                 ls.add(sp);
@@ -48,7 +46,7 @@ public class ThuocTinhRepositoty {
     public ArrayList<MauSacEntity> mauSac() {
         ArrayList<MauSacEntity> ls = new ArrayList<>();
         String sql = """
-                     select id_mau_sac, ma_mau_sac, mau_sac_san_pham, mo_ta
+                     select mau_sac_san_pham, mo_ta
                      from mauSac 
                      """;
         try {
@@ -57,8 +55,6 @@ public class ThuocTinhRepositoty {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 MauSacEntity ms = new MauSacEntity();
-                ms.setIdMauSac(rs.getInt("id_mau_sac"));
-                ms.setMaMauSac(rs.getString("ma_mau_sac"));
                 ms.setMauSac(rs.getString("mau_sac_san_pham"));
                 ms.setMoTa(rs.getString("mo_ta"));
                 ls.add(ms);
@@ -72,7 +68,7 @@ public class ThuocTinhRepositoty {
     public ArrayList<KichCoEnTity> kichCo() {
         ArrayList<KichCoEnTity> ls = new ArrayList<>();
         String sql = """
-                    select id_ma_kich_co, ma_kich_co, kich_co, mo_ta
+                    select  kich_co, mo_ta
                      from kichCo
                     
                     """;
@@ -82,8 +78,6 @@ public class ThuocTinhRepositoty {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 KichCoEnTity kc = new KichCoEnTity();
-                kc.setIdKichCo(rs.getInt("id_ma_kich_co"));
-                kc.setMaKichCo(rs.getString("ma_kich_co"));
                 kc.setKichCo(rs.getString("kich_co"));
                 kc.setMoTa(rs.getString("mo_ta"));
                 ls.add(kc);
@@ -96,7 +90,7 @@ public class ThuocTinhRepositoty {
     public ArrayList<ChatLieuEntity> chatLieu(){
         ArrayList<ChatLieuEntity> ls = new ArrayList<>();
         String sql = """
-                     select  id_chat_lieu, ma_chat_lieu, chat_lieu_san_pham, mo_ta
+                     select chat_lieu_san_pham, mo_ta
                      from chatLieu
                      """;
         try {
@@ -105,8 +99,6 @@ public class ThuocTinhRepositoty {
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
                 ChatLieuEntity cl = new ChatLieuEntity();
-                cl.setIdChatLieu(rs.getInt("id_chat_lieu"));
-                cl.setMaChatLieu(rs.getString("ma_chat_lieu"));
                 cl.setChatLieu(rs.getString("chat_lieu_san_pham"));
                 cl.setMoTa(rs.getString("mo_ta"));
                 ls.add(cl);
@@ -119,7 +111,7 @@ public class ThuocTinhRepositoty {
     public ArrayList<ThuongHieuEntity> thuogHieu(){
         ArrayList<ThuongHieuEntity> ls = new ArrayList<>();
         String sql = """
-                     select id_ma_thuong_hieu, ma_thuong_hieu,ten_thuong_hieu, mo_ta
+                     select ten_thuong_hieu, mo_ta
                      from thuongHieu
                      """;
         try {
@@ -128,8 +120,6 @@ public class ThuocTinhRepositoty {
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
                 ThuongHieuEntity cl = new ThuongHieuEntity();
-                cl.setIdThuongHieu(rs.getInt("id_ma_thuong_hieu"));
-                cl.setMaThuogHieu(rs.getString("ma_thuong_hieu"));
                 cl.setTenThuongHieu(rs.getString("ten_thuong_hieu"));
                 cl.setMoTa(rs.getString("mo_ta"));
                 ls.add(cl);
@@ -142,7 +132,7 @@ public class ThuocTinhRepositoty {
     public ArrayList<XuatXuEntity> xuatXu(){
         ArrayList<XuatXuEntity> ls = new ArrayList<>();
         String sql ="""
-                    select id_ma_xuat_xu, ma_xuat_xu, quoc_gia, mo_ta
+                    select quoc_gia, mo_ta
                     from xuatxu
                     """;
         try {
@@ -151,8 +141,6 @@ public class ThuocTinhRepositoty {
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
                 XuatXuEntity xx = new XuatXuEntity();
-                xx.setIdMaXuatXu(rs.getInt("id_ma_xuat_xu"));
-                xx.setMaXuatXu(rs.getString("ma_xuat_xu"));
                 xx.setQuocGia(rs.getString("quoc_gia"));
                 xx.setMota(rs.getString("mo_ta"));
                 ls.add(xx);
@@ -197,7 +185,7 @@ public class ThuocTinhRepositoty {
         return check >0;
     }
     public boolean addMauSac(MauSacEntity ms ){
-        int check =0;
+        int check = 0;
         String sql ="""
                     insert into mausac(mau_sac_san_pham, mo_ta)
                     values(?,?)
@@ -213,9 +201,6 @@ public class ThuocTinhRepositoty {
         }
         return check >0;
     }
-    
-    
-    
     
     public boolean  addKichCo(KichCoEnTity kc ){
         int check =0;
@@ -323,8 +308,8 @@ public class ThuocTinhRepositoty {
         int check = 0;
         String sql ="""
                     update mauSac 
-                    set ten_mau_sac
-                    where ma_mau_sac_san_pham
+                    set ma_mau_sac_san_pham = ?, mo_ta =?
+                    where ma_mau_sac_san_pham =?
                     """;
         try {
             Connection con = ketnoi.getConnection();

@@ -83,7 +83,7 @@ public boolean dangNhap(String tenDangNhap, String matKhau) {
                      select ten_role
                      from Role
                      join NhanVien on NhanVien.id_ma_nhan_vien = Role.id_ma_role
-                     where nhanvien.ten_tai_khoan = ? and nhanvien.mat_khau = ? 
+                     where nhanvien.ten_tai_khoan = ? and nhanvien.mat_khau = ? and nhanvien.trang_thai = N'Hoạt động'
                      """;
 
         try (Connection conn = ketnoi.getConnection();

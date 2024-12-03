@@ -10,6 +10,7 @@ package Entity.DonHangChiTiet;
  */
 public class DonHangChiTietEntity {
     private int idDonHangChiTiet;
+    private int idMaSanPham;
     private String maDonHangChiTiet;
     private String maSanPham;
     private String tenSanPham;
@@ -21,8 +22,9 @@ public class DonHangChiTietEntity {
     public DonHangChiTietEntity() {
     }
 
-    public DonHangChiTietEntity(int idDonHangChiTiet, String maDonHangChiTiet, String maSanPham, String tenSanPham, int soLuong, double giaBan, double tongTien, String trangThai) {
+    public DonHangChiTietEntity(int idDonHangChiTiet, int idMaSanPham, String maDonHangChiTiet, String maSanPham, String tenSanPham, int soLuong, double giaBan, double tongTien, String trangThai) {
         this.idDonHangChiTiet = idDonHangChiTiet;
+        this.idMaSanPham = idMaSanPham;
         this.maDonHangChiTiet = maDonHangChiTiet;
         this.maSanPham = maSanPham;
         this.tenSanPham = tenSanPham;
@@ -32,12 +34,27 @@ public class DonHangChiTietEntity {
         this.trangThai = trangThai;
     }
 
+    public DonHangChiTietEntity(String maSanPham, String tenSanPham, int soLuong, double giaBan) {
+        this.maSanPham = maSanPham;
+        this.tenSanPham = tenSanPham;
+        this.soLuong = soLuong;
+        this.giaBan = giaBan;
+    }
+
     public int getIdDonHangChiTiet() {
         return idDonHangChiTiet;
     }
 
     public void setIdDonHangChiTiet(int idDonHangChiTiet) {
         this.idDonHangChiTiet = idDonHangChiTiet;
+    }
+
+    public int getIdMaSanPham() {
+        return idMaSanPham;
+    }
+
+    public void setIdMaSanPham(int idMaSanPham) {
+        this.idMaSanPham = idMaSanPham;
     }
 
     public String getMaDonHangChiTiet() {
@@ -96,6 +113,7 @@ public class DonHangChiTietEntity {
         this.trangThai = trangThai;
     }
 
+    
    
  
     

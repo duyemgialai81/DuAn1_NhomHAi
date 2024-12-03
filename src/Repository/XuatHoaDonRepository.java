@@ -34,7 +34,8 @@ public class XuatHoaDonRepository {
                                                                     kh.so_dien_thoai,
                                                                     dh.id_ma_don_hang, 
                                                                     hd.ma_hoa_don,
-                                                                    hd.tien_chuyen_khoan
+                                                                    hd.tien_chuyen_khoan,
+                     hd.giam_gia
                                                                 FROM 
                                                                     DonHang dh
                                                                 JOIN HoaDon hd 
@@ -49,7 +50,7 @@ public class XuatHoaDonRepository {
                                                                     ON ctdh.ma_san_pham = sp.id_ma_san_pham
                                                                 WHERE 
                                                                     hd.trang_thai = N'Đang Chờ Thanh Toán' 
-                                                                    AND dh.trang_thai = N'đang chờ thanh toán'
+                                                                    AND dh.trang_thai = N'Đang chờ'
                                                                 ORDER BY dh.id_ma_don_hang DESC;
                      """;
         try {
@@ -75,6 +76,7 @@ public class XuatHoaDonRepository {
               hd.setSoDienThoai(rs.getString("so_dien_thoai"));
               hd.setIdHoaDon(rs.getInt("id_ma_don_hang"));
              hd.setChuyenKhoan(rs.getFloat("tien_chuyen_khoan"));
+             hd.setGiamGia(rs.getFloat("giam_gia"));
               
               ls.add(hd);
             }

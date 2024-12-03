@@ -486,7 +486,7 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
         jLabel12.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel12.setText("Lọc Theo Vai Trò:");
 
-        cbo_LocVaiTro.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Tất cả", "Quản trị viên", "Kế toán", "Nhân viên kho", "Nhân viên bán hàng" }));
+        cbo_LocVaiTro.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Tất cả", "Quản trị viên", "Kế toán", "Quản lý", "Nhân viên kho", "Nhân viên bán hàng" }));
         cbo_LocVaiTro.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cbo_LocVaiTroActionPerformed(evt);

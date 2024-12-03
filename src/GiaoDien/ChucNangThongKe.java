@@ -6,7 +6,9 @@ package GiaoDien;
 
 import Entity.HoaDon.XuatHoaDon;
 import Entity.KhachHang.KhachHang;
+import Entity.SanPham.SanPhamEntity;
 import Entity.thongke.ThongKeEntity;
+import KetNoiSQL.NewJFrame;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import org.jfree.chart.ChartFactory;
@@ -488,10 +490,86 @@ public void hienThiDuLieu(){
       panelBarChartt.revalidate();
       panelBarChartt.repaint();
     }
-public void generateAndExportCharts() {
+  public ArrayList<SanPhamEntity> getAll(){
+      ArrayList<SanPhamEntity> ls = new ArrayList<>();
+      String sql= """
+                  select * from sanpham 
+                  
+                  """;
+      try {
+          Connection con = ketnoi.getConnection();
+          PreparedStatement ps = con.prepareStatement(sql);
+          ResultSet rs = ps.executeQuery();
+          while(rs.next()){
+              SanPhamEntity sp  = new SanPhamEntity();
+              sp.setIdSanPham(rs.getShort("id_ma_san_pham"));
+              sp.setMaSanPham(rs.getString("ma_san_pham"));
+              sp.setTenSanPham(rs.getString("ten_san_pham"));
+              sp.setTrangThai(rs.getString("trang_thai"));
+              sp.setGiaBan(rs.getFloat("gia_ban"));
+              sp.setGiaNhap(rs.getFloat("gia_nhap"));
+          }
+      } catch (Exception e) {
+      }
+      return ls;
+  }
+public void searchByDateRangeTronTheoNgay() {
+    java.util.Date startDate = ngaybatdau.getDate();
+    java.util.Date endDate = ngayketthuc.getDate();
+    if (startDate == null || endDate == null) {
+        JOptionPane.showMessageDialog(this, "Vui lòng chọn cả ngày bắt đầu và ngày kết thúc!");
+    }
     
-   
+    java.sql.Date sqlStartDate = new java.sql.Date(startDate.getTime());
+    java.sql.Date sqlEndDate = new java.sql.Date(endDate.getTime());
+    DefaultPieDataset dataset = new DefaultPieDataset();
     
+    String query = """
+        SELECT 
+        sp.ten_san_pham AS tenSanPham,
+        SUM(ctdh.so_luong) AS soLuongDaBan
+        FROM ChiTietDonHang ctdh
+        JOIN SanPham sp ON ctdh.ma_san_pham = sp.id_ma_san_pham
+        JOIN DonHang dh ON ctdh.ma_don_hang = dh.id_ma_don_hang
+        WHERE dh.ngay_dat = getdate()
+        GROUP BY sp.ten_san_pham
+        ORDER BY sp.ten_san_pham ASC;
+        """;
+    
+    try (Connection conn = ketnoi.getConnection();
+         PreparedStatement ps = conn.prepareStatement(query)) {
+        ps.setDate(1, sqlStartDate);
+        ps.setDate(2, sqlEndDate);
+        ResultSet rs = ps.executeQuery();
+        
+        while (rs.next()) {
+            String tenSanPham = rs.getString("tenSanPham");
+            int soLuongDaBan = rs.getInt("soLuongDaBan");
+            dataset.setValue(tenSanPham, soLuongDaBan);
+        }
+        
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Lỗi khi truy vấn dữ liệu: " + e.getMessage());
+    }
+    JFreeChart pieChart = ChartFactory.createPieChart(
+        "Thống kê sản phẩm bán ra", 
+        dataset,                  
+        true,                     
+        true,                    
+        false                     
+    );
+    PiePlot plot = (PiePlot) pieChart.getPlot();
+    plot.setBackgroundPaint(Color.white);
+    plot.setOutlineVisible(false);
+    plot.setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
+    plot.setSectionPaint("Đã Bán", Color.BLUE);
+    plot.setSectionPaint("Còn Lại", Color.RED);
+    ChartPanel pieChartPanel = new ChartPanel(pieChart);
+    panelLineChart.setLayout(new BorderLayout());
+    panelLineChart.removeAll();
+    panelLineChart.add(pieChartPanel, BorderLayout.CENTER);
+    panelLineChart.validate();
+    panelLineChart.repaint();
 }
 
 
@@ -587,11 +665,19 @@ private void timkiem(){
         jPanel2 = new javax.swing.JPanel();
         txttongsokhachhang = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        jButton3 = new javax.swing.JButton();
+        TheoNgay = new com.toedter.calendar.JDateChooser();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jButton4 = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(204, 204, 204));
+        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
 
+        ngaybatdau.setBackground(new java.awt.Color(255, 255, 255));
         ngaybatdau.addAncestorListener(new javax.swing.event.AncestorListener() {
             public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
                 ngaybatdauAncestorAdded(evt);
@@ -607,6 +693,7 @@ private void timkiem(){
             }
         });
 
+        ngayketthuc.setBackground(new java.awt.Color(255, 255, 255));
         ngayketthuc.addAncestorListener(new javax.swing.event.AncestorListener() {
             public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
                 ngayketthucAncestorAdded(evt);
@@ -694,7 +781,7 @@ private void timkiem(){
                 .addContainerGap(98, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(txttongsokhachhang, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txttongsokhachhang, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -707,53 +794,114 @@ private void timkiem(){
                 .addGap(15, 15, 15))
         );
 
+        jButton3.setText("Gửi Email");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
+        TheoNgay.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                TheoNgayAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
+
+        jLabel3.setText("TÌM KIẾM THEO NGÀY");
+
+        jLabel4.setText("NGÀY KẾT THÚC");
+
+        jLabel5.setText("NGÀY BẮT ĐẦU");
+
+        jButton4.setText("TÌM THEO NGÀY");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(33, 33, 33)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(21, 21, 21)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(panelBarChartt, javax.swing.GroupLayout.PREFERRED_SIZE, 536, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(panelLineChart, javax.swing.GroupLayout.DEFAULT_SIZE, 503, Short.MAX_VALUE))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(cboChonBieuDo, 0, 321, Short.MAX_VALUE)
-                            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(jButton2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(ngaybatdau, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(ngayketthuc, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(jButton1))
+                                .addGap(19, 19, 19)
+                                .addComponent(jLabel3))
+                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel3Layout.createSequentialGroup()
+                                    .addComponent(TheoNgay, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(jButton4))
+                                .addComponent(cboChonBieuDo, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addGap(27, 27, 27)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jButton2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 189, Short.MAX_VALUE)
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                                        .addComponent(ngaybatdau, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(ngayketthuc, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(jButton1))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                                        .addComponent(jLabel5)
+                                        .addGap(78, 78, 78)
+                                        .addComponent(jLabel4)
+                                        .addGap(127, 127, 127)))
+                                .addContainerGap())
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addGap(39, 39, 39)
                                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE)))))
-                .addGap(24, 24, 24))
+                                .addGap(0, 0, Short.MAX_VALUE))))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(panelBarChartt, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(panelLineChart, javax.swing.GroupLayout.PREFERRED_SIZE, 498, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 123, Short.MAX_VALUE)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(ngaybatdau, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(ngayketthuc, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(cboChonBieuDo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jButton2)))
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel5)
+                            .addComponent(jLabel4))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(ngaybatdau, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(ngayketthuc, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(jButton2)
+                                .addComponent(jButton3))))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 60, Short.MAX_VALUE)
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(TheoNgay, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton4))
+                        .addGap(18, 18, 18)
+                        .addComponent(cboChonBieuDo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(panelLineChart, javax.swing.GroupLayout.DEFAULT_SIZE, 415, Short.MAX_VALUE)
@@ -761,18 +909,7 @@ private void timkiem(){
                 .addGap(19, 19, 19))
         );
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 6, Short.MAX_VALUE)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
+        add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1120, -1));
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
@@ -805,6 +942,153 @@ private void timkiem(){
         // TODO add your handling code here:
         hienThiBieuDooo();
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        NewJFrame duyem = new NewJFrame();
+        duyem.setVisible(true);
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void TheoNgayAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_TheoNgayAncestorAdded
+        // TODO add your handling code here:
+       
+    }//GEN-LAST:event_TheoNgayAncestorAdded
+public void searchBySpecificDate() {
+    java.util.Date specificDate = TheoNgay.getDate(); // Chỉ cần chọn 1 ngày
+    if (specificDate == null) {
+        JOptionPane.showMessageDialog(this, "Vui lòng chọn ngày!");
+        return;
+    }
+    java.sql.Date sqlSpecificDate = new java.sql.Date(specificDate.getTime());
+    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+    String query = """
+        SELECT 
+            sp.ten_san_pham AS tenSanPham,
+            ctdh.so_luong AS soLuongDaBan,
+            (sp.so_luong_ton) AS soLuongConLai
+        FROM ChiTietDonHang ctdh
+        JOIN SanPham sp ON ctdh.ma_san_pham = sp.id_ma_san_pham
+        JOIN DonHang dh ON ctdh.ma_don_hang = dh.id_ma_don_hang
+        WHERE CAST(dh.ngay_dat AS DATE) = ?
+        ORDER BY sp.ten_san_pham ASC;
+        """;
+    try (Connection conn = ketnoi.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(query)) {
+        stmt.setDate(1, sqlSpecificDate);
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (!rs.isBeforeFirst()) {
+                JOptionPane.showMessageDialog(this, "Không có dữ liệu cho ngày này.");
+                showEmptyChart();
+                return;
+            }
+            while (rs.next()) {
+                String tenSanPham = rs.getString("tenSanPham");
+                int soLuongDaBan = rs.getInt("soLuongDaBan");
+                int soLuongConLai = rs.getInt("soLuongConLai");
+                dataset.setValue(soLuongDaBan, "Đã bán", tenSanPham);
+                dataset.setValue(soLuongConLai, "Còn lại", tenSanPham);
+            }
+        }
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Lỗi kết nối cơ sở dữ liệu: " + e.getMessage());
+        e.printStackTrace();
+        return;
+    }
+    JFreeChart barChart = ChartFactory.createBarChart(
+        "Số Lượng Áo Bán Trong Ngày",
+        "Sản Phẩm",                        
+        "Số Lượng",                           
+        dataset,                             
+        PlotOrientation.VERTICAL,      
+        true,                            
+        true,                            
+        false                            
+    );
+    CategoryPlot plot = barChart.getCategoryPlot();
+    plot.setBackgroundPaint(Color.white);
+    plot.setRangeGridlinePaint(Color.GRAY);
+    ChartPanel barChartPanel = new ChartPanel(barChart);
+    panelBarChartt.setLayout(new BorderLayout());
+    panelBarChartt.removeAll(); 
+    panelBarChartt.add(barChartPanel, BorderLayout.CENTER);
+    panelBarChartt.validate(); 
+    panelBarChartt.repaint();  
+}
+
+public void searchBySpecificDatetron() {
+    java.util.Date specificDate = TheoNgay.getDate(); // Chỉ cần chọn 1 ngày
+    if (specificDate == null) {
+        JOptionPane.showMessageDialog(this, "Vui lòng chọn ngày!");
+        return;
+    }
+    java.sql.Date sqlSpecificDate = new java.sql.Date(specificDate.getTime());
+    DefaultPieDataset dataset = new DefaultPieDataset();
+    String query = """
+        SELECT 
+            sp.ten_san_pham AS tenSanPham,
+            ctdh.so_luong AS soLuongDaBan
+        FROM ChiTietDonHang ctdh
+        JOIN SanPham sp ON ctdh.ma_san_pham = sp.id_ma_san_pham
+        JOIN DonHang dh ON ctdh.ma_don_hang = dh.id_ma_don_hang
+        WHERE CAST(dh.ngay_dat AS DATE) = ?
+        ORDER BY sp.ten_san_pham ASC;
+        """;
+    try (Connection conn = ketnoi.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(query)) {
+        stmt.setDate(1, sqlSpecificDate);
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (!rs.isBeforeFirst()) {
+                JOptionPane.showMessageDialog(this, "Không có dữ liệu cho ngày này.");
+                showEmptyChart(); // Hiển thị biểu đồ rỗng nếu không có dữ liệu
+                return;
+            }
+            while (rs.next()) {
+                String tenSanPham = rs.getString("tenSanPham");
+                int soLuongDaBan = rs.getInt("soLuongDaBan");
+                if (tenSanPham != null && soLuongDaBan > 0) { // Bỏ qua nếu dữ liệu null hoặc số lượng <= 0
+                    dataset.setValue(tenSanPham, soLuongDaBan);
+                }
+            }
+        }
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Lỗi kết nối cơ sở dữ liệu: " + e.getMessage());
+        e.printStackTrace();
+        return;
+    }
+
+    // Kiểm tra nếu không có dữ liệu hợp lệ
+    if (dataset.getItemCount() == 0) {
+        JOptionPane.showMessageDialog(this, "Dữ liệu trống hoặc không hợp lệ.");
+        showEmptyChart(); // Hiển thị biểu đồ rỗng nếu dataset không có dữ liệu
+        return;
+    }
+
+    // Tạo biểu đồ hình tròn
+    JFreeChart pieChart = ChartFactory.createPieChart(
+        "Tỷ lệ sản phẩm bán trong ngày", // Tiêu đề
+        dataset,                        // Dữ liệu
+        true,                           // Hiển thị chú thích
+        true,                           // Hiển thị tooltip
+        false                           // Không cần URL
+    );
+
+    // Tuỳ chỉnh biểu đồ
+    PiePlot plot = (PiePlot) pieChart.getPlot();
+    plot.setBackgroundPaint(Color.white);
+    plot.setOutlineVisible(false);
+
+    // Hiển thị biểu đồ trên panel
+    ChartPanel pieChartPanel = new ChartPanel(pieChart);
+    panelLineChart.setLayout(new BorderLayout());
+    panelLineChart.removeAll();
+    panelLineChart.add(pieChartPanel, BorderLayout.CENTER);
+    panelLineChart.validate();
+    panelLineChart.repaint();
+}
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+searchBySpecificDate();
+searchBySpecificDatetron();
+    }//GEN-LAST:event_jButton4ActionPerformed
 
 
 //    public static void main(String args[]) {
@@ -841,11 +1125,17 @@ private void timkiem(){
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.toedter.calendar.JDateChooser TheoNgay;
     private javax.swing.JComboBox<String> cboChonBieuDo;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;

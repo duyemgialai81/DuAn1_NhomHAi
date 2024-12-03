@@ -28,7 +28,7 @@ private DonHangChiTietRepository ct = new DonHangChiTietRepository();
         initComponents();
         
         hienThiDuLieu(hd.getAllChiTietHoaDon());
-        hienThiDonHangChiTiet(ct.getAll());
+
     }
     public void hienThiDuLieu(ArrayList<HoaDonChiTiet> hoaDon){
         md = (DefaultTableModel) tbl_hoaDon.getModel();
@@ -48,12 +48,6 @@ private DonHangChiTietRepository ct = new DonHangChiTietRepository();
             });
         }
     }
-   private void timkiem() {
-    String timKiem = txt_timKiemHoaDon.getText().trim(); 
-    String trangThai = (String) cbo_trangThaiThanhToan.getSelectedItem(); 
-    ArrayList<DonHangChiTietEntity> chitiet = ct.LocvaTiemKiemHoaDon(timKiem, timKiem, trangThai);
-    hienThiDonHangChiTiet(chitiet);
-}
 
     
 
@@ -153,6 +147,11 @@ private DonHangChiTietRepository ct = new DonHangChiTietRepository();
                 "Mã Hoá Đơn", "Tổng Tiền", "Thanh Toán", "Tiền Khách Đưa", "Tiền Trả Khách", "Hình Thức Thanh Toán", "Ngày Lập Hoá Đơn"
             }
         ));
+        tbl_hoaDon.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tbl_hoaDonMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tbl_hoaDon);
 
         jPanel_HoaDon.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 290, 1090, 148));
@@ -254,14 +253,23 @@ private DonHangChiTietRepository ct = new DonHangChiTietRepository();
 
     private void btn_timKiemComponentRemoved(java.awt.event.ContainerEvent evt) {//GEN-FIRST:event_btn_timKiemComponentRemoved
         // TODO add your handling code here:
-         timkiem();
-        
+   
     }//GEN-LAST:event_btn_timKiemComponentRemoved
 
     private void txt_timKiemHoaDonKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_timKiemHoaDonKeyTyped
         // TODO add your handling code here:
-        timkiem();
+ 
     }//GEN-LAST:event_txt_timKiemHoaDonKeyTyped
+
+    private void tbl_hoaDonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbl_hoaDonMouseClicked
+        // TODO add your handling code here:
+        int selectedRowHoaDon = tbl_hoaDon.getSelectedRow();
+        if (selectedRowHoaDon != -1) {
+            String maGioHangHienTai = tbl_hoaDon.getValueAt(selectedRowHoaDon, 0).toString();
+            hienThiDonHangChiTiet(ct.getAll(maGioHangHienTai));
+        }
+
+    }//GEN-LAST:event_tbl_hoaDonMouseClicked
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

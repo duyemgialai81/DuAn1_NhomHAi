@@ -30,9 +30,7 @@ private DefaultTableModel md = new DefaultTableModel();
     public ChonKhachHangBanHang() {
         
         initComponents();
-//        hienThiLuaChoKhachHang(kh.layThongTinKhachHang());
         hienThiLuaChoKhachHangg(kh.layThongTinKhachHang());
-//        hienThiDuLieu(dh.layHhoaDon());
     }
            private void hienThiLuaChoKhachHangg(ArrayList<KhachHang> khachHang){
         md = (DefaultTableModel) tblthemkhachhang.getModel();
@@ -43,24 +41,6 @@ private DefaultTableModel md = new DefaultTableModel();
             });
         }
     }
-//    private void hienThiLuaChoKhachHang(ArrayList<KhachHang> khachHang){
-//        md = (DefaultTableModel) tblhienthikhachhang1.getModel();
-//        md.setRowCount(0);
-//        for (KhachHang khachHang1 : khachHang) {
-//            md.addRow(new Object[]{
-//              khachHang1.getIdKhachHang(),  khachHang1.getMaKH(), khachHang1.getTenKH(), khachHang1.getEmail(),khachHang1.getSDT(),khachHang1.getDiaChi(), khachHang1.isGioiTinh()?"Nam":"Nữ", khachHang1.isTrangThai()?"Đang Hoạt Động":"Ngừng Hoạt Đông"
-//            });
-//        }
-//    }
-//         private void hienThiDuLieu(ArrayList<HoaDonXemDuLieu> lss) {
-//        md = (DefaultTableModel) tblhoadon.getModel();
-//        md.setRowCount(0);
-//        for (HoaDonXemDuLieu ls1 : lss) {
-//            md.addRow(new Object[]{
-//                ls1.getIdDonHang(), ls1.getMaHoaDon(), ls1.getTenKhachHang(), ls1.getTenNhanVien(), ls1.getNgayLap(), ls1.getTrangThai()
-//            });
-//        }
-//    }
     private void add(){
         kh.addThongTinKhachHang(getFomat());
         hienThiLuaChoKhachHangg(kh.layThongTinKhachHang());

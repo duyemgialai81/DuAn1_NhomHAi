@@ -52,12 +52,12 @@ public class SanPhamRepository {
         String sql = """
            	select sp.id_ma_san_pham, sp.ma_san_pham, sp.ten_san_pham, sp.gia_ban, sp.gia_nhap, sp.so_luong_ton, sp.hinh_anh, lsp.ten_loai_san_pham, ms.mau_sac_san_pham,kc.kich_co,th.ten_thuong_hieu, cl.chat_lieu_san_pham, xx.quoc_gia, sp.trang_thai
                 from SanPham sp
-                join LoaiSanPham lsp on lsp.id_ma_loai = sp.ma_loai_san_pham
-                join MauSac ms on ms.id_mau_sac = sp.ma_mau_sac
-                join KichCo kc on kc.id_ma_kich_co = sp.ma_kich_co
-                join ThuongHieu th on th.id_ma_thuong_hieu = sp.ma_thuong_hieu
-                join ChatLieu cl on cl.id_chat_lieu = sp.ma_chat_lieu
-                join XuatXu xx on xx.id_ma_xuat_xu = sp.ma_xuat_xu
+                join LoaiSanPham lsp on lsp.ten_loai_san_pham = sp.ma_loai_san_pham
+                join MauSac ms on ms.mau_sac_san_pham = sp.ma_mau_sac
+                join KichCo kc on kc.kich_co = sp.ma_kich_co
+                join ThuongHieu th on th.ten_thuong_hieu = sp.ma_thuong_hieu
+                join ChatLieu cl on cl.chat_lieu_san_pham = sp.ma_chat_lieu
+                join XuatXu xx on xx.quoc_gia = sp.ma_xuat_xu
                      """;
         try (Connection con = ketnoi.getConnection()) {
             PreparedStatement ps = con.prepareStatement(sql);
@@ -103,7 +103,7 @@ public class SanPhamRepository {
             pstmtSanPham.setObject(7, sp.getMaKichCo());
             pstmtSanPham.setObject(8, sp.getMaChatLieu());
             pstmtSanPham.setObject(9, sp.getMaThuongHieu());
-            pstmtSanPham.setObject(10, sp.getMaMauSac());
+            pstmtSanPham.setString(10, sp.getMaMauSac());
             pstmtSanPham.setObject(11, sp.getMaXuatXu());
             check = pstmtSanPham.executeUpdate();
         } catch (Exception e) {
@@ -116,7 +116,7 @@ public class SanPhamRepository {
         int check = 0;
         String sql = """
             UPDATE SanPham
-                 set ten_san_pham =?, gia_ban =?,gia_nhap =?, so_luong_ton =?, hinh_anh =?, ma_loai_san_pham =?, ma_kich_co =?, ma_mau_sac =?, ma_thuong_hieu =?, ma_chat_lieu =?, ma_xuat_xu =?
+                 set ten_san_pham =?, gia_ban =?,gia_nhap =?, so_luong_ton =?, hinh_anh =?, ma_loai_san_pham =?, ma_kich_co =?, ma_chat_lieu =?, ma_thuong_hieu =?, ma_mau_sac =?,ma_xuat_xu =?
                  WHERE ma_san_pham = ?
             """;
 
@@ -127,12 +127,12 @@ public class SanPhamRepository {
             pstmtSanPham.setFloat(3, sp.getGiaNhap());
             pstmtSanPham.setInt(4, sp.getSoLuong());
             pstmtSanPham.setString(5, sp.getHinhAnh());
-            pstmtSanPham.setInt(6, sp.getMaLoai());
-            pstmtSanPham.setInt(7, sp.getMaKichCo());
-            pstmtSanPham.setInt(8, sp.getMaChatLieu());
-            pstmtSanPham.setInt(9, sp.getMaThuongHieu());
-            pstmtSanPham.setInt(10, sp.getMaMauSac());
-            pstmtSanPham.setInt(11, sp.getMaXuatXu());
+            pstmtSanPham.setString(6, sp.getMaLoai());
+            pstmtSanPham.setString(7, sp.getMaKichCo());
+            pstmtSanPham.setString(8, sp.getMaChatLieu());
+            pstmtSanPham.setString(9, sp.getMaThuongHieu());
+            pstmtSanPham.setString(10, sp.getMaMauSac());
+            pstmtSanPham.setString(11, sp.getMaXuatXu());
             pstmtSanPham.setObject(12, ma);
             check = pstmtSanPham.executeUpdate();
         } catch (SQLException e) {
@@ -145,35 +145,44 @@ public class SanPhamRepository {
         return check > 0;
     }
 
-    public boolean delete(String maSanPham) {
-        int check = 0;
-        int check1 =0;
-        String sql1 ="""
-                    delete chitietdonhang
-                    where ma_san_pham = ?
-                     """;
-        try (Connection con = ketnoi.getConnection()) {
-            PreparedStatement ps = con.prepareStatement(sql1);
-            ps.setObject(1, maSanPham);
-            check1 = ps.executeUpdate();
+   public boolean delete(int maSanPham) {
+    int rowsDeletedChitietDonHang = 0;
+    int rowsDeletedSanPham = 0;
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        String sql = """
-                     delete SanPham
-                     where ma_san_pham = ?
-                     """;
-        try (Connection con = ketnoi.getConnection()) {
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setObject(1, maSanPham);
-            check = ps.executeUpdate();
+    // Câu SQL xóa chi tiết đơn hàng
+    String sqlDeleteChitietDonHang = """
+        DELETE FROM chitietdonhang
+        WHERE ma_san_pham = ?
+    """;
 
-        } catch (Exception e) {
-            e.printStackTrace();
+    // Câu SQL xóa sản phẩm
+    String sqlDeleteSanPham = """
+        DELETE FROM SanPham
+        WHERE id_ma_san_pham = ?
+    """;
+
+    try (Connection con = ketnoi.getConnection()) {
+        // Xóa chi tiết đơn hàng trước
+        try (PreparedStatement ps = con.prepareStatement(sqlDeleteChitietDonHang)) {
+            ps.setObject(1, maSanPham);
+            rowsDeletedChitietDonHang = ps.executeUpdate();
         }
-        return check > 0;
+
+        // Sau đó xóa sản phẩm
+        try (PreparedStatement ps = con.prepareStatement(sqlDeleteSanPham)) {
+            ps.setObject(1, maSanPham);
+            rowsDeletedSanPham = ps.executeUpdate();
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false; // Trả về false nếu có lỗi xảy ra
     }
+
+    // Kiểm tra xem cả hai lệnh xóa có thành công không
+    return rowsDeletedSanPham > 0;
+}
+
 
     public boolean dangNhap(String tenDangNhap, String matKhau) {
         String sql = "SELECT t.*, r.tenRole FROM TaiKhoan t "
@@ -187,7 +196,7 @@ public class SanPhamRepository {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                String vaiTro = rs.getString("tenRole"); // Lấy vai trò
+                String vaiTro = rs.getString("tenRole");
                 System.out.println("Đăng nhập thành công! Vai trò: " + vaiTro);
                 return true;
             } else {
@@ -204,9 +213,7 @@ public class SanPhamRepository {
     public String layTenRoleTuDatabase(int userId) {
         String tenRole = null;
         String query = "SELECT r.tenRole FROM Users u JOIN Roles r ON u.roleId = r.id WHERE u.id = ?";
-
-        // Kết nối tới cơ sở dữ liệu
-        try (Connection conn = ketnoi.getConnection(); // Giả sử bạn có lớp DatabaseConnection để lấy kết nối
+        try (Connection conn = ketnoi.getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setInt(1, userId); 
             ResultSet rs = pstmt.executeQuery();
@@ -225,12 +232,12 @@ public class SanPhamRepository {
                lsp.ten_loai_san_pham, ms.mau_sac_san_pham, kc.kich_co, th.ten_thuong_hieu, 
                cl.chat_lieu_san_pham, xx.quoc_gia, sp.trang_thai
         from SanPham sp
-        join LoaiSanPham lsp on lsp.id_ma_loai = sp.ma_loai_san_pham
-        join MauSac ms on ms.id_mau_sac = sp.ma_mau_sac
-        join KichCo kc on kc.id_ma_kich_co = sp.ma_kich_co
-        join ThuongHieu th on th.id_ma_thuong_hieu = sp.ma_thuong_hieu
-        join ChatLieu cl on cl.id_chat_lieu = sp.ma_chat_lieu
-        join XuatXu xx on xx.id_ma_xuat_xu = sp.ma_xuat_xu
+        join LoaiSanPham lsp on lsp.ten_loai_san_pham = sp.ma_loai_san_pham
+                        join MauSac ms on ms.mau_sac_san_pham = sp.ma_mau_sac
+                        join KichCo kc on kc.kich_co = sp.ma_kich_co
+                        join ThuongHieu th on th.ten_thuong_hieu = sp.ma_thuong_hieu
+                        join ChatLieu cl on cl.chat_lieu_san_pham = sp.ma_chat_lieu
+                        join XuatXu xx on xx.quoc_gia = sp.ma_xuat_xu
          WHERE (sp.ten_san_pham LIKE ? OR ? = '') 
          AND (xx.quoc_gia LIKE ? OR ? = '') 
          AND (sp.trang_thai LIKE ? OR ? = '') 

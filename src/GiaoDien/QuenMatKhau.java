@@ -27,15 +27,16 @@ public class QuenMatKhau extends javax.swing.JFrame {
         initComponents();
     }
      public boolean isEmailExist() throws SQLException {
-    String sql = "SELECT email FROM NhanVien WHERE email = ?";
+    String sql = "SELECT email, ten_tai_khoan FROM NhanVien WHERE email = ? and ten_tai_khoan =?";
     try (Connection con = ketnoi.getConnection()) {
         PreparedStatement ps = con.prepareStatement(sql);
         ps.setString(1, txtemail.getText());
+        ps.setString(2, txttaikhoan.getText());
         ResultSet rs = ps.executeQuery();
-        
         if (rs.next()) {
             String emailFromDb = rs.getString("email"); 
-            return emailFromDb.equalsIgnoreCase(txtemail.getText());
+            String taiKhaon = rs.getString("ten_tai_khoan");
+            return emailFromDb.equalsIgnoreCase(txtemail.getText())||taiKhaon.equalsIgnoreCase(txttaikhoan.getText());
         }
     }
     return false;

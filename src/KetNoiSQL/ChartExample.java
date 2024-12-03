@@ -1,124 +1,110 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-package KetNoiSQL;
-
-/**
- *
- * @author SingPC
- */
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.data.general.DefaultPieDataset;
-import org.jfree.data.statistics.HistogramDataset;
-
-import javax.swing.*;
-import java.awt.*;
-
-public class ChartExample {
-
-    private JPanel jPanel1;  // Panel cho biểu đồ tròn
-    private JPanel jPanel2;  // Panel cho biểu đồ cột
-    private JPanel jPanel3;  // Panel cho biểu đồ đường
-
-    public ChartExample() {
-        JFrame frame = new JFrame("Biểu đồ");
-        frame.setLayout(new GridLayout(1, 3));
-
-        jPanel1 = new JPanel();
-        jPanel2 = new JPanel();
-        jPanel3 = new JPanel();
-
-        frame.add(jPanel1);
-        frame.add(jPanel2);
-        frame.add(jPanel3);
-
-        showPieChart();  // Hiển thị biểu đồ tròn mặc định
-        showBarChart();  // Hiển thị biểu đồ cột
-        showLineChart(); // Hiển thị biểu đồ đường
-
-        frame.setSize(800, 600);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
-    }
-
-    // Hiển thị biểu đồ tròn
-    public void showPieChart() {
-        DefaultPieDataset dataset = new DefaultPieDataset();
-        dataset.setValue("A", 45);
-        dataset.setValue("B", 25);
-        dataset.setValue("C", 30);
-
-        JFreeChart chart = ChartFactory.createPieChart(
-                "Biểu đồ tròn",  // Tên biểu đồ
-                dataset,         // Dữ liệu
-                true,            // Có hiển thị chú thích
-                true,            // Có hiển thị thông tin
-                false            // Không sử dụng tooltips
-        );
-
-        ChartPanel chartPanel = new ChartPanel(chart);
-        jPanel1.removeAll();
-        jPanel1.add(chartPanel, BorderLayout.CENTER);
-        jPanel1.revalidate();
-        jPanel1.repaint();
-    }
-
-    // Hiển thị biểu đồ cột
-    public void showBarChart() {
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        dataset.addValue(1.0, "Series1", "A");
-        dataset.addValue(4.0, "Series1", "B");
-        dataset.addValue(3.0, "Series1", "C");
-
-        JFreeChart chart = ChartFactory.createBarChart(
-                "Biểu đồ cột",         // Tên biểu đồ
-                "Thể loại",            // Tên trục X
-                "Giá trị",             // Tên trục Y
-                dataset,               // Dữ liệu
-                org.jfree.chart.plot.PlotOrientation.VERTICAL, // Định hướng
-                true,                  // Hiển thị chú thích
-                true,                  // Hiển thị thông tin
-                false                  // Không dùng tooltips
-        );
-
-        ChartPanel chartPanel = new ChartPanel(chart);
-        jPanel2.removeAll();
-        jPanel2.add(chartPanel, BorderLayout.CENTER);
-        jPanel2.revalidate();
-        jPanel2.repaint();
-    }
-
-    // Hiển thị biểu đồ đường
-    public void showLineChart() {
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        dataset.addValue(1.0, "Series1", "A");
-        dataset.addValue(4.0, "Series1", "B");
-        dataset.addValue(3.0, "Series1", "C");
-
-        JFreeChart chart = ChartFactory.createLineChart(
-                "Biểu đồ đường",      // Tên biểu đồ
-                "Thể loại",           // Tên trục X
-                "Giá trị",            // Tên trục Y
-                dataset,              // Dữ liệu
-                org.jfree.chart.plot.PlotOrientation.VERTICAL, // Định hướng
-                true,                 // Hiển thị chú thích
-                true,                 // Hiển thị thông tin
-                false                 // Không dùng tooltips
-        );
-
-        ChartPanel chartPanel = new ChartPanel(chart);
-        jPanel3.removeAll();
-        jPanel3.add(chartPanel, BorderLayout.CENTER);
-        jPanel3.revalidate();
-        jPanel3.repaint();
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new ChartExample());
-    }
-}
-
+///*
+// * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+// * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+// */
+//package KetNoiSQL;
+//
+///**
+// *
+// * @author SingPC
+// */
+///*
+// * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+// * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+// */
+//package Entity.khac;
+//
+///**
+// *
+// * @author SingPC
+// */
+//import org.opencv.core.Core;
+//import org.opencv.core.Mat;
+//import org.opencv.videoio.VideoCapture;
+//import javax.swing.*;
+//import java.awt.*;
+//import java.awt.image.BufferedImage;
+//import java.awt.image.DataBufferByte;
+//import java.nio.charset.StandardCharsets;
+//import com.google.zxing.*;
+//import com.google.zxing.common.HybridBinarizer;
+//import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
+//import com.google.zxing.qrcode.QRCodeReader;
+//
+//public class QRScannerForm extends JFrame {
+//    private JLabel imageLabel;
+//    private VideoCapture capture;
+//
+//    public QRScannerForm() {
+//        setTitle("Quét mã QR từ Webcam");
+//        setSize(800, 600);
+//        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        setLocationRelativeTo(null);
+//        imageLabel = new JLabel();
+//        imageLabel.setSize(640, 480);
+//        add(imageLabel, BorderLayout.CENTER);
+//        JButton btnScan = new JButton("Bắt đầu quét mã QR");
+//        btnScan.addActionListener(e -> startQRScanning());
+//        add(btnScan, BorderLayout.SOUTH);
+//    }
+//
+//    private void startQRScanning() {
+//        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+//        capture = new VideoCapture(0);
+//        if (!capture.isOpened()) {
+//            JOptionPane.showMessageDialog(this, "Không thể mở webcam.");
+//            return;
+//        }
+//        new Thread(() -> {
+//            Mat frame = new Mat();
+//            while (capture.read(frame)) {
+//                BufferedImage image = matToBufferedImage(frame);
+//                SwingUtilities.invokeLater(() -> imageLabel.setIcon(new ImageIcon(image)));
+//
+//                String qrCodeText = scanQRCode(image);
+//                if (qrCodeText != null) {
+//                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this, "Nội dung mã QR: " + qrCodeText));
+//                    break;
+//                }
+//
+//                try {
+//                    Thread.sleep(100);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            capture.release();
+//        }).start();
+//    }
+//
+//    private static BufferedImage matToBufferedImage(Mat mat) {
+//        int type = BufferedImage.TYPE_BYTE_GRAY;
+//        if (mat.channels() > 1) {
+//            type = BufferedImage.TYPE_3BYTE_BGR;
+//        }
+//        BufferedImage image = new BufferedImage(mat.width(), mat.height(), type);
+//        mat.get(0, 0, ((DataBufferByte) image.getRaster().getDataBuffer()).getData());
+//        return image;
+//    }
+//
+//    private static String scanQRCode(BufferedImage bufferedImage) {
+//        try {
+//            LuminanceSource source = new BufferedImageLuminanceSource(bufferedImage);
+//            BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+//Result result = new QRCodeReader().decode(bitmap);
+//            return new String(result.getText().getBytes(), StandardCharsets.UTF_8);
+//        } catch (NotFoundException e) {
+//            return null;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return null;
+//        }
+//    }
+//
+//    public static void main(String[] args) {
+//        SwingUtilities.invokeLater(() -> {
+//            QRScannerForm scannerForm = new QRScannerForm();
+//            scannerForm.setVisible(true);
+//        });
+//    }
+//}

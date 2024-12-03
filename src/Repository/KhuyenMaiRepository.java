@@ -91,7 +91,7 @@ public ArrayList<SanPhamEntity>layDanhSachSanPham(){
 public boolean themKhuyenMai(KhuyenMaiEntity km){
     int check =0;
     String sql = """
-                 insert into voucher (ten_voucher,gia_tri, ngay_bat_dau, ngay_ket_thuc,mo_ta,loai_gia_tri,chuong_trinh_khuyen_mai)
+                 insert into event (ten_voucher,gia_tri, ngay_bat_dau, ngay_ket_thuc,mo_ta,loai_gia_tri,chuong_trinh_khuyen_mai)
                  values(?,?,?,?,?,?,?)
                  """;
     try {
@@ -114,7 +114,7 @@ public boolean themKhuyenMai(KhuyenMaiEntity km){
 public boolean updateKhuyenMai(KhuyenMaiEntity km,int maKhuyenMai){
     int check =0;
     String sql = """
-                 update voucher 
+                 update event 
                  set ten_voucher =?, gia_tri =?, ngay_bat_dau =?, ngay_ket_thuc =?,mo_ta=?,loai_gia_tri=?,chuong_trinh_khuyen_mai=?
                  where id_voucher =?
                  """;
@@ -140,7 +140,7 @@ public ArrayList<KhuyenMaiEntity> hienThiDuLieuKhuyenMai(){
     ArrayList<KhuyenMaiEntity> ls = new ArrayList<>();
     String sql ="""
                 select id_voucher, ten_voucher, gia_tri, ngay_bat_dau, ngay_ket_thuc,mo_ta,loai_gia_tri,chuong_trinh_khuyen_mai, trang_thai
-                from voucher
+                from event
                 """;
     try {
         Connection con = ketnoi.getConnection();

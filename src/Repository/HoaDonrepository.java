@@ -50,24 +50,6 @@ public class HoaDonrepository {
         }
         return ls;
     }
-//    public boolean TaoHoaDon(){
-//        int check =0;
-//        String  sql = """
-//                   insert into HoaDon (ngay_lap,ma_nhan_vien,ma_khach_hang)
-//                   values(getDate(),?,?)
-//                   """;
-//        try {
-//            Connection con= ketnoi.getConnection();
-//            InsertHoaDonEntity hd = new InsertHoaDonEntity();
-//            PreparedStatement ps = con.prepareStatement(sql);
-//            ps.setObject(1,luuThongTinDangNhap.getInNhanVien());
-//            ps.setObject(2, 1);
-//            check = ps.executeUpdate();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return check >0;
-//    }
     public ArrayList<XemHoaDonTao> getAllGioHang(int maHoaDon){
         ArrayList<XemHoaDonTao> ls = new ArrayList<>();
         String sql ="""
@@ -181,7 +163,7 @@ public boolean capNhatSoLuongSanPham(int idMaSanPham, int soLuongMoi) {
                 from HoaDon hd
                 join DonHang dh on hd.ma_don_hang = dh.id_ma_don_hang
                 join ChiTietDonHang dhct on dh.id_ma_don_hang = dhct.ma_don_hang
-                left join Voucher voucher on dhct.ma_voucher = voucher.id_voucher
+                left join event voucher on dhct.ma_voucher = voucher.id_voucher
                 group by hd.ma_hoa_don, hd.tien_khach_dua, hd.tien_tra_khach,hd.phuong_thuc,dh.ngay_dat
                 """;
      try {
@@ -207,16 +189,22 @@ public boolean capNhatSoLuongSanPham(int idMaSanPham, int soLuongMoi) {
  public ArrayList<DonHangChiTietEntity> layGioHangSanPham(int idDonHang){
      ArrayList<DonHangChiTietEntity> ls= new ArrayList<>();
      String  sql = """
-                      select	
-                	ctdh.id_ma_chi_tiet_don_hang,
-                	sp.ma_san_pham, 
-                        sp.ten_san_pham, 
-                        sp.gia_ban, 
-                        ctdh.so_luong
-                        FROM chitietdonhang ctdh
-                        JOIN SanPham sp ON ctdh.ma_san_pham = sp.id_ma_san_pham
-                        JOIN DonHang dh ON ctdh.ma_don_hang = dh.id_ma_don_hang
-                        WHERE dh.id_ma_don_hang = ?
+                      SELECT 
+                   ctdh.ma_san_pham,
+                            sp.ma_san_pham as maSanPham, 
+                            sp.ten_san_pham, 
+                            sp.gia_ban, 
+                            SUM(ctdh.so_luong) AS so_luong
+                        FROM 
+                            chitietdonhang ctdh
+                        JOIN 
+                            SanPham sp ON ctdh.ma_san_pham = sp.id_ma_san_pham
+                        JOIN 
+                            DonHang dh ON ctdh.ma_don_hang = dh.id_ma_don_hang
+                        WHERE 
+                            dh.id_ma_don_hang = ? 
+                        GROUP BY 
+                            sp.ma_san_pham, sp.ten_san_pham, sp.gia_ban,ctdh.ma_san_pham
                    """;
      try {
          Connection con = ketnoi.getConnection();
@@ -225,8 +213,8 @@ public boolean capNhatSoLuongSanPham(int idMaSanPham, int soLuongMoi) {
          ResultSet rs = ps.executeQuery();
          while(rs.next()){
              DonHangChiTietEntity ct = new DonHangChiTietEntity();
-             ct.setIdDonHangChiTiet(rs.getInt("id_ma_chi_tiet_don_hang"));
-             ct.setMaSanPham(rs.getString("ma_san_pham"));
+             ct.setIdMaSanPham(rs.getInt("ma_san_pham"));
+             ct.setMaSanPham(rs.getString("maSanPham"));
              ct.setTenSanPham(rs.getString("ten_san_pham"));
              ct.setGiaBan(rs.getFloat("gia_ban"));
              ct.setSoLuong(rs.getInt("so_luong"));

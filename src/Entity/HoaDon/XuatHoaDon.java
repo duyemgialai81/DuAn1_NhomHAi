@@ -30,11 +30,12 @@ public class XuatHoaDon {
     private float giaBan;
     private int idHoaDon;
     private float chuyenKhoan;
+    private float giamGia;
 
     public XuatHoaDon() {
     }
 
-    public XuatHoaDon(String tenNhanVien, String tenKhachHang, Date ngayDat, String email, String soDienThoai, float tienKhachDua, float tienTraKhach, String phuongThuc, float thanhTien, float giaTri, float thue, String maHoaDon, String tenSanPham, int soLuong, float giaBan, int idHoaDon, float chuyenKhoan) {
+    public XuatHoaDon(String tenNhanVien, String tenKhachHang, Date ngayDat, String email, String soDienThoai, float tienKhachDua, float tienTraKhach, String phuongThuc, float thanhTien, float giaTri, float thue, String maHoaDon, String tenSanPham, int soLuong, float giaBan, int idHoaDon, float chuyenKhoan, float giamGia) {
         this.tenNhanVien = tenNhanVien;
         this.tenKhachHang = tenKhachHang;
         this.ngayDat = ngayDat;
@@ -52,6 +53,7 @@ public class XuatHoaDon {
         this.giaBan = giaBan;
         this.idHoaDon = idHoaDon;
         this.chuyenKhoan = chuyenKhoan;
+        this.giamGia = giamGia;
     }
 
     public String getTenNhanVien() {
@@ -189,6 +191,15 @@ public class XuatHoaDon {
     public void setChuyenKhoan(float chuyenKhoan) {
         this.chuyenKhoan = chuyenKhoan;
     }
+
+    public float getGiamGia() {
+        return giamGia;
+    }
+
+    public void setGiamGia(float giamGia) {
+        this.giamGia = giamGia;
+    }
+
    
 
 }

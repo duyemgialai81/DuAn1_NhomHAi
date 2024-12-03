@@ -15,17 +15,17 @@ public class AddSanPhamEntity {
     private float giaNhap;
     private int soLuong;
     private String hinhAnh;
-    private int  MaLoai;
-    private int maKichCo;       
-    private int maMauSac;       
-    private int maThuongHieu;
-    private int maChatLieu;      
-    private int maXuatXu;
+    private String  MaLoai;
+    private String maKichCo;       
+    private String maMauSac;       
+    private String maThuongHieu;
+    private String maChatLieu;      
+    private String maXuatXu;
 
     public AddSanPhamEntity() {
     }
 
-    public AddSanPhamEntity(String maSanPham, String tenSanPham, float giaBan, float giaNhap, int soLuong, String hinhAnh, int MaLoai, int maKichCo, int maMauSac, int maThuongHieu, int maChatLieu, int maXuatXu) {
+    public AddSanPhamEntity(String maSanPham, String tenSanPham, float giaBan, float giaNhap, int soLuong, String hinhAnh, String MaLoai, String maKichCo, String maMauSac, String maThuongHieu, String maChatLieu, String maXuatXu) {
         this.maSanPham = maSanPham;
         this.tenSanPham = tenSanPham;
         this.giaBan = giaBan;
@@ -88,54 +88,55 @@ public class AddSanPhamEntity {
         this.hinhAnh = hinhAnh;
     }
 
-    public int getMaLoai() {
+    public String getMaLoai() {
         return MaLoai;
     }
 
-    public void setMaLoai(int MaLoai) {
+    public void setMaLoai(String MaLoai) {
         this.MaLoai = MaLoai;
     }
 
-    public int getMaKichCo() {
+    public String getMaKichCo() {
         return maKichCo;
     }
 
-    public void setMaKichCo(int maKichCo) {
+    public void setMaKichCo(String maKichCo) {
         this.maKichCo = maKichCo;
     }
 
-    public int getMaMauSac() {
+    public String getMaMauSac() {
         return maMauSac;
     }
 
-    public void setMaMauSac(int maMauSac) {
+    public void setMaMauSac(String maMauSac) {
         this.maMauSac = maMauSac;
     }
 
-    public int getMaThuongHieu() {
+    public String getMaThuongHieu() {
         return maThuongHieu;
     }
 
-    public void setMaThuongHieu(int maThuongHieu) {
+    public void setMaThuongHieu(String maThuongHieu) {
         this.maThuongHieu = maThuongHieu;
     }
 
-    public int getMaChatLieu() {
+    public String getMaChatLieu() {
         return maChatLieu;
     }
 
-    public void setMaChatLieu(int maChatLieu) {
+    public void setMaChatLieu(String maChatLieu) {
         this.maChatLieu = maChatLieu;
     }
 
-    public int getMaXuatXu() {
+    public String getMaXuatXu() {
         return maXuatXu;
     }
 
-    public void setMaXuatXu(int maXuatXu) {
+    public void setMaXuatXu(String maXuatXu) {
         this.maXuatXu = maXuatXu;
     }
-    
+
+   
    
     
 }
