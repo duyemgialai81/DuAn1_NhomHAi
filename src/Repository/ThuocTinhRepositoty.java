@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Repository;
 
 import Entity.ThuocTinh.ChatLieuEntity;
@@ -14,12 +10,8 @@ import java.util.ArrayList;
 import java.sql.*;
 import KetNoiSQL.ketnoi;
 
-/**
- *
- * @author SingPC
- */
-public class ThuocTinhRepositoty {
 
+public class ThuocTinhRepositoty {
     public ArrayList<loaiSanPhamEntity> loaiSanPhaam() {
         ArrayList<loaiSanPhamEntity> ls = new ArrayList<>();
         String sql = """
@@ -64,7 +56,7 @@ public class ThuocTinhRepositoty {
         }
         return ls;
     }
-
+    
     public ArrayList<KichCoEnTity> kichCo() {
         ArrayList<KichCoEnTity> ls = new ArrayList<>();
         String sql = """
@@ -87,6 +79,7 @@ public class ThuocTinhRepositoty {
         }
         return ls;
     }
+    
     public ArrayList<ChatLieuEntity> chatLieu(){
         ArrayList<ChatLieuEntity> ls = new ArrayList<>();
         String sql = """
@@ -129,6 +122,7 @@ public class ThuocTinhRepositoty {
         }
         return ls;
     }
+    
     public ArrayList<XuatXuEntity> xuatXu(){
         ArrayList<XuatXuEntity> ls = new ArrayList<>();
         String sql ="""
@@ -150,6 +144,7 @@ public class ThuocTinhRepositoty {
         }
         return ls;
     }
+    
     public boolean  addLoaiSanPham(loaiSanPhamEntity sp ){
         int check =0;
         String sql ="""
@@ -167,6 +162,7 @@ public class ThuocTinhRepositoty {
         }
         return check >0;
     }
+    
     public boolean addThuognHieu(ThuongHieuEntity th){
         int check = 0;
         String sql ="""
@@ -202,7 +198,7 @@ public class ThuocTinhRepositoty {
         return check >0;
     }
     
-    public boolean  addKichCo(KichCoEnTity kc ){
+    public boolean addKichCo(KichCoEnTity kc ){
         int check =0;
         String sql ="""
                     insert into kichco (kich_co, mo_ta)
@@ -236,6 +232,7 @@ public class ThuocTinhRepositoty {
         }
         return check >0;
     }
+    
     public boolean addXuatXu(XuatXuEntity xx ){
         int check =0;
         String sql ="""
@@ -253,6 +250,7 @@ public class ThuocTinhRepositoty {
         }
         return check >0;
     }
+    
     public boolean deleteLoaiSanPham(int idMaLoai){
         int check = 0;
         String sql = """
@@ -269,6 +267,7 @@ public class ThuocTinhRepositoty {
         }
         return check >0;
     }
+    
     public boolean deleteKichCo(String moTa){
         int check = 0;
         String sql = """
@@ -285,25 +284,27 @@ public class ThuocTinhRepositoty {
         }
         return check >0;
     }
-    public boolean updateLoaiSanPham(loaiSanPhamEntity sp, int idMaLoaiSanPham){
+    
+    public boolean updateLoaiSanPham(loaiSanPhamEntity sp, String tenLoaiSanPham){
         int check =0;
         String sql = """
                      update LoaiSanPham
                      set ten_loai_san_pham = ?, mo_ta = ?
-                     where id_ma_loai = ?
+                     where ten_loai_san_pham = ?
                      """;
         try {
             Connection con = ketnoi.getConnection();
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setObject(1, sp.getTenLoaiSanPham());
             ps.setObject(2, sp.getMota());
-            ps.setObject(3, idMaLoaiSanPham);
+            ps.setObject(3, tenLoaiSanPham);
             check = ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
         }
         return check >0;
     }
+    
     public boolean updateMauSac( MauSacEntity ms, String mauSach){
         int check = 0;
         String sql ="""
@@ -322,6 +323,7 @@ public class ThuocTinhRepositoty {
         }
         return check > 0;
     }
+    
     public boolean updateChatLieuSanPham ( ChatLieuEntity cl, int maChatLieu){
         int check =0;
         String sql = """
@@ -340,6 +342,7 @@ public class ThuocTinhRepositoty {
         }
         return check >0;
     }
+    
     public boolean  updateThuongHieu(ThuongHieuEntity th, int maThuongHieu){
         int check =0;
         String sql = """
@@ -358,12 +361,12 @@ public class ThuocTinhRepositoty {
         
         return check >0;
     }
-    public boolean updateXuatXu(XuatXuEntity xx, int maXuatXu){
+    public boolean updateXuatXu(XuatXuEntity xx, String maXuatXu){
        int check =0;
        String sql = """
                     update xuatxu
                     set quoc_gia =?, mo_ta =?
-                    where ma_xuat_xu = ?
+                    where quoc_gia = ?
                     """;
         try {
             Connection con = ketnoi.getConnection();
@@ -372,7 +375,9 @@ public class ThuocTinhRepositoty {
             ps.setObject(2, xx.getMota());
             ps.setObject(3, maXuatXu);
         } catch (Exception e) {
+            e.printStackTrace();
         }
        return check >0;
     }
+    
 }

@@ -3,7 +3,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
 package GiaoDien;
-
 import Entity.DonHangChiTiet.DonHangChiTietEntity;
 import Entity.HoaDon.HoaDonEntity;
 import Entity.HoaDon.HoaDonXemDuLieu;
@@ -108,6 +107,7 @@ public class NewJPanel extends javax.swing.JPanel implements Runnable, ThreadFac
     /**
      * Creates new form NewJPanel
      */
+    
     public NewJPanel() {
         initComponents();
         hienThiDuLieuuu(ls.getSanPhamChhiTiet());
@@ -139,7 +139,7 @@ public class NewJPanel extends javax.swing.JPanel implements Runnable, ThreadFac
         }
     }
 
-   public void timKimMaKhachHang() {
+    public void timKimMaKhachHang() {
         String soDienThaoi = txtsodienthoai.getText();
         ArrayList<KhachHang> kh = khachHang.timKiemKhachHang(soDienThaoi);
         if (!kh.isEmpty()) {
@@ -154,7 +154,7 @@ public class NewJPanel extends javax.swing.JPanel implements Runnable, ThreadFac
 
     }
 
-  private void hienThiDuLieuGioHangg(int maGioHang) {
+    private void hienThiDuLieuGioHangg(int maGioHang) {
     try (Connection con = ketnoi.getConnection()) {
         String sqlChiTiet = """
                SELECT	
@@ -178,8 +178,6 @@ public class NewJPanel extends javax.swing.JPanel implements Runnable, ThreadFac
         """;
         try (PreparedStatement psChiTiet = con.prepareStatement(sqlChiTiet); 
              PreparedStatement psTongTienThue = con.prepareStatement(sqlTongTienThue)) {
-             
-            // Lấy dữ liệu sản phẩm
             psChiTiet.setInt(1, maGioHang);
             ResultSet rsChiTiet = psChiTiet.executeQuery();
             Map<String, Object[]> productMap = new HashMap<>();
@@ -220,7 +218,6 @@ public class NewJPanel extends javax.swing.JPanel implements Runnable, ThreadFac
                 txtthanhtien.setText(formatter.format(thanhTien));
                 txtGiamGia.setText(formatter.format(giamGia));
                 apDungKhuyenMai();
-                // Cập nhật tiền thừa khi khách nhập tiền
                 txt_tienKhachDua.getDocument().addDocumentListener(new DocumentListener() {
                     @Override
                     public void insertUpdate(DocumentEvent e) {
@@ -773,30 +770,74 @@ private void initWebcam() {
         e.printStackTrace();
     }
 }
-  private void addProductToOrderDetailAndUpdatePaymentDuyem(int maSanPham, int soLuong, float giaBan, int maDonHang) {
+private void addProductToOrderDetailAndUpdatePaymentDuyem(int maSanPham, int soLuong, float giaBan, int maDonHang) {
     int idDonHang = Integer.parseInt(txtid.getText());
-    int maGiamGia = 1;
+    int maVoucher = -1; // Khởi tạo giá trị mặc định là không có voucher
     float tongTien = soLuong * giaBan; 
+
+    // Câu lệnh để kiểm tra voucher hợp lệ
+    String voucherSql = """
+        SELECT TOP 1 id_voucher, gia_tri
+        FROM event
+        WHERE trang_thai = N'Đang hoạt động'
+          AND ngay_bat_dau <= GETDATE()
+          AND ngay_ket_thuc >= GETDATE()
+        ORDER BY gia_tri DESC
+    """;
+
+    // Câu lệnh kiểm tra sản phẩm đã tồn tại trong ChiTietDonHang
+    String checkExistSQL = "SELECT so_luong FROM ChiTietDonHang WHERE ma_san_pham = ? AND ma_don_hang = ?";
+    
+    // Câu lệnh thêm mới sản phẩm nếu chưa có, hoặc cập nhật nếu đã tồn tại
     String insertSQL = "INSERT INTO ChiTietDonHang (ma_san_pham, so_luong, gia_ban, tong_tien, ma_don_hang, ma_voucher) VALUES (?, ?, ?, ?, ?, ?)";
-    String updateSQL = "UPDATE SanPham SET so_luong_ton = so_luong_ton - ? WHERE id_ma_san_pham = ?";
+    String updateSQL = "UPDATE ChiTietDonHang SET so_luong = so_luong + ?, tong_tien = tong_tien + ? WHERE ma_san_pham = ? AND ma_don_hang = ?";
+    
+    // Cập nhật số lượng tồn kho trong bảng SanPham
+    String updateStockSQL = "UPDATE SanPham SET so_luong_ton = so_luong_ton - ? WHERE id_ma_san_pham = ?";
 
     try (Connection con = ketnoi.getConnection()) {
         con.setAutoCommit(false); // Bắt đầu giao dịch
-        try (PreparedStatement insertStmt = con.prepareStatement(insertSQL)) {
-            insertStmt.setInt(1, maSanPham);
-            insertStmt.setInt(2, soLuong);
-            insertStmt.setFloat(3, giaBan);
-            insertStmt.setFloat(4, tongTien);
-            insertStmt.setInt(5, idDonHang);
-            insertStmt.setInt(6, maGiamGia);
-            insertStmt.executeUpdate();
+
+        // Kiểm tra voucher hợp lệ
+        try (PreparedStatement psVoucher = con.prepareStatement(voucherSql)) {
+            try (ResultSet rsVoucher = psVoucher.executeQuery()) {
+                if (rsVoucher.next()) {
+                    maVoucher = rsVoucher.getInt("id_voucher"); // Lấy id voucher
+                    tongTien -= (tongTien * rsVoucher.getFloat("gia_tri") / 100); // Áp dụng giá trị voucher vào tổng tiền
+                }
+            }
         }
-        try (PreparedStatement updateStmt = con.prepareStatement(updateSQL)) {
-            updateStmt.setInt(1, soLuong);
-            updateStmt.setInt(2, maSanPham);
-            updateStmt.executeUpdate();
+        try (PreparedStatement checkStmt = con.prepareStatement(checkExistSQL)) {
+            checkStmt.setInt(1, maSanPham);
+            checkStmt.setInt(2, idDonHang);
+            try (ResultSet rs = checkStmt.executeQuery()) {
+                if (rs.next()) {
+                    try (PreparedStatement updateStmt2 = con.prepareStatement(updateSQL)) {
+                        updateStmt2.setInt(1, soLuong); // Cộng thêm số lượng
+                        updateStmt2.setFloat(2, tongTien); // Cộng thêm tổng tiền
+                        updateStmt2.setInt(3, maSanPham);
+                        updateStmt2.setInt(4, idDonHang);
+                        updateStmt2.executeUpdate();
+                    }
+                } else {
+                    try (PreparedStatement insertStmt = con.prepareStatement(insertSQL)) {
+                        insertStmt.setInt(1, maSanPham);
+                        insertStmt.setInt(2, soLuong);
+                        insertStmt.setFloat(3, giaBan);
+                        insertStmt.setFloat(4, tongTien);
+                        insertStmt.setInt(5, idDonHang);
+                        insertStmt.setObject(6, maVoucher == -1 ? null : maVoucher); // Thêm voucher nếu có
+                        insertStmt.executeUpdate();
+                    }
+                }
+            }
         }
-        con.commit(); // Hoàn thành giao dịch
+        try (PreparedStatement updateStockStmt = con.prepareStatement(updateStockSQL)) {
+            updateStockStmt.setInt(1, soLuong);
+            updateStockStmt.setInt(2, maSanPham);
+            updateStockStmt.executeUpdate();
+        }
+        con.commit();
         hienThiDuLieuGioHangg(idDonHang);
         hienThiDuLieuuu(ls.getSanPhamChhiTiet());
         apDungKhuyenMai();
@@ -805,6 +846,7 @@ private void initWebcam() {
         JOptionPane.showMessageDialog(null, "Lỗi khi thêm sản phẩm hoặc cập nhật tồn kho: " + e.getMessage());
     }
 }
+
 
     @Override
     public Thread newThread(Runnable r) {
@@ -942,12 +984,8 @@ private void initWebcam() {
                 kc.setMoTa(rs.getString("mo_ta"));
                 ls.add(kc);
                 String kichCo = rs.getString("kich_co");
-
-                // Thêm item vào combobox
                 txtlockichco1.addItem(kichCo);
             }
-
-            // Cập nhật lại giao diện
             txtlockichco1.revalidate();
             txtlockichco1.repaint();
 
@@ -975,12 +1013,8 @@ private void initWebcam() {
                 ms.setMoTa(rs.getString("mo_ta"));
                 ls.add(ms);
                 String mauSac = rs.getString("mau_sac_san_pham");
-
-                // Thêm item vào combobox
                 txtLocMauSac.addItem(mauSac);
             }
-
-            // Cập nhật lại giao diện
             txtLocMauSac.revalidate();
             txtLocMauSac.repaint();
 
@@ -1600,7 +1634,6 @@ private void initWebcam() {
             JOptionPane.showMessageDialog(panel, "Đăng Nhập Để Tạo Hóa Đơn");
             e.printStackTrace();
         }
-//            JOptionPane.showMessageDialog(hienthigiohang, "hhgffduhb");
         }else{
              int maKhachHang = Integer.parseInt(txtidkhachhang.getText());
         String trangThaiDonHnag = "Đang chờ";
@@ -1609,7 +1642,6 @@ private void initWebcam() {
         VALUES (GETDATE(), ?, ?,?)
         """;
         try (Connection con = ketnoi.getConnection()) {
-
             try (PreparedStatement psDonHang = con.prepareStatement(sqlDonHang)) {
                 psDonHang.setInt(1, idNhanVien);
                 psDonHang.setInt(2, maKhachHang);
@@ -1982,24 +2014,17 @@ private void initWebcam() {
 //}
        int idmaDonHnag = Integer.parseInt(txtid.getText());
 String trangThaiHoaDon = "Đang Chờ Thanh Toán";
-
-// Lấy và xử lý giá trị từ các ô nhập liệu
 String rawValue = txtthanhtien.getText().trim();
 String numericValue = rawValue.replaceAll("[^\\d.]", "");
 float thanhTien = Float.parseFloat(numericValue);
-
 double tienKhachDua = Double.parseDouble(txt_tienKhachDua.getText().trim().replace(",", ""));
-
 String rawValuee = txtTienTraKhac.getText().trim();
 String numericValuee = rawValuee.replaceAll("[^\\d.]", "");
 double tienTraKhach = Double.parseDouble(numericValuee);
-
 String phuongThuc = cbo_hinhThucThanhToan.getSelectedItem().toString();
-
 String rawValueee = chuyenkhoan.getText().trim();
 String numericValueee = rawValueee.replaceAll("[^\\d.]", "");
 double chuyenKhoan = Double.parseDouble(numericValueee);
-
 String giamGia = txtGiamGia.getText().trim();
 String chuyenGiamGia = giamGia.replaceAll("[^\\d.]", "");
 double giamGiatxt = Double.parseDouble(chuyenGiamGia);
@@ -2309,99 +2334,246 @@ private void apDungKhuyenMai() {
             e.printStackTrace();
         }
     }
-private void addProductToOrderDetailAndUpdatePayment(int maSanPham, String tenSanPham, float giaBan, int soLuong) {
-int maDonHang = Integer.parseInt(txtid.getText());
-float tongTien = giaBan * soLuong;
-int maVoucher = -1; // Khởi tạo giá trị mặc định nếu không có voucher
+    private void addProductToOrderDetailAndUpdatePayment(int maSanPham, String tenSanPham, float giaBan, int soLuong) {
+    int maDonHang = Integer.parseInt(txtid.getText());
+    float tongTien = giaBan * soLuong;
+    int maVoucher = -1; // Khởi tạo giá trị mặc định nếu không có voucher
 
-// SQL statements
-String insertSql = """
-    INSERT INTO ChiTietDonHang (ma_don_hang, ma_san_pham, so_luong, gia_ban, tong_tien, thue, ma_voucher)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-""";
-String updateSql = """
-    UPDATE SanPham
-    SET so_luong_ton = so_luong_ton - ?
-    WHERE id_ma_san_pham = ?
-""";
-String paymentInfoSql = """
-    SELECT 
-        SUM(tong_tien) AS tong_tien, 
-        SUM(tong_tien * thue / 100) AS tong_thue
-    FROM ChiTietDonHang
-    WHERE ma_don_hang = ?
-""";
-String voucherSql = """
-    SELECT TOP 1 id_voucher 
-    FROM event
-    WHERE trang_thai = N'Đang hoạt động'
-      AND ngay_bat_dau <= GETDATE()
-      AND ngay_ket_thuc >= GETDATE()
-    ORDER BY gia_tri DESC
-""";
+    // SQL statements
+    String checkExistSql = """
+        SELECT so_luong FROM ChiTietDonHang 
+        WHERE ma_don_hang = ? AND ma_san_pham = ?
+    """;
+    String insertSql = """
+        INSERT INTO ChiTietDonHang (ma_don_hang, ma_san_pham, so_luong, gia_ban, tong_tien, thue, ma_voucher)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """;
+    String updateSql = """
+        UPDATE SanPham
+        SET so_luong_ton = so_luong_ton - ?
+        WHERE id_ma_san_pham = ?
+    """;
+    String updateDetailSql = """
+        UPDATE ChiTietDonHang
+        SET so_luong = ?, tong_tien = ?
+        WHERE ma_don_hang = ? AND ma_san_pham = ?
+    """;
+    String paymentInfoSql = """
+        SELECT 
+            SUM(tong_tien) AS tong_tien, 
+            SUM(tong_tien * thue / 100) AS tong_thue
+        FROM ChiTietDonHang
+        WHERE ma_don_hang = ?
+    """;
+    String voucherSql = """
+        SELECT TOP 1 id_voucher 
+        FROM event
+        WHERE trang_thai = N'Đang hoạt động'
+          AND ngay_bat_dau <= GETDATE()
+          AND ngay_ket_thuc >= GETDATE()
+        ORDER BY gia_tri DESC
+    """;
 
-try (Connection con = ketnoi.getConnection()) {
-    con.setAutoCommit(false);
+    try (Connection con = ketnoi.getConnection()) {
+        con.setAutoCommit(false);
 
-    try (PreparedStatement psVoucher = con.prepareStatement(voucherSql);
-         PreparedStatement psInsert = con.prepareStatement(insertSql);
-         PreparedStatement psUpdate = con.prepareStatement(updateSql);
-         PreparedStatement psPaymentInfo = con.prepareStatement(paymentInfoSql)) {
-        try (ResultSet rsVoucher = psVoucher.executeQuery()) {
-            if (rsVoucher.next()) {
-                maVoucher = rsVoucher.getInt("id_voucher");
-            }
-        }
+        try (PreparedStatement psVoucher = con.prepareStatement(voucherSql);
+             PreparedStatement psInsert = con.prepareStatement(insertSql);
+             PreparedStatement psUpdate = con.prepareStatement(updateSql);
+             PreparedStatement psCheckExist = con.prepareStatement(checkExistSql);
+             PreparedStatement psUpdateDetail = con.prepareStatement(updateDetailSql);
+             PreparedStatement psPaymentInfo = con.prepareStatement(paymentInfoSql)) {
 
-        psInsert.setInt(1, maDonHang);
-        psInsert.setInt(2, maSanPham); // maSanPham được truyền từ bên ngoài
-        psInsert.setInt(3, soLuong);
-        psInsert.setFloat(4, giaBan);
-        psInsert.setFloat(5, tongTien);
-        psInsert.setDouble(6, 10.0); // Thuế giả định là 10%
-        psInsert.setObject(7, maVoucher == -1 ? null : maVoucher); // Nếu không có voucher, dùng null
+            // Kiểm tra nếu sản phẩm đã có trong chi tiết đơn hàng
+            psCheckExist.setInt(1, maDonHang);
+            psCheckExist.setInt(2, maSanPham);
+            ResultSet rsExist = psCheckExist.executeQuery();
+            boolean isProductExist = rsExist.next();
+            int existingQuantity = isProductExist ? rsExist.getInt("so_luong") : 0;
 
-        if (psInsert.executeUpdate() > 0) {
-            // Cập nhật số lượng tồn kho
-            psUpdate.setInt(1, soLuong);
-            psUpdate.setInt(2, maSanPham);
-
-            if (psUpdate.executeUpdate() > 0) {
-                // Lấy thông tin thanh toán
-                psPaymentInfo.setInt(1, maDonHang);
-                try (ResultSet rsPayment = psPaymentInfo.executeQuery()) {
-                    if (rsPayment.next()) {
-                        float totalAmount = rsPayment.getFloat("tong_tien");
-                        float totalTax = rsPayment.getFloat("tong_thue");
-                        float finalAmount = totalAmount + totalTax;
-                        DecimalFormat formatter = new DecimalFormat("#,###.##");
-                        txttongSoTien.setText("Tổng Tiền: " + formatter.format(totalAmount));
-                        txtthue.setText("Thuế: " + formatter.format(totalTax));
-                        txtthanhtien.setText("Thành Tiền: " + formatter.format(finalAmount));
-//                        apDungKhuyenMai();
-//                          apDungKhuyenMai();
-//               int idTXT = Integer.parseInt(txtid.getText());
-//                        hienThiDuLieuGioHangg(idTXT);
-                    }
+            // Lấy voucher nếu có
+            try (ResultSet rsVoucher = psVoucher.executeQuery()) {
+                if (rsVoucher.next()) {
+                    maVoucher = rsVoucher.getInt("id_voucher");
                 }
-                con.commit();
-            } else {
-                con.rollback();
-                System.out.println("Lỗi khi cập nhật số lượng sản phẩm.");
             }
-        } else {
+
+            if (isProductExist) {
+                // Cập nhật số lượng và tổng tiền nếu sản phẩm đã có trong chi tiết đơn hàng
+                int newQuantity = existingQuantity + soLuong;
+                float newTongTien = giaBan * newQuantity;
+                psUpdateDetail.setInt(1, newQuantity);
+                psUpdateDetail.setFloat(2, newTongTien);
+                psUpdateDetail.setInt(3, maDonHang);
+                psUpdateDetail.setInt(4, maSanPham);
+
+                // Nếu cập nhật chi tiết thành công, thực hiện tiếp các bước sau
+                if (psUpdateDetail.executeUpdate() > 0) {
+                    // Cập nhật số lượng tồn kho
+                    psUpdate.setInt(1, soLuong);
+                    psUpdate.setInt(2, maSanPham);
+                    if (psUpdate.executeUpdate() > 0) {
+                        // Lấy thông tin thanh toán
+                        psPaymentInfo.setInt(1, maDonHang);
+                        try (ResultSet rsPayment = psPaymentInfo.executeQuery()) {
+                            if (rsPayment.next()) {
+                                float totalAmount = rsPayment.getFloat("tong_tien");
+                                float totalTax = rsPayment.getFloat("tong_thue");
+                                float finalAmount = totalAmount + totalTax;
+                                DecimalFormat formatter = new DecimalFormat("#,###.##");
+                                txttongSoTien.setText("Tổng Tiền: " + formatter.format(totalAmount));
+                                txtthue.setText("Thuế: " + formatter.format(totalTax));
+                                txtthanhtien.setText("Thành Tiền: " + formatter.format(finalAmount));
+                            }
+                        }
+                        con.commit();
+                    } else {
+                        con.rollback();
+                        System.out.println("Lỗi khi cập nhật số lượng sản phẩm.");
+                    }
+                } else {
+                    con.rollback();
+                    System.out.println("Lỗi khi cập nhật chi tiết đơn hàng.");
+                }
+            } else {
+                // Nếu sản phẩm chưa có trong chi tiết đơn hàng, thêm mới
+                psInsert.setInt(1, maDonHang);
+                psInsert.setInt(2, maSanPham);
+                psInsert.setInt(3, soLuong);
+                psInsert.setFloat(4, giaBan);
+                psInsert.setFloat(5, tongTien);
+                psInsert.setDouble(6, 10.0); // Thuế giả định là 10%
+                psInsert.setObject(7, maVoucher == -1 ? null : maVoucher);
+
+                // Nếu thêm thành công, cập nhật số lượng tồn kho và thông tin thanh toán
+                if (psInsert.executeUpdate() > 0) {
+                    psUpdate.setInt(1, soLuong);
+                    psUpdate.setInt(2, maSanPham);
+                    if (psUpdate.executeUpdate() > 0) {
+                        psPaymentInfo.setInt(1, maDonHang);
+                        try (ResultSet rsPayment = psPaymentInfo.executeQuery()) {
+                            if (rsPayment.next()) {
+                                float totalAmount = rsPayment.getFloat("tong_tien");
+                                float totalTax = rsPayment.getFloat("tong_thue");
+                                float finalAmount = totalAmount + totalTax;
+                                DecimalFormat formatter = new DecimalFormat("#,###.##");
+                                txttongSoTien.setText("Tổng Tiền: " + formatter.format(totalAmount));
+                                txtthue.setText("Thuế: " + formatter.format(totalTax));
+                                txtthanhtien.setText("Thành Tiền: " + formatter.format(finalAmount));
+                            }
+                        }
+                        con.commit();
+                    } else {
+                        con.rollback();
+                        System.out.println("Lỗi khi cập nhật số lượng sản phẩm.");
+                    }
+                } else {
+                    con.rollback();
+                    System.out.println("Lỗi khi thêm sản phẩm vào đơn hàng chi tiết.");
+                }
+            }
+        } catch (SQLException e) {
             con.rollback();
-            System.out.println("Lỗi khi thêm sản phẩm vào đơn hàng chi tiết.");
+            e.printStackTrace();
         }
     } catch (SQLException e) {
-        con.rollback();
         e.printStackTrace();
     }
-} catch (SQLException e) {
-    e.printStackTrace();
 }
 
-}
+//private void addProductToOrderDetailAndUpdatePayment(int maSanPham, String tenSanPham, float giaBan, int soLuong) {
+//int maDonHang = Integer.parseInt(txtid.getText());
+//float tongTien = giaBan * soLuong;
+//int maVoucher = -1; // Khởi tạo giá trị mặc định nếu không có voucher
+//
+//// SQL statements
+//String insertSql = """
+//    INSERT INTO ChiTietDonHang (ma_don_hang, ma_san_pham, so_luong, gia_ban, tong_tien, thue, ma_voucher)
+//    VALUES (?, ?, ?, ?, ?, ?, ?)
+//""";
+//String updateSql = """
+//    UPDATE SanPham
+//    SET so_luong_ton = so_luong_ton - ?
+//    WHERE id_ma_san_pham = ?
+//""";
+//String paymentInfoSql = """
+//    SELECT 
+//        SUM(tong_tien) AS tong_tien, 
+//        SUM(tong_tien * thue / 100) AS tong_thue
+//    FROM ChiTietDonHang
+//    WHERE ma_don_hang = ?
+//""";
+//String voucherSql = """
+//    SELECT TOP 1 id_voucher 
+//    FROM event
+//    WHERE trang_thai = N'Đang hoạt động'
+//      AND ngay_bat_dau <= GETDATE()
+//      AND ngay_ket_thuc >= GETDATE()
+//    ORDER BY gia_tri DESC
+//""";
+//
+//try (Connection con = ketnoi.getConnection()) {
+//    con.setAutoCommit(false);
+//
+//    try (PreparedStatement psVoucher = con.prepareStatement(voucherSql);
+//         PreparedStatement psInsert = con.prepareStatement(insertSql);
+//         PreparedStatement psUpdate = con.prepareStatement(updateSql);
+//         PreparedStatement psPaymentInfo = con.prepareStatement(paymentInfoSql)) {
+//        try (ResultSet rsVoucher = psVoucher.executeQuery()) {
+//            if (rsVoucher.next()) {
+//                maVoucher = rsVoucher.getInt("id_voucher");
+//            }
+//        }
+//
+//        psInsert.setInt(1, maDonHang);
+//        psInsert.setInt(2, maSanPham); // maSanPham được truyền từ bên ngoài
+//        psInsert.setInt(3, soLuong);
+//        psInsert.setFloat(4, giaBan);
+//        psInsert.setFloat(5, tongTien);
+//        psInsert.setDouble(6, 10.0); // Thuế giả định là 10%
+//        psInsert.setObject(7, maVoucher == -1 ? null : maVoucher); // Nếu không có voucher, dùng null
+//
+//        if (psInsert.executeUpdate() > 0) {
+//            // Cập nhật số lượng tồn kho
+//            psUpdate.setInt(1, soLuong);
+//            psUpdate.setInt(2, maSanPham);
+//
+//            if (psUpdate.executeUpdate() > 0) {
+//                // Lấy thông tin thanh toán
+//                psPaymentInfo.setInt(1, maDonHang);
+//                try (ResultSet rsPayment = psPaymentInfo.executeQuery()) {
+//                    if (rsPayment.next()) {
+//                        float totalAmount = rsPayment.getFloat("tong_tien");
+//                        float totalTax = rsPayment.getFloat("tong_thue");
+//                        float finalAmount = totalAmount + totalTax;
+//                        DecimalFormat formatter = new DecimalFormat("#,###.##");
+//                        txttongSoTien.setText("Tổng Tiền: " + formatter.format(totalAmount));
+//                        txtthue.setText("Thuế: " + formatter.format(totalTax));
+//                        txtthanhtien.setText("Thành Tiền: " + formatter.format(finalAmount));
+////                        apDungKhuyenMai();
+////                          apDungKhuyenMai();
+////               int idTXT = Integer.parseInt(txtid.getText());
+////                        hienThiDuLieuGioHangg(idTXT);
+//                    }
+//                }
+//                con.commit();
+//            } else {
+//                con.rollback();
+//                System.out.println("Lỗi khi cập nhật số lượng sản phẩm.");
+//            }
+//        } else {
+//            con.rollback();
+//            System.out.println("Lỗi khi thêm sản phẩm vào đơn hàng chi tiết.");
+//        }
+//    } catch (SQLException e) {
+//        con.rollback();
+//        e.printStackTrace();
+//    }
+//} catch (SQLException e) {
+//    e.printStackTrace();
+//}
+//
+//}
 
     private void txtdonhangAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_txtdonhangAncestorAdded
         // TODO add your handling code here:

@@ -191,6 +191,11 @@ public class TrangChu extends javax.swing.JFrame {
 
         txtidnhanvien.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/New Project.png"))); // NOI18N
         txtidnhanvien.setText("  ");
+        txtidnhanvien.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                txtidnhanvienMouseClicked(evt);
+            }
+        });
         jPanel3.add(txtidnhanvien, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 20, 200, 120));
 
         jLabel2.setBackground(new java.awt.Color(255, 255, 255));
@@ -439,6 +444,12 @@ public class TrangChu extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "bạn Là nhân viên bạn không có quyền này");
         }
     }//GEN-LAST:event_txtdoihangMouseClicked
+
+    private void txtidnhanvienMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtidnhanvienMouseClicked
+        // TODO add your handling code here:
+        MatKhauMoi sc = new MatKhauMoi();
+        sc.setVisible(true);
+    }//GEN-LAST:event_txtidnhanvienMouseClicked
 
     /**
      * @param args the command line arguments

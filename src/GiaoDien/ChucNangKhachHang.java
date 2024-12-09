@@ -5,8 +5,10 @@
 package GiaoDien;
 
 import Entity.KhachHang.KhachHang;
+import KetNoiSQL.ketnoi;
 import Repository.ChonKhachHangRepository;
 import Repository.KhachHangRepository;
+import java.sql.*;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -658,7 +660,22 @@ int index = tbl_thongTinKH.getSelectedRow();
 //                JOptionPane.showMessageDialog(this, "chon khong them");
 //            }
 //        }
-add();
+String soDienThoi = txt_SDT.getText().trim();
+    String sql = "SELECT COUNT(*) AS count FROM KhachHang WHERE so_dien_thoai = ? ";
+    try (Connection con = ketnoi.getConnection();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+        ps.setString(1, soDienThoi);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next() && rs.getInt("count") > 0) {
+            JOptionPane.showMessageDialog(this, "Số Điện Thoại Đã Tồn Tại");
+        } else {
+            add();
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Lỗi khi kiểm tra tên sản phẩm");
+    }
+
     }//GEN-LAST:event_btn_ThemActionPerformed
 
 
