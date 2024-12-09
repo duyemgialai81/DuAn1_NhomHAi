@@ -42,8 +42,8 @@ public class ChonKhachHangRepository {
     public boolean  addThongTinKhachHang(KhachHang kh){
         int check =0;
         String sql = """
-                     insert into Khachhang (ten_khach_hang,email,so_dien_thoai,dia_chi)
-                     values(?,?,?,?)
+                     insert into Khachhang (ten_khach_hang,email,so_dien_thoai,gioi_tinh,dia_chi,trang_thai)
+                     values(?,?,?,?,?,?)
                      """;
         try {
             Connection con = ketnoi.getConnection();
@@ -51,7 +51,9 @@ public class ChonKhachHangRepository {
             ps.setObject(1, kh.getTenKH());
             ps.setObject(2, kh.getEmail());
             ps.setObject(3, kh.getSDT());
-            ps.setObject(4, kh.getDiaChi());
+            ps.setObject(4, kh.isGioiTinh());
+            ps.setObject(5, kh.getDiaChi());
+            ps.setObject(6, kh.isTrangThai());
             check = ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();

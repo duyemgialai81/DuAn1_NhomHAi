@@ -75,7 +75,7 @@
         <Component class="javax.swing.JTextField" name="txt_timKiemHoaDon">
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txt_timKiemHoaDonActionPerformed"/>
-            <EventHandler event="keyTyped" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txt_timKiemHoaDonKeyTyped"/>
+            <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txt_timKiemHoaDonKeyReleased"/>
           </Events>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
@@ -149,17 +149,20 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JComboBox" name="cbo_hinhThucThanhToan">
+        <Component class="javax.swing.JComboBox" name="hinhThuc">
           <Properties>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
               <StringArray count="4">
-                <StringItem index="0" value="             "/>
+                <StringItem index="0" value="            "/>
                 <StringItem index="1" value="Ti&#x1ec1;n M&#x1eb7;t"/>
                 <StringItem index="2" value="Chuy&#x1ec3;n Kho&#x1ea3;n"/>
                 <StringItem index="3" value="C&#x1ea3; hai"/>
               </StringArray>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="hinhThucActionPerformed"/>
+          </Events>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
           </AuxValues>
@@ -169,19 +172,19 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JComboBox" name="cbo_trangThaiThanhToan">
+        <Component class="javax.swing.JComboBox" name="TrangThai">
           <Properties>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
               <StringArray count="4">
-                <StringItem index="0" value="-"/>
-                <StringItem index="1" value="Ch&#x1edd; Thanh To&#xe1;n"/>
-                <StringItem index="2" value="&#x110;&#xe3; Thanh To&#xe1;n"/>
-                <StringItem index="3" value="&#x110;&#xe3; Hu&#x1ef7;"/>
+                <StringItem index="0" value="                "/>
+                <StringItem index="1" value="&#x110;ang Ch&#x1edd; Thanh To&#xe1;n"/>
+                <StringItem index="2" value="Thanh To&#xe1;n Th&#xe0;nh C&#xf4;ng"/>
+                <StringItem index="3" value="H&#x1ee7;y &#x110;&#x1a1;n H&#xe0;ng"/>
               </StringArray>
             </Property>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cbo_trangThaiThanhToanActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="TrangThaiActionPerformed"/>
           </Events>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>

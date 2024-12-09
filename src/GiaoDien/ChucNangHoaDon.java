@@ -55,28 +55,32 @@ private DonHangChiTietRepository ct = new DonHangChiTietRepository();
             });
         }
     }
-private void timKiemHoaDon() {
-    JCalendar jCalendarStart = new JCalendar();
-JCalendar jCalendarEnd = new JCalendar();
 
-    String maHoaDon = txt_timKiemHoaDon.getText().trim();
-    String trangThai = cbo_trangThaiThanhToan.getSelectedItem().toString();
-    String hinhThucThanhToan = cbo_hinhThucThanhToan.getSelectedItem().toString();
-    Date ngayBatDau = txtNgayBatDau.getDate();
-    Date ngayKetThuc = txtNgayKetThuc.getDate();
-    
-    // Kiểm tra giá trị ngày nếu là null
-    if (ngayBatDau == null || ngayKetThuc == null) {
-        JOptionPane.showMessageDialog(null, "Vui lòng chọn ngày bắt đầu và kết thúc!");
-        return;
+private void TimKiem() {
+    // Lấy dữ liệu từ các trường nhập liệu
+    java.util.Date NgayBatDau = (Date) txtNgayBatDau.getDate();
+    java.util.Date NgayKetThuc = (Date) txtNgayKetThuc.getDate();
+    String trangThai = TrangThai.getSelectedItem().toString();  // Lấy trạng thái từ combobox
+    String hinhThucThanhToan = hinhThuc.getSelectedItem().toString();  // Lấy phương thức thanh toán từ combobox
+    String maHoaDon = txt_timKiemHoaDon.getText().trim();  // Lấy mã hóa đơn từ trường nhập liệu
+
+    // Kiểm tra nếu người dùng không nhập mã hóa đơn
+    if (maHoaDon.isEmpty()) {
+        maHoaDon = ""; // Nếu trống, set về giá trị mặc định là chuỗi rỗng
     }
 
-    // Gọi phương thức timKiemChiTietHoaDon và truyền đúng các tham số
-    ArrayList<HoaDonChiTiet> hoaDons = hd.timKiemChiTietHoaDon(ngayBatDau, ngayKetThuc, maHoaDon, trangThai, hinhThucThanhToan);
+    // Chuyển đổi java.util.Date sang java.sql.Date
+    java.sql.Date sqlNgayBatDau = (NgayBatDau != null) ? new java.sql.Date(NgayBatDau.getTime()) : null;
+    java.sql.Date sqlNgayKetThuc = (NgayKetThuc != null) ? new java.sql.Date(NgayKetThuc.getTime()) : null;
+
+    // Gọi phương thức timkiemSanPham() để tìm kiếm các hóa đơn chi tiết
+    ArrayList<HoaDonChiTiet> kk = hd.timkiemSanPham(trangThai, hinhThucThanhToan, maHoaDon, sqlNgayBatDau, sqlNgayKetThuc);
     
-    // Hiển thị kết quả
-    hienThiDuLieu(hoaDons);
+    // Hiển thị kết quả tìm kiếm lên giao diện
+    hienThiDuLieu(kk);
 }
+
+
 
   /**
      * This method is called from within the constructor to initialize the form.
@@ -94,8 +98,8 @@ JCalendar jCalendarEnd = new JCalendar();
         jScrollPane1 = new javax.swing.JScrollPane();
         tbl_hoaDon = new javax.swing.JTable();
         jLabel4 = new javax.swing.JLabel();
-        cbo_hinhThucThanhToan = new javax.swing.JComboBox<>();
-        cbo_trangThaiThanhToan = new javax.swing.JComboBox<>();
+        hinhThuc = new javax.swing.JComboBox<>();
+        TrangThai = new javax.swing.JComboBox<>();
         jLabel2 = new javax.swing.JLabel();
         txtNgayKetThuc = new com.toedter.calendar.JDateChooser();
         txtNgayBatDau = new com.toedter.calendar.JDateChooser();
@@ -118,8 +122,8 @@ JCalendar jCalendarEnd = new JCalendar();
             }
         });
         txt_timKiemHoaDon.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                txt_timKiemHoaDonKeyTyped(evt);
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txt_timKiemHoaDonKeyReleased(evt);
             }
         });
         jPanel_HoaDon.add(txt_timKiemHoaDon, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 70, 420, -1));
@@ -162,16 +166,21 @@ JCalendar jCalendarEnd = new JCalendar();
         jLabel4.setText("Hình Thức Thanh Toán:");
         jPanel_HoaDon.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 150, -1, -1));
 
-        cbo_hinhThucThanhToan.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "             ", "Tiền Mặt", "Chuyển Khoản", "Cả hai" }));
-        jPanel_HoaDon.add(cbo_hinhThucThanhToan, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 180, 240, -1));
-
-        cbo_trangThaiThanhToan.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "-", "Chờ Thanh Toán", "Đã Thanh Toán", "Đã Huỷ" }));
-        cbo_trangThaiThanhToan.addActionListener(new java.awt.event.ActionListener() {
+        hinhThuc.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "            ", "Tiền Mặt", "Chuyển Khoản", "Cả hai" }));
+        hinhThuc.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbo_trangThaiThanhToanActionPerformed(evt);
+                hinhThucActionPerformed(evt);
             }
         });
-        jPanel_HoaDon.add(cbo_trangThaiThanhToan, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 180, 230, -1));
+        jPanel_HoaDon.add(hinhThuc, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 180, 240, -1));
+
+        TrangThai.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "                ", "Đang Chờ Thanh Toán", "Thanh Toán Thành Công", "Hủy Đơn Hàng" }));
+        TrangThai.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                TrangThaiActionPerformed(evt);
+            }
+        });
+        jPanel_HoaDon.add(TrangThai, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 180, 230, -1));
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel2.setText("Trạng Thái Thanh Toán:");
@@ -234,11 +243,6 @@ JCalendar jCalendarEnd = new JCalendar();
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void txt_timKiemHoaDonKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_timKiemHoaDonKeyTyped
-        // TODO add your handling code here:
- 
-    }//GEN-LAST:event_txt_timKiemHoaDonKeyTyped
-
     private void tbl_hoaDonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbl_hoaDonMouseClicked
         // TODO add your handling code here:
         int selectedRowHoaDon = tbl_hoaDon.getSelectedRow();
@@ -249,27 +253,30 @@ JCalendar jCalendarEnd = new JCalendar();
 
     }//GEN-LAST:event_tbl_hoaDonMouseClicked
 
-    private void cbo_trangThaiThanhToanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbo_trangThaiThanhToanActionPerformed
+    private void TrangThaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TrangThaiActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_cbo_trangThaiThanhToanActionPerformed
+        TimKiem();
+    }//GEN-LAST:event_TrangThaiActionPerformed
 
     private void txtNgayBatDauAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_txtNgayBatDauAncestorAdded
         // TODO add your handling code here:
+//        TimKiem();
     }//GEN-LAST:event_txtNgayBatDauAncestorAdded
 
     private void txtNgayKetThucAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_txtNgayKetThucAncestorAdded
         // TODO add your handling code here:
+//        TimKiem();
     }//GEN-LAST:event_txtNgayKetThucAncestorAdded
 
     private void btn_timKiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_timKiemActionPerformed
         // TODO add your handling code here:
-        timKiemHoaDon();
+        TimKiem();
     
     }//GEN-LAST:event_btn_timKiemActionPerformed
 
     private void txt_timKiemHoaDonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_timKiemHoaDonActionPerformed
         // TODO add your handling code here:
-        
+       TimKiem();
     }//GEN-LAST:event_txt_timKiemHoaDonActionPerformed
 
     private void btn_timKiemMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btn_timKiemMouseClicked
@@ -277,11 +284,21 @@ JCalendar jCalendarEnd = new JCalendar();
     
     }//GEN-LAST:event_btn_timKiemMouseClicked
 
+    private void hinhThucActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hinhThucActionPerformed
+        // TODO add your handling code here:
+        TimKiem();
+    }//GEN-LAST:event_hinhThucActionPerformed
+
+    private void txt_timKiemHoaDonKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_timKiemHoaDonKeyReleased
+        // TODO add your handling code here:
+        TimKiem();
+    }//GEN-LAST:event_txt_timKiemHoaDonKeyReleased
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> TrangThai;
     private javax.swing.JButton btn_timKiem;
-    private javax.swing.JComboBox<String> cbo_hinhThucThanhToan;
-    private javax.swing.JComboBox<String> cbo_trangThaiThanhToan;
+    private javax.swing.JComboBox<String> hinhThuc;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel4;

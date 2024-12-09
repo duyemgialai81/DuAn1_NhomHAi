@@ -20,7 +20,7 @@ public class NhanVienRepository {
 public ArrayList<NhanVienEntity> getAll() {
         ArrayList<NhanVienEntity> ls = new ArrayList<>();
         String sql = """
-                 select ma_nhan_vien, ten_nhan_vien, so_dien_thoai, email, dia_chi , id_role, trang_thai, ngay_sinh, gioi_tinh, ten_role
+                 select ma_nhan_vien, ten_nhan_vien, so_dien_thoai, email, dia_chi , id_role, trang_thai, ngay_sinh, gioi_tinh, ten_role, mat_khau
                                   from NhanVien nv
                                   join Role r on nv.id_role = r.id_ma_role where trang_thai = N'Hoạt động'
                  """;
@@ -29,7 +29,7 @@ public ArrayList<NhanVienEntity> getAll() {
             ps = con.prepareStatement(sql);
             rs = ps.executeQuery();
             while (rs.next()) {
-                String maNhanVien, tenNhanVien, soDienThoai, ngaySinh, email, diaChi, trangThai, vaiTro;
+                String maNhanVien, tenNhanVien, soDienThoai, ngaySinh, email, diaChi, trangThai, vaiTro, matKhau;
                 boolean gioiTinh;
                 int idRole;
                 maNhanVien = rs.getString("ma_nhan_vien");
@@ -41,6 +41,7 @@ public ArrayList<NhanVienEntity> getAll() {
                 trangThai = rs.getString("trang_thai");
                 vaiTro = rs.getString("ten_role");
                 gioiTinh = rs.getBoolean("gioi_tinh");
+                matKhau = rs.getString("mat_khau");
 //                nv.setMaNhanVien(rs.getString("ma_nhan_vien"));
 //                nv.setTenNhanVien(rs.getString("ten_nhan_vien"));
 //                nv.setSoDienThoai(rs.getString("so_dien_thoai"));
@@ -52,7 +53,7 @@ public ArrayList<NhanVienEntity> getAll() {
 //                nv.setVaiTro(rs.getString("ten_role"));
 //                nv.setIdRole(rs.getInt("id_role"));
                 // Nếu bạn có thuộc tính idRole trong NhanVienEntity
-                NhanVienEntity nv = new NhanVienEntity(maNhanVien, tenNhanVien, soDienThoai, ngaySinh, gioiTinh, email, diaChi, trangThai, vaiTro);
+                NhanVienEntity nv = new NhanVienEntity(maNhanVien, tenNhanVien, vaiTro, diaChi, soDienThoai, ngaySinh, gioiTinh, email, matKhau, trangThai, vaiTro);
                 ls.add(nv);
             }
             return ls;
@@ -65,7 +66,7 @@ public ArrayList<NhanVienEntity> getAll() {
     public ArrayList<NhanVienEntity> getAll2() {
         ArrayList<NhanVienEntity> ls = new ArrayList<>();
         String sql = """
-                 select ma_nhan_vien, ten_nhan_vien, so_dien_thoai, email, dia_chi , id_role, trang_thai, ngay_sinh, gioi_tinh, ten_role
+                 select ma_nhan_vien, ten_nhan_vien, so_dien_thoai, email, dia_chi , id_role, trang_thai, ngay_sinh, gioi_tinh, ten_role, mat_khau
                                   from NhanVien nv
                                   join Role r on nv.id_role = r.id_ma_role where trang_thai = N'Nghỉ làm'
                  """;
@@ -84,6 +85,7 @@ public ArrayList<NhanVienEntity> getAll() {
                 nv.setNgaySinh(rs.getString("ngay_sinh"));
                 nv.setGioiTinh(rs.getBoolean("gioi_tinh"));
                 nv.setVaiTro(rs.getString("ten_role"));
+                nv.setMatKhau(rs.getString("mat_khau"));
 //                nv.setIdRole(rs.getInt("id_role"));  // Nếu bạn có thuộc tính idRole trong NhanVienEntity
                 ls.add(nv);
             }

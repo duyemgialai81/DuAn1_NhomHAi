@@ -19,7 +19,7 @@ import GiaoDien.LuuThongTinDangNhap;
 import java.util.ArrayList;
 import java.sql.*;
 import KetNoiSQL.ketnoi;
-import java.util.Date;
+
 /**
  *
  * @author SingPC
@@ -282,5 +282,68 @@ public ArrayList<HoaDonChiTiet> getAllChiTietHoaDon(){
     }
     return ls;
 }
+    
+    
+    public ArrayList<HoaDonChiTiet> timkiemSanPham(String TrangThai, String PhuongThuc, String maHoaDon, Date NgayBatDau, Date NgayKetThuc) {
+    ArrayList<HoaDonChiTiet> ls = new ArrayList<>();
+    String sql = """
+       select hd.ma_hoa_don, 
+               sum(dhct.so_luong * dhct.gia_ban - COALESCE(voucher.gia_tri, 0) - dhct.thue) as tongTien,
+               hd.tien_khach_dua - hd.tien_tra_khach as tien_can_thu, hd.tien_khach_dua, hd.tien_tra_khach, hd.phuong_thuc, dh.ngay_dat, dh.trang_thai
+       from HoaDon hd
+       left join DonHang dh on hd.ma_don_hang = dh.id_ma_don_hang
+       join ChiTietDonHang dhct on dh.id_ma_don_hang = dhct.ma_don_hang
+       left join event voucher on dhct.ma_voucher = voucher.id_voucher
+       WHERE (dh.trang_thai LIKE ? OR ? = '') 
+       AND (hd.phuong_thuc LIKE ? OR ? = '')
+       AND (hd.ma_hoa_don LIKE ? OR ? = '')
+       AND (dh.ngay_dat BETWEEN ? and ?)
+       group by hd.ma_hoa_don, hd.tien_khach_dua, hd.tien_tra_khach, hd.phuong_thuc, dh.ngay_dat, dh.trang_thai
+    """;
+    
+    try (Connection con = ketnoi.getConnection()) {
+        PreparedStatement ps = con.prepareStatement(sql);
+        
+        // Cài đặt các tham số cho các điều kiện tìm kiếm
+        ps.setString(1, "%" + TrangThai + "%"); 
+        ps.setString(2, TrangThai);
+        ps.setString(3, "%" + PhuongThuc + "%");  
+        ps.setString(4, PhuongThuc);
+        ps.setString(5, "%" + maHoaDon + "%");  
+        ps.setString(6, maHoaDon);
+
+        // Chuyển đổi java.util.Date sang java.sql.Date
+        if (NgayBatDau != null) {
+            ps.setDate(7, new java.sql.Date(NgayBatDau.getTime())); // Chuyển ngày bắt đầu
+        } else {
+            ps.setNull(7, java.sql.Types.DATE); // Nếu không có ngày bắt đầu, truyền null
+        }
+        
+        if (NgayKetThuc != null) {
+            ps.setDate(8, new java.sql.Date(NgayKetThuc.getTime())); // Chuyển ngày kết thúc
+        } else {
+            ps.setNull(8, java.sql.Types.DATE); // Nếu không có ngày kết thúc, truyền null
+        }
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            HoaDonChiTiet hdd = new HoaDonChiTiet();
+            hdd.setMaHoaDon(rs.getString("ma_hoa_don"));
+            hdd.setTongTien(rs.getFloat("tongTien"));
+            hdd.setThanhToan(rs.getDouble("tien_can_thu"));
+            hdd.setTienKhachDua(rs.getDouble("tien_khach_dua"));
+            hdd.setTienTraKhach(rs.getDouble("tien_tra_khach"));
+            hdd.setPhuongThuc(rs.getString("phuong_thuc"));
+            hdd.setNgayDat(rs.getDate("ngay_dat"));
+            hdd.setTrangThai(rs.getString("trang_thai"));
+            ls.add(hdd);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return ls;
+}
+
 
 }

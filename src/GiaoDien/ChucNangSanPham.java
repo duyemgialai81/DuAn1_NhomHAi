@@ -1546,7 +1546,7 @@ private void timkiemThongTinSanPham() {
                 {null, null, null, null, null, null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "Mã Sản Phẩm", "Tên Sản Phẩm", "Số Lượng Tồn", "Giá Bán", "Hình Ảnh", "Kích Cỡ", "Màu Sắc", "Tên Thương Hiệu", "Chất Liệu", "Quốc Gia", "Danh Muc", "Trạng Thái", "Giá Nhập", "Title 14"
+                "ID Sản Phẩm", "Mã Sản Phẩm", "Tên Sản Phẩm", "Số Lượng", "Giá Bán", "Giá Nhập", "Hình ảnh", "Kích Thước", "Màu Sắc", "Thương Hiệu", "Chất Liệu", "Quốc Gia", "Loại Sản Phẩm", "Trang Thái"
             }
         ));
         tbl_sanphamchitiet.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -2401,6 +2401,8 @@ private XuatXuEntity getFomatXuatXu(){
 
     private void jButton15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton15ActionPerformed
         // TODO add your handling code here:
+        thuocTinh.addXuatXu(getFomatXuatXu());
+        hienThiThuocTinhXuatXu(thuocTinh.xuatXu());
     }//GEN-LAST:event_jButton15ActionPerformed
 
     private void thuocTinnhKichCoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_thuocTinnhKichCoMouseClicked
@@ -2410,9 +2412,16 @@ private XuatXuEntity getFomatXuatXu(){
         tenKichCo.setText(kc.getKichCo());
         moTaKichCo.setText(kc.getMoTa());
     }//GEN-LAST:event_thuocTinnhKichCoMouseClicked
-
+private ChatLieuEntity getFomatChatLieu(){
+    ChatLieuEntity cl = new ChatLieuEntity();
+    cl.setChatLieu(tenChatLieu.getText());
+    cl.setMoTa(moTaChatLieu.getText());
+    return cl;
+}
     private void jButton19ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton19ActionPerformed
         // TODO add your handling code here:
+        thuocTinh.addChatLieu(getFomatChatLieu());
+        hienThiThuocTinhChatLieu(thuocTinh.chatLieu());
     }//GEN-LAST:event_jButton19ActionPerformed
 
     private void thuocTinhChatLieuMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_thuocTinhChatLieuMouseClicked
@@ -2422,9 +2431,16 @@ private XuatXuEntity getFomatXuatXu(){
         tenChatLieu.setText(cl.getChatLieu());
         moTaChatLieu.setText(cl.getMoTa());
     }//GEN-LAST:event_thuocTinhChatLieuMouseClicked
-
+private ThuongHieuEntity getFoamTThuongHieu(){
+    ThuongHieuEntity th = new ThuongHieuEntity();
+    th.setTenThuongHieu(tenThuongHieu.getText());
+    th.setMoTa(moTaThuongHieu.getText());
+    return th;
+}
     private void jButton23ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton23ActionPerformed
         // TODO add your handling code here:
+        thuocTinh.addThuognHieu(getFoamTThuongHieu());
+        HienThiDuLieuThuongHieu(thuocTinh.thuogHieu());
     }//GEN-LAST:event_jButton23ActionPerformed
 
     private void thuocTinhThuongHieuMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_thuocTinhThuongHieuMouseClicked

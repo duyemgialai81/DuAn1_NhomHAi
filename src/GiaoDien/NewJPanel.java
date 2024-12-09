@@ -411,15 +411,25 @@ public class NewJPanel extends javax.swing.JPanel implements Runnable, ThreadFac
 //}
 
 
-    private void hienThiDuLieuuu(ArrayList<SanPhamEntity> lss) {
-        md = (DefaultTableModel) tbl_sanPham1.getModel();
-        md.setRowCount(0);
-        for (SanPhamEntity l : lss) {
+   private void hienThiDuLieuuu(ArrayList<SanPhamEntity> lss) {
+    md = (DefaultTableModel) tbl_sanPham1.getModel();
+    md.setRowCount(0); // Xóa dữ liệu cũ trong bảng
+    
+    for (SanPhamEntity l : lss) {
+        if (l.getSoLuong() > 0) { // Kiểm tra số lượng lớn hơn 0
             md.addRow(new Object[]{
-                l.getIdSanPham(), l.getTenSanPham(), l.getSoLuong(), l.getGiaBan(),l.getKichCo(), l.getMauSac(), l.getTenThuongHieu()
+                l.getIdSanPham(), 
+                l.getTenSanPham(), 
+                l.getSoLuong(), 
+                l.getGiaBan(),
+                l.getKichCo(), 
+                l.getMauSac(), 
+                l.getTenThuongHieu()
             });
         }
     }
+}
+
 
 //    private void nextPage(ArrayList<SanPhamEntity> lss) {
 //        if ((currentPage * pageSize) < lss.size()) { // Kiểm tra có còn trang tiếp theo không

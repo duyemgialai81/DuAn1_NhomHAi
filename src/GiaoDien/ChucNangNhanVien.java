@@ -15,6 +15,8 @@ import javax.swing.JOptionPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import static org.apache.xmlbeans.impl.xb.xsdschema.AllNNI.Member.Enum.table;
 
 /**
  *
@@ -109,6 +111,9 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
 
     void fillTable(ArrayList<NhanVienEntity> list) {
         mol = (DefaultTableModel) tbl_DangLamViec.getModel();
+              tbl_DangLamViec.getColumnModel().getColumn(9).setMinWidth(0);
+tbl_DangLamViec.getColumnModel().getColumn(9).setMaxWidth(0);
+tbl_DangLamViec.getColumnModel().getColumn(9).setPreferredWidth(0);
         mol.setRowCount(0);
         for (NhanVienEntity x : list) {
             mol.addRow(x.toDataRow());
@@ -117,6 +122,9 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
 
     void fillTable2(ArrayList<NhanVienEntity> list) {
         mol = (DefaultTableModel) tbl_NghiViec.getModel();
+        tbl_NghiViec.getColumnModel().getColumn(9).setMinWidth(0);
+tbl_NghiViec.getColumnModel().getColumn(9).setMaxWidth(0);
+tbl_NghiViec.getColumnModel().getColumn(9).setPreferredWidth(0);
         mol.setRowCount(0);
         for (NhanVienEntity x : list) {
             mol.addRow(x.toDataRow());
@@ -132,6 +140,7 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
         txt_SDT.setText(tbl_DangLamViec.getValueAt(i, 4).toString());
         txt_Date.setText(tbl_DangLamViec.getValueAt(i, 5).toString());
         txt_Email.setText(tbl_DangLamViec.getValueAt(i, 7).toString());
+        txt_MatKhau.setText(tbl_DangLamViec.getValueAt(i, 9).toString());
         String tt = nv.getTrangThai();
         boolean gt = nv.isGioiTinh();
         if (gt == false) {
@@ -155,6 +164,7 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
         txt_SDT.setText(tbl_NghiViec.getValueAt(i, 4).toString());
         txt_Date.setText(tbl_NghiViec.getValueAt(i, 5).toString());
         txt_Email.setText(tbl_NghiViec.getValueAt(i, 7).toString());
+        txt_MatKhau.setText(tbl_NghiViec.getValueAt(i, 9).toString());
         String tt = nv.getTrangThai();
         boolean gt = nv.isGioiTinh();
         if (gt == false) {
@@ -234,7 +244,7 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
         }
 
         // Đảm bảo thứ tự các tham số khớp với thứ tự trong phương thức khởi tạo NhanVienEntity
-        return new NhanVienEntity(tenNhanVien, vaiTro, diaChi, soDienThoai, ngaySinh, gioiTinh, email, matKhau, trangThai);
+        return new NhanVienEntity(tenNhanVien, tenNhanVien, vaiTro, diaChi, soDienThoai, ngaySinh, gioiTinh, email, matKhau, trangThai, email);
     }
 
     /**
@@ -255,7 +265,6 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        txt_MatKhau = new javax.swing.JTextField();
         txt_DiaChi = new javax.swing.JTextField();
         txt_TenNV = new javax.swing.JTextField();
         txt_MaNV = new javax.swing.JTextField();
@@ -275,6 +284,8 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
         btn_Them = new javax.swing.JButton();
         btn_LamMoi = new javax.swing.JButton();
         btn_Sua = new javax.swing.JButton();
+        txt_MatKhau = new javax.swing.JPasswordField();
+        duyem = new javax.swing.JCheckBox();
         jPanel2 = new javax.swing.JPanel();
         jLabel11 = new javax.swing.JLabel();
         cbo_LocGioiTinh = new javax.swing.JComboBox<>();
@@ -340,7 +351,6 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
         buttonGroup2.add(rdo_NghiViec);
         rdo_NghiViec.setText("Nghỉ Việc");
 
-        btn_Them.setBackground(new java.awt.Color(255, 204, 0));
         btn_Them.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_Them.setText("Thêm");
         btn_Them.addActionListener(new java.awt.event.ActionListener() {
@@ -349,7 +359,6 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
             }
         });
 
-        btn_LamMoi.setBackground(new java.awt.Color(255, 204, 0));
         btn_LamMoi.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_LamMoi.setText("Làm Mới");
         btn_LamMoi.addActionListener(new java.awt.event.ActionListener() {
@@ -358,12 +367,17 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
             }
         });
 
-        btn_Sua.setBackground(new java.awt.Color(255, 204, 0));
         btn_Sua.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_Sua.setText("Sửa");
         btn_Sua.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_SuaActionPerformed(evt);
+            }
+        });
+
+        duyem.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                duyemMouseClicked(evt);
             }
         });
 
@@ -395,9 +409,11 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
                                 .addComponent(jLabel4)
                                 .addGap(33, 33, 33)))
                         .addGroup(cbo_VaiTroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txt_MatKhau)
-                            .addComponent(QuanLy, 0, 200, Short.MAX_VALUE))))
-                .addGap(177, 177, 177)
+                            .addComponent(QuanLy, 0, 200, Short.MAX_VALUE)
+                            .addComponent(txt_MatKhau))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(duyem)
+                .addGap(86, 86, 86)
                 .addGroup(cbo_VaiTroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(cbo_VaiTroLayout.createSequentialGroup()
                         .addComponent(btn_Them, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -447,9 +463,10 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
                 .addGap(18, 18, 18)
                 .addGroup(cbo_VaiTroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(txt_MatKhau, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel8)
-                    .addComponent(txt_Email, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txt_Email, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txt_MatKhau, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(duyem))
                 .addGap(18, 18, 18)
                 .addGroup(cbo_VaiTroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
@@ -563,13 +580,13 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
 
         tbl_DangLamViec.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "Mã NV", "Tên Nhân Viên", "Vai Trò", "Địa Chỉ", "Điện Thoại", "Ngày Sinh", "Giới Tính", "Email", "Trạng Thái"
+                "Mã NV", "Tên Nhân Viên", "Vai Trò", "Địa Chỉ", "Điện Thoại", "Ngày Sinh", "Giới Tính", "Email", "Trạng Thái", "Mật Khẩu"
             }
         ));
         tbl_DangLamViec.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -596,13 +613,13 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
 
         tbl_NghiViec.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "Mã NV", "Tên Nhân Viên", "Vai Trò", "Địa Chỉ", "Điện Thoại", "Ngày Sinh", "Giới Tính", "Email", "Trạng Thái"
+                "Mã NV", "Tên Nhân Viên", "Vai Trò", "Địa Chỉ", "Điện Thoại", "Ngày Sinh", "Giới Tính", "Email", "Trạng Thái", "Mật Khẩu"
             }
         ));
         tbl_NghiViec.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -823,7 +840,7 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
     private void tbl_DangLamViecMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbl_DangLamViecMouseClicked
         // TODO add your handling code here:
         int a = tbl_DangLamViec.getSelectedRow();
-        this.showData(a);
+       this.showData(a);
     }//GEN-LAST:event_tbl_DangLamViecMouseClicked
 
     private void tbl_NghiViecMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbl_NghiViecMouseClicked
@@ -831,6 +848,15 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
         int b = tbl_NghiViec.getSelectedRow();
         this.showData2(b);
     }//GEN-LAST:event_tbl_NghiViecMouseClicked
+
+    private void duyemMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_duyemMouseClicked
+        // TODO add your handling code here:
+         if (duyem.isSelected()) {
+            txt_MatKhau.setEchoChar((char) 0);
+        } else {
+            txt_MatKhau.setEchoChar('*');
+        }
+    }//GEN-LAST:event_duyemMouseClicked
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -844,6 +870,7 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
     private javax.swing.JComboBox<String> cbo_LocGioiTinh;
     private javax.swing.JComboBox<String> cbo_LocVaiTro;
     private javax.swing.JPanel cbo_VaiTro;
+    private javax.swing.JCheckBox duyem;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -874,7 +901,7 @@ public class ChucNangNhanVien extends javax.swing.JPanel {
     private javax.swing.JTextField txt_DiaChi;
     private javax.swing.JTextField txt_Email;
     private javax.swing.JTextField txt_MaNV;
-    private javax.swing.JTextField txt_MatKhau;
+    private javax.swing.JPasswordField txt_MatKhau;
     private javax.swing.JTextField txt_SDT;
     private javax.swing.JTextField txt_TenNV;
     private javax.swing.JTextField txt_TimKiem;

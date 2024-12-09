@@ -22,6 +22,7 @@ import java.util.ArrayList;
 public class BanHangTesst {
 
     public ArrayList<SanPhamEntity> getSanPhamChhiTiet() {
+        int SoLuongTon =0;
         ArrayList<SanPhamEntity> lsss = new ArrayList<>();
         String sql = """
            	select sp.id_ma_san_pham, sp.ma_san_pham, sp.ten_san_pham, sp.gia_ban, sp.gia_nhap, sp.so_luong_ton, sp.hinh_anh, lsp.ten_loai_san_pham, ms.mau_sac_san_pham,kc.kich_co,th.ten_thuong_hieu, cl.chat_lieu_san_pham, xx.quoc_gia, sp.trang_thai
@@ -32,9 +33,11 @@ public class BanHangTesst {
                                 join ThuongHieu th on th.ten_thuong_hieu = sp.ma_thuong_hieu
                                 join ChatLieu cl on cl.chat_lieu_san_pham = sp.ma_chat_lieu
                                 join XuatXu xx on xx.quoc_gia = sp.ma_xuat_xu
+                                where sp.so_luong_ton > 0
                      """;
         try (Connection con = ketnoi.getConnection()) {
             PreparedStatement ps = con.prepareStatement(sql);
+//           ps.setObject(1, SoLuongTon);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 SanPhamEntity sp = new SanPhamEntity();

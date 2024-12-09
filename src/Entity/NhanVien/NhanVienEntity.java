@@ -19,22 +19,22 @@ public class NhanVienEntity {
     private String email;
     private String matKhau;
     private String trangThai;
-    private int idRole;
+    private String idRole;
 
     public NhanVienEntity() {
     }
 
-    public NhanVienEntity(String maNhanVien, String tenNhanVien, String soDienThoai, String ngaySinh, boolean gioiTinh, String email, String diaChi, String trangThai, String vaiTro, String matKhau, int idRole) {
+    public NhanVienEntity(String maNhanVien, String tenNhanVien, String vaiTro, String diaChi, String soDienThoai, String ngaySinh, boolean gioiTinh, String email, String matKhau, String trangThai, String idRole) {
         this.maNhanVien = maNhanVien;
         this.tenNhanVien = tenNhanVien;
+        this.vaiTro = vaiTro;
+        this.diaChi = diaChi;
         this.soDienThoai = soDienThoai;
         this.ngaySinh = ngaySinh;
         this.gioiTinh = gioiTinh;
         this.email = email;
-        this.diaChi = diaChi;
-        this.trangThai = trangThai;
-        this.vaiTro = vaiTro;
         this.matKhau = matKhau;
+        this.trangThai = trangThai;
         this.idRole = idRole;
     }
 
@@ -148,7 +148,7 @@ public class NhanVienEntity {
 
     
     public Object[] toDataRow(){
-        return new Object[]{this.getMaNhanVien(),this.getTenNhanVien(),this.getVaiTro(),this.getDiaChi(),this.getSoDienThoai(),this.getNgaySinh(),this.isGioiTinh()?"Nam":"Nữ",this.getEmail(),this.getTrangThai()};
+        return new Object[]{this.getMaNhanVien(),this.getTenNhanVien(),this.getVaiTro(),this.getDiaChi(),this.getSoDienThoai(),this.getNgaySinh(),this.isGioiTinh()?"Nam":"Nữ",this.getEmail(),this.getTrangThai(), this.getMatKhau()};
     }
 }
 
