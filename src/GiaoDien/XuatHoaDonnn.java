@@ -90,6 +90,7 @@ public class XuatHoaDonnn extends JFrame {
         initComponents();
         loadDuLieuu();
         hienThiDuLieuGioHangg();
+        layDuLieuTuBang();
     }
     private void loadDuLieuu() {
     ArrayList<XuatHoaDon> hdList = hd.getAll();
@@ -100,8 +101,8 @@ public class XuatHoaDonnn extends JFrame {
         nhanvien.setText(firstOrder.getTenNhanVien());
         txtmahoadon.setText(firstOrder.getMaHoaDon());
         txthotenkhachhang.setText(firstOrder.getTenKhachHang());
+//         tongtien.setText(formatterr.format(firstOrder.getThanhTien()));
         // giamgia.setText(formatterr.format(firstOrder.getGiaTri()));  
-        tongtien.setText(formatterr.format(firstOrder.getThanhTien())); 
         thue.setText(formatterr.format(firstOrder.getThue())+"%");        
         txtsodienthoaikhachhang.setText(firstOrder.getSoDienThoai());
         txtid.setText(String.valueOf(firstOrder.getIdHoaDon()));     
@@ -126,7 +127,6 @@ public class XuatHoaDonnn extends JFrame {
         System.out.println("Danh sách hóa đơn trống.");
     }
 }
-
     private void hienThiDuLieuGioHangg() {
     try {
         // Kiểm tra nếu txtid rỗng
@@ -158,19 +158,32 @@ public class XuatHoaDonnn extends JFrame {
         }
         
     }
-     private ArrayList<DonHangChiTietEntity> layDuLieuTuBang() {
+private ArrayList<DonHangChiTietEntity> layDuLieuTuBang() {
     ArrayList<DonHangChiTietEntity> danhSachChiTiet = new ArrayList<>();
     DefaultTableModel model = (DefaultTableModel) tblxuathoadon.getModel();
+    double tongTien = 0; // Biến lưu tổng tiền
+
     for (int i = 0; i < model.getRowCount(); i++) {
         DonHangChiTietEntity chiTiet = new DonHangChiTietEntity();
+
+        // Lấy dữ liệu từ bảng
         chiTiet.setTenSanPham((String) model.getValueAt(i, 0));
-        chiTiet.setSoLuong((int) model.getValueAt(i, 1));       
-        chiTiet.setGiaBan((double) model.getValueAt(i, 2));
+        int soLuong = (int) model.getValueAt(i, 1); // Số lượng
+        double donGia = (double) model.getValueAt(i, 2); // Đơn giá
+        chiTiet.setSoLuong(soLuong);
+        chiTiet.setGiaBan(donGia);
+
+        // Tính tổng tiền cho sản phẩm và cộng dồn
+        tongTien += soLuong * donGia;
+
         danhSachChiTiet.add(chiTiet);
     }
+    tongtienn.setText(formatterr.format(tongTien));
     return danhSachChiTiet;
 }
-        
+
+
+     
 
     //try {
 //            // Đường dẫn file PDF
@@ -464,7 +477,7 @@ public class XuatHoaDonnn extends JFrame {
         jLabel23 = new javax.swing.JLabel();
         jLabel24 = new javax.swing.JLabel();
         giamgia = new javax.swing.JLabel();
-        tongtien = new javax.swing.JLabel();
+        tongtienn = new javax.swing.JLabel();
         tienkhachdua = new javax.swing.JLabel();
         tientrakhac = new javax.swing.JLabel();
         txthotenkhachhang = new javax.swing.JLabel();
@@ -491,6 +504,7 @@ public class XuatHoaDonnn extends JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        Email.setBackground(new java.awt.Color(255, 255, 255));
         Email.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -540,8 +554,17 @@ public class XuatHoaDonnn extends JFrame {
         giamgia.setText(" ");
         Email.add(giamgia, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 490, -1, -1));
 
-        tongtien.setText(" ");
-        Email.add(tongtien, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 520, -1, -1));
+        tongtienn.setText(" ");
+        tongtienn.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                tongtiennAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
+        Email.add(tongtienn, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 520, -1, -1));
 
         tienkhachdua.setText(" ");
         Email.add(tienkhachdua, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 550, -1, -1));
@@ -581,7 +604,7 @@ public class XuatHoaDonnn extends JFrame {
         thue.setText(" ");
         Email.add(thue, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 600, -1, -1));
 
-        txtemail.setText("doanngocduy62@gmaail.com");
+        txtemail.setText("doanngocduy62@gmail.com");
         Email.add(txtemail, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 300, -1, -1));
 
         XuatHoaDon.setText("Xuất Hóa Đơn");
@@ -649,39 +672,39 @@ public class XuatHoaDonnn extends JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void XuatHoaDonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_XuatHoaDonActionPerformed
-       String idmaDonHnag = txtid.getText();
-        String maDonHang = txtmahoadon.getText();
-        String trangThaiHoaDon = "Thanh Toán Thành Công";
-        String sql = """
-    UPDATE hoadon
-    SET trang_thai = ?
-    WHERE ma_hoa_don = ?
-    """;
-        String trangThaiDonHang = "Thanh Toán Thành Công";
-        String sqlDonHang = """
-    UPDATE donhang
-    SET trang_thai = ?
-    WHERE id_ma_don_hang = ?
-    """;
-        try {
-            Connection con = ketnoi.getConnection();
-            PreparedStatement psDonHang = con.prepareStatement(sqlDonHang);
-            psDonHang.setObject(1, trangThaiDonHang);
-            psDonHang.setObject(2, idmaDonHnag);
-            int checkDonHang = psDonHang.executeUpdate();
-            PreparedStatement psHoaDon = con.prepareStatement(sql);
-            psHoaDon.setObject(1, trangThaiHoaDon);
-            psHoaDon.setObject(2, maDonHang);
-            int checkHoaDon = psHoaDon.executeUpdate();
-            if (checkDonHang > 0 && checkHoaDon > 0) {
-                
-            } else {
-                JOptionPane.showMessageDialog(this, "Thanh Toán Thất Bại");
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//       String idmaDonHnag = txtid.getText();
+//        String maDonHang = txtmahoadon.getText();
+//        String trangThaiHoaDon = "Thanh Toán Thành Công";
+//        String sql = """
+//    UPDATE hoadon
+//    SET trang_thai = ?
+//    WHERE ma_hoa_don = ?
+//    """;
+//        String trangThaiDonHang = "Thanh Toán Thành Công";
+//        String sqlDonHang = """
+//    UPDATE donhang
+//    SET trang_thai = ?
+//    WHERE id_ma_don_hang = ?
+//    """;
+//        try {
+//            Connection con = ketnoi.getConnection();
+//            PreparedStatement psDonHang = con.prepareStatement(sqlDonHang);
+//            psDonHang.setObject(1, trangThaiDonHang);
+//            psDonHang.setObject(2, idmaDonHnag);
+//            int checkDonHang = psDonHang.executeUpdate();
+//            PreparedStatement psHoaDon = con.prepareStatement(sql);
+//            psHoaDon.setObject(1, trangThaiHoaDon);
+//            psHoaDon.setObject(2, maDonHang);
+//            int checkHoaDon = psHoaDon.executeUpdate();
+//            if (checkDonHang > 0 && checkHoaDon > 0) {
+//                
+//            } else {
+//                JOptionPane.showMessageDialog(this, "Thanh Toán Thất Bại");
+//            }
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 //        try {
 //    String filePath = "D:\\" + txtmahoadon.getText() + ".pdf";
 //    File file = new File(filePath);
@@ -833,14 +856,11 @@ public class XuatHoaDonnn extends JFrame {
     image.setHeight(150f);
     image.setWidth(150f);
     document.add(image);
-
-    // Customer and Invoice Information
     float margin = 40f;
     float customerInfoX = margin;
     float invoiceInfoX = customerInfoX + 350f;
     float headerY = 650f; 
     float detailsY = 600f; 
-
     Paragraph customerHeader = new Paragraph("THÔNG TIN KHÁCH HÀNG")
             .setFont(font)
             .setFontSize(16)
@@ -876,17 +896,38 @@ public class XuatHoaDonnn extends JFrame {
     table.addHeaderCell(new Paragraph("Giá Bán").setFont(font).setBold().setTextAlignment(TextAlignment.CENTER));
     table.addHeaderCell(new Paragraph("Thành Tiền").setFont(font).setBold().setTextAlignment(TextAlignment.CENTER));
 Map<String, DonHangChiTietEntity> groupedProducts = new HashMap<>();
+// Lấy danh sách chi tiết đơn hàng từ bảng
 ArrayList<DonHangChiTietEntity> danhSachChiTiet = layDuLieuTuBang();
 
-// Nhóm các sản phẩm theo mã
+// Tạo Map tạm để đếm số lần xuất hiện của mỗi tên sản phẩm
+Map<String, Integer> productNameCount = new HashMap<>();
 for (DonHangChiTietEntity chiTiet : danhSachChiTiet) {
-    String maSanPham = chiTiet.getMaSanPham();
-    if (groupedProducts.containsKey(maSanPham)) {
-        // Cộng dồn số lượng và tính lại thành tiền
-        DonHangChiTietEntity existingProduct = groupedProducts.get(maSanPham);
-        existingProduct.setSoLuong(existingProduct.getSoLuong() + chiTiet.getSoLuong());
+    productNameCount.put(chiTiet.getTenSanPham(), productNameCount.getOrDefault(chiTiet.getTenSanPham(), 0) + 1);
+}
+
+// Lặp lại danh sách chi tiết và xử lý tất cả sản phẩm
+for (DonHangChiTietEntity chiTiet : danhSachChiTiet) {
+    String tenSanPham = chiTiet.getTenSanPham();
+    
+    // Kiểm tra nếu tên sản phẩm có số lần xuất hiện lớn hơn 1, cộng dồn số lượng
+    if (productNameCount.get(tenSanPham) > 1) {
+        DonHangChiTietEntity existingProduct = groupedProducts.get(tenSanPham);
+        if (existingProduct != null) {
+            // Nếu đã tồn tại, cộng dồn số lượng
+            int soLuongMoi = existingProduct.getSoLuong() + chiTiet.getSoLuong();
+            existingProduct.setSoLuong(soLuongMoi);
+        } else {
+            // Nếu chưa tồn tại, thêm vào Map
+            groupedProducts.put(tenSanPham, new DonHangChiTietEntity(
+                    chiTiet.getMaSanPham(),
+                    chiTiet.getTenSanPham(),
+                    chiTiet.getSoLuong(),
+                    chiTiet.getGiaBan()
+            ));
+        }
     } else {
-        groupedProducts.put(maSanPham, new DonHangChiTietEntity(
+        // Nếu tên sản phẩm chỉ xuất hiện một lần, vẫn cần đưa vào groupedProducts
+        groupedProducts.put(tenSanPham, new DonHangChiTietEntity(
                 chiTiet.getMaSanPham(),
                 chiTiet.getTenSanPham(),
                 chiTiet.getSoLuong(),
@@ -894,6 +935,8 @@ for (DonHangChiTietEntity chiTiet : danhSachChiTiet) {
         ));
     }
 }
+
+
 
 double totalAmount = 0;
 for (DonHangChiTietEntity chiTiet : groupedProducts.values()) {
@@ -919,20 +962,10 @@ document.add(new Paragraph("\n").setMarginBottom(300f));
     String discountText = giamgia.getText().trim().replace(",", ""); // Lấy chuỗi nhập liệu và loại bỏ khoảng trắng
     double discountt = Double.parseDouble(discountText);
     double totalAmountAfterTax = totalAmount + tax;
-    double giamGia = 0;
-    if (discountt >= 0 && discountt <= 100) {
-        giamGia = (discountt / 100) * totalAmount;
-    } else {
-        giamGia = discountt;
-    }
-    double finalAmount = totalAmountAfterTax - giamGia;
-   
-
+    double finalAmount = totalAmountAfterTax - discountt;
     double tienChuyenKhoan = Double.parseDouble(chuyenkhoan.getText().trim().replace(",", ""));
     double tienKhachDua = Double.parseDouble(tienkhachdua.getText().trim().replace(",", ""));
-    
     double tienTraKhach = tienKhachDua - finalAmount;
-
     System.out.println("Tổng tiền sau thuế: " + totalAmountAfterTax);
     System.out.println("Tổng tiền sau giảm giá: " + finalAmount);
     System.out.println("Tiền trả khách: " + tienTraKhach);
@@ -1099,6 +1132,10 @@ document.add(new Paragraph("\n").setMarginBottom(300f));
         
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    private void tongtiennAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_tongtiennAncestorAdded
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tongtiennAncestorAdded
+
  
     /**
      * @param args the command line arguments
@@ -1172,7 +1209,7 @@ document.add(new Paragraph("\n").setMarginBottom(300f));
     private javax.swing.JLabel thue;
     private javax.swing.JLabel tienkhachdua;
     private javax.swing.JLabel tientrakhac;
-    private javax.swing.JLabel tongtien;
+    private javax.swing.JLabel tongtienn;
     private javax.swing.JLabel txtemail;
     private javax.swing.JLabel txthotenkhachhang;
     private javax.swing.JLabel txtid;

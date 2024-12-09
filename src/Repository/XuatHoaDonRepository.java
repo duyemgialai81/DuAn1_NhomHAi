@@ -16,42 +16,42 @@ public class XuatHoaDonRepository {
     public ArrayList<XuatHoaDon> getAll(){
         ArrayList<XuatHoaDon> ls = new ArrayList<>();
         String sql = """
-             				SELECT
-                                                                    hd.ma_hoa_don, 
-                                                                    nv.ten_nhan_vien,
-                                                                    kh.ten_khach_hang,
-                                                                    dh.ngay_dat,
-                                                                    nv.email,
-                                                                    kh.so_dien_thoai,
-                                                                    hd.tien_khach_dua,
-                                                                    hd.tien_tra_khach,
-                                                                    ctdh.tong_tien,
-                                                                    hd.phuong_thuc,
-                                                                    ctdh.thue,
-                                                                    sp.ten_san_pham,
-                                                                    ctdh.so_luong,
-                                                                    ctdh.gia_ban,
-                                                                    kh.so_dien_thoai,
-                                                                    dh.id_ma_don_hang, 
-                                                                    hd.ma_hoa_don,
-                                                                    hd.tien_chuyen_khoan,
-                     hd.giam_gia
-                                                                FROM 
-                                                                    DonHang dh
-                                                                JOIN HoaDon hd 
-                                                                    ON hd.ma_don_hang = dh.id_ma_don_hang
-                                                                JOIN NhanVien nv 
-                                                                    ON dh.ma_nhan_vien = nv.id_ma_nhan_vien
-                                                                JOIN KhachHang kh 
-                                                                    ON dh.ma_khach_hang = kh.id_ma_khach_hang
-                                                                JOIN ChiTietDonHang ctdh 
-                                                                    ON ctdh.ma_don_hang = dh.id_ma_don_hang
-                                                                LEFT JOIN SanPham sp 
-                                                                    ON ctdh.ma_san_pham = sp.id_ma_san_pham
-                                                                WHERE 
-                                                                    hd.trang_thai = N'Đang Chờ Thanh Toán' 
-                                                                    AND dh.trang_thai = N'Đang chờ'
-                                                                ORDER BY dh.id_ma_don_hang DESC;
+             		SELECT
+                                                                                                            hd.ma_hoa_don, 
+                                                                                                            nv.ten_nhan_vien,
+                                                                                                            kh.ten_khach_hang,
+                                                                                                            dh.ngay_dat,
+                                                                                                            nv.email,
+                                                                                                            kh.so_dien_thoai,
+                                                                                                            hd.tien_khach_dua,
+                                                                                                            hd.tien_tra_khach,
+                                                                                                            ctdh.tong_tien,
+                                                                                                            hd.phuong_thuc,
+                                                                                                            ctdh.thue,
+                                                                                                            sp.ten_san_pham,
+                                                                                                            ctdh.so_luong,
+                                                                                                            ctdh.gia_ban,
+                                                                                                            kh.so_dien_thoai,
+                                                                                                            dh.id_ma_don_hang, 
+                                                                                                            hd.ma_hoa_don,
+                                                                                                            hd.tien_chuyen_khoan,
+                                                                                                            hd.giam_gia
+                                                                                                        FROM 
+                                                                                                            DonHang dh
+                                                                                                        left JOIN HoaDon hd 
+                                                                                                            ON hd.ma_don_hang = dh.id_ma_don_hang
+                                                                                                        JOIN NhanVien nv 
+                                                                                                            ON dh.ma_nhan_vien = nv.id_ma_nhan_vien
+                                                                                                        JOIN KhachHang kh 
+                                                                                                            ON dh.ma_khach_hang = kh.id_ma_khach_hang
+                                                                                                        JOIN ChiTietDonHang ctdh 
+                                                                                                            ON ctdh.ma_don_hang = dh.id_ma_don_hang
+                                                                                                        LEFT JOIN SanPham sp 
+                                                                                                            ON ctdh.ma_san_pham = sp.id_ma_san_pham
+                                                                                                        WHERE 
+                                                                                                            hd.trang_thai = N'Đang Chờ Thanh Toán' 
+                                                                                                            AND dh.trang_thai = N'Đang chờ'
+                                                                                                        ORDER BY dh.id_ma_don_hang DESC;		
                      """;
         try {
             Connection con = ketnoi.getConnection();

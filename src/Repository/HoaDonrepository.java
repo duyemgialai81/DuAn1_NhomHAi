@@ -13,12 +13,13 @@ import Entity.HoaDon.InsertHoaDonEntity;
 import Entity.NhanVien.NhanVienEntity;
 import Entity.SanPham.SanPhamEntity;
 import Entity.HoaDon.XemHoaDonTao;
+import Entity.thongke.ThongKeEntity;
 import GiaoDien.HoaDonChiTiet;
 import GiaoDien.LuuThongTinDangNhap;
 import java.util.ArrayList;
 import java.sql.*;
 import KetNoiSQL.ketnoi;
-import java.text.DateFormatSymbols;
+import java.util.Date;
 /**
  *
  * @author SingPC
@@ -154,31 +155,32 @@ public boolean capNhatSoLuongSanPham(int idMaSanPham, int soLuongMoi) {
 
     return ls;
 }
- public ArrayList<HoaDonChiTiet> getAllChiTietHoaDon(){
+public ArrayList<HoaDonChiTiet> getAllChiTietHoaDon(){
      ArrayList<HoaDonChiTiet> ls = new ArrayList<>();
     String sql ="""
                 select hd.ma_hoa_don, 
-                sum(dhct.so_luong * dhct.gia_ban - COALESCE(voucher.gia_tri, 0) - dhct.thue) as tongTien,
-                hd.tien_khach_dua - hd.tien_tra_khach as tien_can_thu, hd.tien_khach_dua,hd.tien_tra_khach,hd.phuong_thuc,dh.ngay_dat
-                from HoaDon hd
-                join DonHang dh on hd.ma_don_hang = dh.id_ma_don_hang
-                join ChiTietDonHang dhct on dh.id_ma_don_hang = dhct.ma_don_hang
-                left join event voucher on dhct.ma_voucher = voucher.id_voucher
-                group by hd.ma_hoa_don, hd.tien_khach_dua, hd.tien_tra_khach,hd.phuong_thuc,dh.ngay_dat
+                                               sum(dhct.so_luong * dhct.gia_ban - COALESCE(voucher.gia_tri, 0) - dhct.thue) as tongTien,
+                                               hd.tien_khach_dua - hd.tien_tra_khach as tien_can_thu, hd.tien_khach_dua,hd.tien_tra_khach,hd.phuong_thuc,dh.ngay_dat, dh.trang_thai
+                                               from HoaDon hd
+                                               left join DonHang dh on hd.ma_don_hang = dh.id_ma_don_hang
+                                               join ChiTietDonHang dhct on dh.id_ma_don_hang = dhct.ma_don_hang
+                                               left join event voucher on dhct.ma_voucher = voucher.id_voucher
+                                               group by hd.ma_hoa_don, hd.tien_khach_dua, hd.tien_tra_khach,hd.phuong_thuc,dh.ngay_dat,dh.trang_thai
                 """;
      try {
          Connection con = ketnoi.getConnection();
          PreparedStatement ps = con.prepareStatement(sql);
          ResultSet rs = ps.executeQuery();
          while(rs.next()){
-             HoaDonChiTiet hd = new HoaDonChiTiet();
-             hd.setMaHoaDon(rs.getString("ma_hoa_don"));
-             hd.setTongTien(rs.getFloat("tongTien"));
+            HoaDonChiTiet hd = new HoaDonChiTiet();
+            hd.setMaHoaDon(rs.getString("ma_hoa_don"));
+            hd.setTongTien(rs.getFloat("tongTien"));
             hd.setThanhToan(rs.getDouble("tien_can_thu"));
             hd.setTienKhachDua(rs.getDouble("tien_khach_dua"));
             hd.setTienTraKhach(rs.getDouble("tien_tra_khach"));
             hd.setPhuongThuc(rs.getString("phuong_thuc"));
             hd.setNgayDat(rs.getDate("ngay_dat"));
+            hd.setTrangThai(rs.getString("trang_thai"));
              ls.add(hd);
          }
      } catch (Exception e) {
@@ -226,4 +228,59 @@ public boolean capNhatSoLuongSanPham(int idMaSanPham, int soLuongMoi) {
      return ls;
      
  }
+    public ArrayList<HoaDonChiTiet> timKiemChiTietHoaDon(Date ngayBatDau, Date ngayKetThuc, String maHoaDon, String trangThai, String phuongThuc) {
+    ArrayList<HoaDonChiTiet> ls = new ArrayList<>();
+    String sql = """
+            SELECT hd.ma_hoa_don, 
+                   SUM(dhct.so_luong * dhct.gia_ban - COALESCE(voucher.gia_tri, 0) - dhct.thue) AS tongTien,
+                   hd.tien_khach_dua - hd.tien_tra_khach AS tien_can_thu, 
+                   hd.tien_khach_dua, 
+                   hd.tien_tra_khach, 
+                   hd.phuong_thuc, 
+                   dh.ngay_dat, 
+                   dh.trang_thai
+            FROM HoaDon hd
+            LEFT JOIN DonHang dh ON hd.ma_don_hang = dh.id_ma_don_hang
+            JOIN ChiTietDonHang dhct ON dh.id_ma_don_hang = dhct.ma_don_hang
+            LEFT JOIN event voucher ON dhct.ma_voucher = voucher.id_voucher
+            WHERE 
+              (? IS NULL OR dh.ngay_dat BETWEEN ? AND ?)
+              AND (? IS NULL OR dh.trang_thai = ?)
+              AND (? IS NULL OR hd.phuong_thuc = ?)
+            GROUP BY hd.ma_hoa_don, hd.tien_khach_dua, hd.tien_tra_khach, hd.phuong_thuc, dh.ngay_dat, dh.trang_thai
+            """;
+    try {
+        Connection con = ketnoi.getConnection();
+        PreparedStatement ps = con.prepareStatement(sql);
+        
+        // Set ngày bắt đầu và kết thúc
+        ps.setDate(1, ngayBatDau != null ? new java.sql.Date(ngayBatDau.getTime()) : null);
+        ps.setDate(2, ngayBatDau != null ? new java.sql.Date(ngayBatDau.getTime()) : null);
+        ps.setDate(3, ngayKetThuc != null ? new java.sql.Date(ngayKetThuc.getTime()) : null);
+        
+        // Set trạng thái và phương thức thanh toán
+        ps.setString(4, trangThai != null && !trangThai.isEmpty() ? trangThai : null);
+        ps.setString(5, trangThai != null && !trangThai.isEmpty() ? trangThai : null);
+        ps.setString(6, phuongThuc != null && !phuongThuc.isEmpty() ? phuongThuc : null);
+        ps.setString(7, phuongThuc != null && !phuongThuc.isEmpty() ? phuongThuc : null);
+        
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            HoaDonChiTiet hd = new HoaDonChiTiet();
+            hd.setMaHoaDon(rs.getString("ma_hoa_don"));
+            hd.setTongTien(rs.getFloat("tongTien"));
+            hd.setThanhToan(rs.getDouble("tien_can_thu"));
+            hd.setTienKhachDua(rs.getDouble("tien_khach_dua"));
+            hd.setTienTraKhach(rs.getDouble("tien_tra_khach"));
+            hd.setPhuongThuc(rs.getString("phuong_thuc"));
+            hd.setNgayDat(rs.getDate("ngay_dat"));
+            hd.setTrangThai(rs.getString("trang_thai"));
+            ls.add(hd);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return ls;
+}
+
 }

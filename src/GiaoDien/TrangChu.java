@@ -386,8 +386,8 @@ public class TrangChu extends javax.swing.JFrame {
 
     private void txtnhanvienMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtnhanvienMouseClicked
         // TODO add your handling code here:
-             String taiKhoan = LuuThongTinDangNhap.getTaiKhoan();
-              ChuyenChucNang ccn = new ChuyenChucNang(manhinh);
+        String taiKhoan = LuuThongTinDangNhap.getTaiKhoan();
+        ChuyenChucNang ccn = new ChuyenChucNang(manhinh);
         String vaiTro = LuuThongTinDangNhap.getVaiTro();
          ArrayList<ChucNang> ls = new ArrayList<>();
          if ("Quản trị viên".equals(vaiTro)) {

@@ -775,8 +775,8 @@ private void initWebcam() {
 }
   private void addProductToOrderDetailAndUpdatePaymentDuyem(int maSanPham, int soLuong, float giaBan, int maDonHang) {
     int idDonHang = Integer.parseInt(txtid.getText());
-    int maGiamGia = 1; // Mã giảm giá mặc định
-    float tongTien = soLuong * giaBan; // Tính tổng tiền
+    int maGiamGia = 1;
+    float tongTien = soLuong * giaBan; 
     String insertSQL = "INSERT INTO ChiTietDonHang (ma_san_pham, so_luong, gia_ban, tong_tien, ma_don_hang, ma_voucher) VALUES (?, ?, ?, ?, ?, ?)";
     String updateSQL = "UPDATE SanPham SET so_luong_ton = so_luong_ton - ? WHERE id_ma_san_pham = ?";
 
@@ -1275,6 +1275,11 @@ private void initWebcam() {
 
         txt_tienKhachDua.setBackground(new java.awt.Color(242, 242, 242));
         txt_tienKhachDua.setText(" 0");
+        txt_tienKhachDua.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                txt_tienKhachDuaMouseClicked(evt);
+            }
+        });
         txt_tienKhachDua.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txt_tienKhachDuaActionPerformed(evt);
@@ -1464,6 +1469,8 @@ private void initWebcam() {
         jLabel24.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel24.setText("Chuyển Khoản");
         jPanel_DonHang1.add(jLabel24, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 620, 100, 30));
+
+        chuyenkhoan.setText("0");
         jPanel_DonHang1.add(chuyenkhoan, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 620, 150, 20));
 
         jPanel2.add(jPanel_DonHang1, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 0, 390, 730));
@@ -1973,51 +1980,87 @@ private void initWebcam() {
 //} catch (Exception e) {
 //    e.printStackTrace();
 //}
-        int idmaDonHnag = Integer.parseInt(txtid.getText());
-        String trangThaiHoaDon = "Đang Chờ Thanh Toán";
-        String rawValue = txtthanhtien.getText().trim();
-        String numericValue = rawValue.replaceAll("[^\\d.]", "");
-        float thanhTien = Float.parseFloat(numericValue);
-        double tienKhachDua = Double.parseDouble(txt_tienKhachDua.getText().trim().replace(",", ""));
-        String rawValuee = txtTienTraKhac.getText().trim();
-        String numericValuee = rawValuee.replaceAll("[^\\d.]", "");
-        double tienTraKhach = Double.parseDouble(numericValuee);
-        String phuongThuc = cbo_hinhThucThanhToan.getSelectedItem().toString();
-        String rawValueee = chuyenkhoan.getText().trim();
-        String numericValueee = rawValueee.replaceAll("[^\\d.]", "");
-        double chuyenKhoan = Double.parseDouble(numericValuee);
-        String giamGia = txtGiamGia.getText().trim();
-        String chuyenGiamGia = giamGia.replaceAll("[^\\d.]", "");
-        double giamGiatxt = Double.parseDouble(chuyenGiamGia);
-        String sql = """
-    insert into hoadon (ngay_lap, tien_khach_dua , tien_tra_khach , phuong_thuc , trang_thai, thanh_tien, ma_don_hang, tien_chuyen_khoan, giam_gia)
-    values(getdate(),?,?,?,?,?,?,?,?)
-    """;
-        try {
-            Connection con = ketnoi.getConnection();
-            PreparedStatement psHoaDon = con.prepareStatement(sql);
-            psHoaDon.setObject(1, tienKhachDua);
-            psHoaDon.setObject(2, tienTraKhach);
-            psHoaDon.setObject(3, phuongThuc);
-            psHoaDon.setObject(4, trangThaiHoaDon);
-            psHoaDon.setObject(5, thanhTien);
-            psHoaDon.setObject(6, idmaDonHnag);
-            psHoaDon.setObject(7, chuyenKhoan);
-            psHoaDon.setObject(8,chuyenGiamGia);
-            int checkHoaDon = psHoaDon.executeUpdate();
-            if (checkHoaDon > 0) {  
-            XuatHoaDonnn duyem = new XuatHoaDonnn();
-                duyem.setVisible(true);
-                hienThiDuLieu(dh.layHhoaDon());
-            } else {
-                JOptionPane.showMessageDialog(this, "Thanh Toán Thất Bại");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-       
- 
+       int idmaDonHnag = Integer.parseInt(txtid.getText());
+String trangThaiHoaDon = "Đang Chờ Thanh Toán";
 
+// Lấy và xử lý giá trị từ các ô nhập liệu
+String rawValue = txtthanhtien.getText().trim();
+String numericValue = rawValue.replaceAll("[^\\d.]", "");
+float thanhTien = Float.parseFloat(numericValue);
+
+double tienKhachDua = Double.parseDouble(txt_tienKhachDua.getText().trim().replace(",", ""));
+
+String rawValuee = txtTienTraKhac.getText().trim();
+String numericValuee = rawValuee.replaceAll("[^\\d.]", "");
+double tienTraKhach = Double.parseDouble(numericValuee);
+
+String phuongThuc = cbo_hinhThucThanhToan.getSelectedItem().toString();
+
+String rawValueee = chuyenkhoan.getText().trim();
+String numericValueee = rawValueee.replaceAll("[^\\d.]", "");
+double chuyenKhoan = Double.parseDouble(numericValueee);
+
+String giamGia = txtGiamGia.getText().trim();
+String chuyenGiamGia = giamGia.replaceAll("[^\\d.]", "");
+double giamGiatxt = Double.parseDouble(chuyenGiamGia);
+       String sqlInsert = """
+    INSERT INTO hoadon (ngay_lap, tien_khach_dua, tien_tra_khach, phuong_thuc, trang_thai, thanh_tien, ma_don_hang, tien_chuyen_khoan, giam_gia)
+    VALUES (GETDATE(), ?, ?, ?, ?, ?, ?, ?, ?)
+""";
+String sqlUpdate = """
+    UPDATE hoadon
+    SET tien_khach_dua = ?, tien_tra_khach = ?, phuong_thuc = ?, thanh_tien = ?, tien_chuyen_khoan = ?, giam_gia = ?
+    WHERE ma_don_hang = ?
+""";
+
+try (Connection con = ketnoi.getConnection()) {
+    // Insert hóa đơn
+    try (PreparedStatement psHoaDon = con.prepareStatement(sqlInsert)) {
+        psHoaDon.setObject(1, tienKhachDua);
+        psHoaDon.setObject(2, tienTraKhach);
+        psHoaDon.setObject(3, phuongThuc);
+        psHoaDon.setObject(4, trangThaiHoaDon);
+        psHoaDon.setObject(5, thanhTien);
+        psHoaDon.setObject(6, idmaDonHnag);
+        psHoaDon.setObject(7, chuyenKhoan);
+        psHoaDon.setObject(8, giamGiatxt);
+
+        int checkHoaDon = psHoaDon.executeUpdate();
+        if (checkHoaDon > 0) {
+            // Update hóa đơn
+            try (PreparedStatement psUpdate = con.prepareStatement(sqlUpdate)) {
+                psUpdate.setObject(1, tienKhachDua);
+                psUpdate.setObject(2, tienTraKhach);
+                psUpdate.setObject(3, phuongThuc);
+                psUpdate.setObject(4, thanhTien);
+                psUpdate.setObject(5, chuyenKhoan);
+                psUpdate.setObject(6, giamGiatxt);
+                psUpdate.setObject(7, idmaDonHnag);
+
+                int updatedRows = psUpdate.executeUpdate();
+                if (updatedRows > 0) {
+                    if (phuongThuc.equals("Tiền Mặt")) {
+                        XuatHoaDonnn xuatHoaDon = new XuatHoaDonnn();
+                        xuatHoaDon.setVisible(true);
+                    } else if (phuongThuc.equals("Chuyển Khoản")) {
+                        XuatHoaDonTChuyenKhoan xuatHoaDon = new XuatHoaDonTChuyenKhoan();
+                        xuatHoaDon.setVisible(true);
+                    }else{
+                        XuatHoaDonCaHai caHai = new XuatHoaDonCaHai();
+                        caHai.setVisible(true);
+                    }
+                    hienThiDuLieu(dh.layHhoaDon());
+                }
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Thanh Toán Thất Bại");
+        }
+    }
+    
+} catch (Exception e) {
+    e.printStackTrace();
+    JOptionPane.showMessageDialog(this, "Có lỗi xảy ra khi xử lý hóa đơn!");
+}
     }//GEN-LAST:event_jButton14ActionPerformed
 
 //private void addProductAndUpdatePayment(int maSanPham, String tenSanPham, double giaBan, int soLuong) {
@@ -2335,43 +2378,10 @@ try (Connection con = ketnoi.getConnection()) {
                         txttongSoTien.setText("Tổng Tiền: " + formatter.format(totalAmount));
                         txtthue.setText("Thuế: " + formatter.format(totalTax));
                         txtthanhtien.setText("Thành Tiền: " + formatter.format(finalAmount));
-                        apDungKhuyenMai();
-                         txt_tienKhachDua.getDocument().addDocumentListener(new DocumentListener() {
-                            @Override
-                            public void insertUpdate(DocumentEvent e) {
-                                capNhatTienThua();
-                            }
-
-                            @Override
-                            public void removeUpdate(DocumentEvent e) {
-                                capNhatTienThua();
-                            }
-
-                            @Override
-                            public void changedUpdate(DocumentEvent e) {
-                                capNhatTienThua();
-                            }
-
-                            private void capNhatTienThua() {
-                                String tienKhachDuaStr = txt_tienKhachDua.getText().trim().replace(",", "");
-                                try {
-                                    double tienKhachDua = 0;
-                                    if (!tienKhachDuaStr.isEmpty()) {
-                                        tienKhachDua = Double.parseDouble(tienKhachDuaStr);
-                                    }
-                                    double tongTien = Double.parseDouble(txtthanhtien.getText().replace("Thành Tiền: ", "").replace(" VND", "").replace(",", "").trim());
-                                    double tienThua = tienKhachDua - tongTien;
-                                    DecimalFormat formatter = new DecimalFormat("#,###,###");
-
-                                    if (tienThua < 0) {
-                                        txtTienTraKhac.setText("Tiền trả lại: " + formatter.format(tienThua) + " VND");
-                                    } else {
-                                        txtTienTraKhac.setText("Tiền trả lại: " + formatter.format(tienThua) + " VND");
-                                    }
-                                } catch (NumberFormatException e) {
-                                }
-                            }
-                        });
+//                        apDungKhuyenMai();
+//                          apDungKhuyenMai();
+//               int idTXT = Integer.parseInt(txtid.getText());
+//                        hienThiDuLieuGioHangg(idTXT);
                     }
                 }
                 con.commit();
@@ -2585,6 +2595,7 @@ try (Connection con = ketnoi.getConnection()) {
                         } else {
                             addProductToOrderDetailAndUpdatePayment(maSanPham, tenSanPham, giaBan, soLuong);
                             hienThiDuLieuuu(ls.getSanPhamChhiTiet());
+                            apDungKhuyenMai();
 //                            hienThiDuLieuGioHangg();
                             int selectedRowHoaDon = tbldanhsachdonhagcho.getSelectedRow();
                             if (selectedRowHoaDon != -1) {
@@ -2948,7 +2959,7 @@ public void resetFields() {
         txt_tienKhachDua.setEnabled(true);
         txtTienTraKhac.setEnabled(false);
         chuyenkhoan.setEnabled(false);
-        chuyenkhoan.setText("");
+        chuyenkhoan.setText("0");
     } else if (hinhThucThanhToan.equals("Chuyển Khoản")) {
         txt_tienKhachDua.setEnabled(false);
         txtTienTraKhac.setEnabled(false);
@@ -2958,6 +2969,7 @@ public void resetFields() {
             txt_tienKhachDua.setEnabled(true);
             chuyenkhoan.setEnabled(true);
             txtTienTraKhac.setEnabled(false);
+            
             String thanhTienText = txtthanhtien.getText();
             try {
                 String cleanedInput = thanhTienText.replaceAll("[^\\d,]", "");
@@ -2966,6 +2978,7 @@ public void resetFields() {
                 DecimalFormat formatter = new DecimalFormat("#,###.##");
                 apDungKhuyenMai();
                 txt_tienKhachDua.getDocument().addDocumentListener(new DocumentListener() {
+                    
                     @Override
                     public void insertUpdate(DocumentEvent e) {
                         capNhatTienThua();
@@ -2983,13 +2996,16 @@ public void resetFields() {
                     private void capNhatTienThua() {
                         String inputAmountStr = txt_tienKhachDua.getText();
                         if (!inputAmountStr.isEmpty()) {
-                            try {                                String cleanedInput = inputAmountStr.replaceAll("[,\\s]", "");
+                            try {   
+                                String cleanedInput = inputAmountStr.replaceAll("[,\\s]", "");
                                 double inputAmount = Double.parseDouble(cleanedInput);
                                 double moneyLeft = thanhTien - inputAmount;
                                 if (moneyLeft <= 0) {
-                                chuyenkhoan.setText(formatter.format(Math.abs(moneyLeft)) + " VND"); // Lấy giá trị tuyệt đối để không có dấu "-"
+                                chuyenkhoan.setText(formatter.format(Math.abs(moneyLeft)) + " VND");
+                                txtTienTraKhac.setText("");// Lấy giá trị tuyệt đối để không có dấu "-"
                             } else {
                                     chuyenkhoan.setText(formatter.format(moneyLeft) + " VND");
+                                    txtTienTraKhac.setText("");
                             }
                         } catch (NumberFormatException e) {
                             chuyenkhoan.setText("Vui lòng nhập số tiền hợp lệ.");
@@ -3005,6 +3021,12 @@ public void resetFields() {
         }
         }
     }//GEN-LAST:event_cbo_hinhThucThanhToanActionPerformed
+
+    private void txt_tienKhachDuaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txt_tienKhachDuaMouseClicked
+        // TODO add your handling code here:
+       
+        
+    }//GEN-LAST:event_txt_tienKhachDuaMouseClicked
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

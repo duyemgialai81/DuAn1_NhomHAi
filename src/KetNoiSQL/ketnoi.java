@@ -10,11 +10,11 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 /**
  *
  * @author SingPC
  */
+
 public class ketnoi {
        private static final String USERNAME = "sa";
     private static final String PASSWORD = "123";
@@ -60,8 +60,53 @@ public class ketnoi {
         System.out.println(dbmt.getDriverName());
         System.out.println(dbmt.getDatabaseProductName());
         System.out.println(dbmt.getDatabaseProductVersion());
-        System.out.println("DuyemGiaLai");
-        System.out.println("Kien");
-    }
-
+    }   
+//import java.sql.Connection;
+//import java.sql.DatabaseMetaData;
+//import java.sql.DriverManager;
+//import java.sql.SQLException;
+//import java.util.logging.Level;
+//import java.util.logging.Logger;
+//
+//import java.sql.Connection;
+//import java.sql.DatabaseMetaData;
+//import java.sql.DriverManager;
+//import java.sql.SQLException;
+//import java.util.logging.Level;
+//import java.util.logging.Logger;
+//
+//public class ketnoi {
+//    private static final String URL = "jdbc:sqlserver://192.168.69.106;databaseName=BanQuanAo_nhom222;user=sa;password=123;encrypt=true;trustServerCertificate=true;";
+//        static {
+//        try {
+//            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+//            System.out.println("Driver loaded successfully!");
+//        } catch (ClassNotFoundException ex) {
+//            Logger.getLogger(ketnoi.class.getName()).log(Level.SEVERE, "Driver không tìm thấy!", ex);
+//        }
+//    }
+//    public static Connection getConnection() {
+//        try {
+//            return DriverManager.getConnection(URL);
+//        } catch (SQLException ex) {
+//            Logger.getLogger(ketnoi.class.getName()).log(Level.SEVERE, "Không thể kết nối cơ sở dữ liệu!", ex);
+//            return null;
+//        }
+//    }
+//    public static void main(String[] args) {
+//        try (Connection conn = getConnection()) {
+//            if (conn != null) {
+//                DatabaseMetaData dbmt = conn.getMetaData();
+//                System.out.println("Thông tin kết nối:");
+//                System.out.println("- Tên Driver: " + dbmt.getDriverName());
+//                System.out.println("- Tên CSDL: " + dbmt.getDatabaseProductName());
+//                System.out.println("- Phiên bản CSDL: " + dbmt.getDatabaseProductVersion());
+//                System.out.println("Kết nối thành công!");
+//            } else {
+//                System.out.println("Kết nối thất bại!");
+//            }
+//        } catch (SQLException ex) {
+//            Logger.getLogger(ketnoi.class.getName()).log(Level.SEVERE, "Lỗi trong quá trình kết nối!", ex);
+//        }
+//    }
 }

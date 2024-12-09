@@ -18,11 +18,12 @@ public class HoaDonChiTiet {
     private double tienTraKhach;
     private String phuongThuc;
     private Date ngayDat;
+    private String trangThai;
 
     public HoaDonChiTiet() {
     }
 
-    public HoaDonChiTiet(String maHoaDon, double tongTien, double thanhToan, double tienKhachDua, double tienTraKhach, String phuongThuc, Date ngayDat) {
+    public HoaDonChiTiet(String maHoaDon, double tongTien, double thanhToan, double tienKhachDua, double tienTraKhach, String phuongThuc, Date ngayDat, String trangThai) {
         this.maHoaDon = maHoaDon;
         this.tongTien = tongTien;
         this.thanhToan = thanhToan;
@@ -30,6 +31,7 @@ public class HoaDonChiTiet {
         this.tienTraKhach = tienTraKhach;
         this.phuongThuc = phuongThuc;
         this.ngayDat = ngayDat;
+        this.trangThai = trangThai;
     }
 
     public String getMaHoaDon() {
@@ -87,5 +89,14 @@ public class HoaDonChiTiet {
     public void setNgayDat(Date ngayDat) {
         this.ngayDat = ngayDat;
     }
+
+    public String getTrangThai() {
+        return trangThai;
+    }
+
+    public void setTrangThai(String trangThai) {
+        this.trangThai = trangThai;
+    }
+
     
 }

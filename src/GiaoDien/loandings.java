@@ -14,6 +14,7 @@ public class loandings extends javax.swing.JFrame implements Runnable{
         initComponents();
          Thread t = new Thread(this);
         t.start();
+    
     }
 //        loatDaTa();
     @Override
@@ -24,7 +25,9 @@ public class loandings extends javax.swing.JFrame implements Runnable{
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
+      
             duyok.setText(i+ "%");
+            
            loding.setValue(i);
         }
         TrangChu lc1 = new TrangChu();

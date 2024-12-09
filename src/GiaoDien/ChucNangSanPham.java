@@ -37,9 +37,11 @@ import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -2171,21 +2173,19 @@ private void timkiemThongTinSanPham() {
                         .addGap(24, 24, 24)
                         .addComponent(jButton26)
                         .addGap(18, 18, 18)
-                        .addComponent(jButton25)
-                        .addContainerGap(574, Short.MAX_VALUE))
-                    .addGroup(jPanel21Layout.createSequentialGroup()
-                        .addGroup(jPanel21Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 1051, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel21Layout.createSequentialGroup()
-                                .addGap(7, 7, 7)
-                                .addComponent(jLabel45, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(tenThuongHieu, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel46, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(moTaThuongHieu, javax.swing.GroupLayout.PREFERRED_SIZE, 418, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addContainerGap(14, Short.MAX_VALUE))))
+                        .addComponent(jButton25))
+                    .addGroup(jPanel21Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 1051, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel21Layout.createSequentialGroup()
+                            .addGap(7, 7, 7)
+                            .addComponent(jLabel45, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(tenThuongHieu, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel46, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(moTaThuongHieu, javax.swing.GroupLayout.PREFERRED_SIZE, 418, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(14, Short.MAX_VALUE))
         );
         jPanel21Layout.setVerticalGroup(
             jPanel21Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2326,12 +2326,10 @@ ls.addSanPhammm(getFomat());
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void btn_XuatFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_XuatFileActionPerformed
-        // TODO add your handling code here:
         JFileChooser fileChooser = new JFileChooser("D:\\anh");
         fileChooser.setDialogTitle("Lưu file Excel");
         fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Excel Files", "xlsx"));
         int userSelection = fileChooser.showSaveDialog(this);
-
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileToSave = fileChooser.getSelectedFile();
             if (!fileToSave.getAbsolutePath().endsWith(".xlsx")) {
@@ -2345,28 +2343,32 @@ ls.addSanPhammm(getFomat());
                 headerRow.createCell(2).setCellValue("Số Lượng Tồn");
                 headerRow.createCell(3).setCellValue("Hình Ảnh");
                 headerRow.createCell(4).setCellValue("Tên Loại");
-                headerRow.createCell(5).setCellValue("kích Cỡ sản Phẩm");
+                headerRow.createCell(5).setCellValue("Kích Cỡ Sản Phẩm");
                 headerRow.createCell(6).setCellValue("Màu Sắc Sản Phẩm");
                 headerRow.createCell(7).setCellValue("Tên Thương Hiệu");
                 headerRow.createCell(8).setCellValue("Chất Liệu");
                 headerRow.createCell(9).setCellValue("Xuất Xứ");
                 headerRow.createCell(10).setCellValue("Mã Sản Phẩm");
-                for (int i = 0; i < md.getRowCount(); i++) {
+                TableModel model = tbl_sanphamchitiet.getModel();
+                System.out.println("Số dòng: " + model.getRowCount());
+                System.out.println("Số cột: " + model.getColumnCount());
+                for (int i = 0; i < model.getRowCount(); i++) {
                     Row row = sheet.createRow(i + 1);
-                    for (int j = 0; j < md.getColumnCount(); j++) {
-                        Object cellValue = md.getValueAt(i, j);
+                    for (int j = 0; j < model.getColumnCount(); j++) {
+                        Object cellValue = model.getValueAt(i, j);
+                        System.out.println("Dòng " + (i + 1) + ", Cột " + (j + 1) + ": " + cellValue);
                         row.createCell(j).setCellValue(cellValue != null ? cellValue.toString() : "");
                     }
                 }
                 try (FileOutputStream outputStream = new FileOutputStream(fileToSave)) {
                     workbook.write(outputStream);
-                    JOptionPane.showMessageDialog(this, "Xuất Excel thành công!");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Lỗi: " + e.getMessage());
             }
         }
+
 
     }//GEN-LAST:event_btn_XuatFileActionPerformed
 
@@ -2446,7 +2448,7 @@ ls.addSanPhammm(getFomat());
 private String createQRCode(SanPhamEntity sanPham) {
     try {
         String maSanPham = String.valueOf(sanPham.getIdSanPham()); // Lấy mã sản phẩm
-        String filePath = "D:\\anh\\" + maSanPham + ".png";
+        String filePath = "D:\\" + maSanPham + ".png";
         
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
         BitMatrix bitMatrix = qrCodeWriter.encode(maSanPham, BarcodeFormat.QR_CODE, 200, 200);

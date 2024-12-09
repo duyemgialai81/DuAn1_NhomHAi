@@ -38,7 +38,7 @@ public class DonHangChiTietRepository {
             ct.setSoLuong(sc.getInt("so_luong")); // Cột chính xác là "so_luong"
             ct.setGiaBan(sc.getDouble("gia_ban"));
             ct.setTongTien(sc.getDouble("tongTien"));
-            ct.setTrangThai(sc.getString("trang_thai"));
+        ct.setTrangThai(sc.getString("trang_thai"));
             ls.add(ct);
         }
     } catch (Exception e) {
