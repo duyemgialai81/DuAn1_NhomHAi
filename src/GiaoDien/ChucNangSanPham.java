@@ -371,6 +371,7 @@ private void thuocTinhMauSac(){
         txt_ttspGiaban.setText(String.valueOf(sp.getGiaBan()));
         txt_ttspSoLuongTon.setText(String.valueOf(sp.getSoLuong()));
         txt_ttspTrangThai.setSelectedItem((String) sp.getTrangThai());
+        txt_addGiaNhap.setText(String.valueOf(sp.getGiaNhap()));
         String hinhAnhPath = sp.getHinhAnh();
         if (hinhAnhPath != null && !hinhAnhPath.isEmpty()) {
             ImageIcon icon = new ImageIcon(hinhAnhPath);
@@ -454,6 +455,7 @@ private void thuocTinhMauSac(){
         txt_addMau.setSelectedItem(sc.getMauSac());
         txt_addThuongHieu.setSelectedItem(sc.getTenThuongHieu());
         txt_addXuatXu.setSelectedItem(sc.getQuocGia());
+        txt_addGiaNhap.setText(String.valueOf(sc.getGiaNhap()));
         String hinhAnhPath = sc.getHinhAnh();
         if (hinhAnhPath != null && !hinhAnhPath.isEmpty()) {
             ImageIcon icon = new ImageIcon(hinhAnhPath);
@@ -1231,7 +1233,7 @@ private void timkiemThongTinSanPham() {
         });
 
         jLabel23.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel23.setText("Xuất Xứa");
+        jLabel23.setText("Xuất Xứ:");
 
         jLabel16.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel16.setText("Giá Nhập");
@@ -2380,6 +2382,20 @@ private String createQRCode(SanPhamEntity sanPham) {
         // TODO add your handling code here:
         thuocTinh.addLoaiSanPham(getLoaiSanPham());
         hienThiThuocTinhSanPham(thuocTinh.loaiSanPhaam());
+           thuocTinhLoaiSanPhamm();
+        thuocTinhKichCo();
+        thuocTinhChatLieu();
+        thuocTinhXuatXu();
+        thuocTinhXuatXu1();
+        thuocTinhMauSac();
+        thuocTinhThuongHieu();
+        thuocTinhThuongHieu1();
+        hienThiThuocTinhSanPham(thuocTinh.loaiSanPhaam());
+        hienThiThuocTinhXuatXu(thuocTinh.xuatXu());
+        hienThiDuLieuMauSac(thuocTinh.mauSac());
+        hienThiThuocTinhKichCo(thuocTinh.kichCo());
+        hienThiThuocTinhChatLieu(thuocTinh.chatLieu());
+        HienThiDuLieuThuongHieu(thuocTinh.thuogHieu());
     }//GEN-LAST:event_jButton2ActionPerformed
 private XuatXuEntity getFomatXuatXu(){
     XuatXuEntity xx = new XuatXuEntity();
@@ -2391,6 +2407,20 @@ private XuatXuEntity getFomatXuatXu(){
         // TODO add your handling code here:
         thuocTinh.addXuatXu(getFomatXuatXu());
         hienThiThuocTinhXuatXu(thuocTinh.xuatXu());
+           thuocTinhLoaiSanPhamm();
+        thuocTinhKichCo();
+        thuocTinhChatLieu();
+        thuocTinhXuatXu();
+        thuocTinhXuatXu1();
+        thuocTinhMauSac();
+        thuocTinhThuongHieu();
+        thuocTinhThuongHieu1();
+        hienThiThuocTinhSanPham(thuocTinh.loaiSanPhaam());
+        hienThiThuocTinhXuatXu(thuocTinh.xuatXu());
+        hienThiDuLieuMauSac(thuocTinh.mauSac());
+        hienThiThuocTinhKichCo(thuocTinh.kichCo());
+        hienThiThuocTinhChatLieu(thuocTinh.chatLieu());
+        HienThiDuLieuThuongHieu(thuocTinh.thuogHieu());
     }//GEN-LAST:event_jButton11ActionPerformed
 
     private void thuocTinhXuatXuMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_thuocTinhXuatXuMouseClicked
@@ -2403,6 +2433,20 @@ private XuatXuEntity getFomatXuatXu(){
         // TODO add your handling code here:
         thuocTinh.addXuatXu(getFomatXuatXu());
         hienThiThuocTinhXuatXu(thuocTinh.xuatXu());
+           thuocTinhLoaiSanPhamm();
+        thuocTinhKichCo();
+        thuocTinhChatLieu();
+        thuocTinhXuatXu();
+        thuocTinhXuatXu1();
+        thuocTinhMauSac();
+        thuocTinhThuongHieu();
+        thuocTinhThuongHieu1();
+        hienThiThuocTinhSanPham(thuocTinh.loaiSanPhaam());
+        hienThiThuocTinhXuatXu(thuocTinh.xuatXu());
+        hienThiDuLieuMauSac(thuocTinh.mauSac());
+        hienThiThuocTinhKichCo(thuocTinh.kichCo());
+        hienThiThuocTinhChatLieu(thuocTinh.chatLieu());
+        HienThiDuLieuThuongHieu(thuocTinh.thuogHieu());
     }//GEN-LAST:event_jButton15ActionPerformed
 
     private void thuocTinnhKichCoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_thuocTinnhKichCoMouseClicked
@@ -2422,6 +2466,20 @@ private ChatLieuEntity getFomatChatLieu(){
         // TODO add your handling code here:
         thuocTinh.addChatLieu(getFomatChatLieu());
         hienThiThuocTinhChatLieu(thuocTinh.chatLieu());
+           thuocTinhLoaiSanPhamm();
+        thuocTinhKichCo();
+        thuocTinhChatLieu();
+        thuocTinhXuatXu();
+        thuocTinhXuatXu1();
+        thuocTinhMauSac();
+        thuocTinhThuongHieu();
+        thuocTinhThuongHieu1();
+        hienThiThuocTinhSanPham(thuocTinh.loaiSanPhaam());
+        hienThiThuocTinhXuatXu(thuocTinh.xuatXu());
+        hienThiDuLieuMauSac(thuocTinh.mauSac());
+        hienThiThuocTinhKichCo(thuocTinh.kichCo());
+        hienThiThuocTinhChatLieu(thuocTinh.chatLieu());
+        HienThiDuLieuThuongHieu(thuocTinh.thuogHieu());
     }//GEN-LAST:event_jButton19ActionPerformed
 
     private void thuocTinhChatLieuMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_thuocTinhChatLieuMouseClicked
@@ -2440,6 +2498,20 @@ private ThuongHieuEntity getFoamTThuongHieu(){
     private void jButton23ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton23ActionPerformed
         // TODO add your handling code here:
         thuocTinh.addThuognHieu(getFoamTThuongHieu());
+        HienThiDuLieuThuongHieu(thuocTinh.thuogHieu());
+           thuocTinhLoaiSanPhamm();
+        thuocTinhKichCo();
+        thuocTinhChatLieu();
+        thuocTinhXuatXu();
+        thuocTinhXuatXu1();
+        thuocTinhMauSac();
+        thuocTinhThuongHieu();
+        thuocTinhThuongHieu1();
+        hienThiThuocTinhSanPham(thuocTinh.loaiSanPhaam());
+        hienThiThuocTinhXuatXu(thuocTinh.xuatXu());
+        hienThiDuLieuMauSac(thuocTinh.mauSac());
+        hienThiThuocTinhKichCo(thuocTinh.kichCo());
+        hienThiThuocTinhChatLieu(thuocTinh.chatLieu());
         HienThiDuLieuThuongHieu(thuocTinh.thuogHieu());
     }//GEN-LAST:event_jButton23ActionPerformed
 
@@ -2460,6 +2532,20 @@ private ThuongHieuEntity getFoamTThuongHieu(){
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
         thuocTinh.addMauSac(getFatMauSac());
         hienThiDuLieuMauSac(thuocTinh.mauSac());
+           thuocTinhLoaiSanPhamm();
+        thuocTinhKichCo();
+        thuocTinhChatLieu();
+        thuocTinhXuatXu();
+        thuocTinhXuatXu1();
+        thuocTinhMauSac();
+        thuocTinhThuongHieu();
+        thuocTinhThuongHieu1();
+        hienThiThuocTinhSanPham(thuocTinh.loaiSanPhaam());
+        hienThiThuocTinhXuatXu(thuocTinh.xuatXu());
+        hienThiDuLieuMauSac(thuocTinh.mauSac());
+        hienThiThuocTinhKichCo(thuocTinh.kichCo());
+        hienThiThuocTinhChatLieu(thuocTinh.chatLieu());
+        HienThiDuLieuThuongHieu(thuocTinh.thuogHieu());
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed

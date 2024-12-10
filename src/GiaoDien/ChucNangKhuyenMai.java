@@ -284,7 +284,7 @@ public void hienThiDuLieuLenTextFile(int index){
                 {null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "Gia Trị", "Ngày Bắt Đầu", "Ngày Kết Thúc", "Mô Tả", "Loại Giá Trị", "Chương Trình Khuyến Mại", "Trạng Thái", "Title 8"
+                "Gia Trị", "Ngày Bắt Đầu", "Ngày Kết Thúc", "Mô Tả", "Loại Giá Trị", "Chương Trình Khuyến Mại", "Trạng Thái", "Tên  khuyến Mãi"
             }
         ));
         tblkhuyenmai.addMouseListener(new java.awt.event.MouseAdapter() {

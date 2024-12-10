@@ -889,7 +889,7 @@
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Segoe UI" size="12" style="1"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="Xu&#x1ea5;t X&#x1ee9;a"/>
+                    <Property name="text" type="java.lang.String" value="Xu&#x1ea5;t X&#x1ee9;:"/>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JComboBox" name="txt_addDanhMuc">
